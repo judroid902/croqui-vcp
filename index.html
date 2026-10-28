@@ -20,7 +20,7 @@
   --paper:#FBFBF8; --grid-minor:#DFE5EB; --grid-major:#A7B4C2; --wall:#17212B; --dim:#5B6673;
   --room-fill:rgba(27,122,61,.06); --room-fill-sel:rgba(31,79,184,.12); --room-stroke:#1B7A3D; --sel:#1F4FB8; --note:#9A3D06;
   --c-varanda:#B54708; --c-calcada:#6B7280; --c-permeavel:#2E7D32; --c-piscina:#1A7FB5; --c-piso:#7A3FB8;
-  --ghost:#8C99A6; --ghost-fill:#CBD3DB; --esgoto:#4F8A0B; --dren:#B4239E;
+  --ghost:#8C99A6; --ghost-fill:#CBD3DB; --esgoto:#4F8A0B; --dren:#B4239E; --imp:#3F6E92;
   --scrim:rgba(10,15,20,.45); --shadow:0 8px 28px rgba(23,33,43,.18);
   --font:Roboto, "Segoe UI", system-ui, sans-serif; --mono:"Roboto Mono", Consolas, monospace;
 }
@@ -32,7 +32,7 @@
   --paper:#11181F; --grid-minor:#1D2731; --grid-major:#364553; --wall:#E7ECF1; --dim:#9DA9B6;
   --room-fill:rgba(92,196,135,.07); --room-fill-sel:rgba(134,169,245,.16); --room-stroke:#5CC487; --sel:#86A9F5; --note:#F2A15F;
   --c-varanda:#F2A15F; --c-calcada:#A3ACB8; --c-permeavel:#6FCF87; --c-piscina:#5BB8F0; --c-piso:#C39BF5;
-  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9;
+  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9; --imp:#8DB7D8;
   --scrim:rgba(0,0,0,.6); --shadow:0 8px 28px rgba(0,0,0,.5); color-scheme:dark } }
 :root[data-theme="dark"] {
   --top-bg:#0A0F14; --top-pill:#1C2733; --top-fg:#FFFFFF; --top-muted:#9DA9B6; --top-on-bg:#E7ECF1; --top-on-fg:#0A0F14;
@@ -42,7 +42,7 @@
   --paper:#11181F; --grid-minor:#1D2731; --grid-major:#364553; --wall:#E7ECF1; --dim:#9DA9B6;
   --room-fill:rgba(92,196,135,.07); --room-fill-sel:rgba(134,169,245,.16); --room-stroke:#5CC487; --sel:#86A9F5; --note:#F2A15F;
   --c-varanda:#F2A15F; --c-calcada:#A3ACB8; --c-permeavel:#6FCF87; --c-piscina:#5BB8F0; --c-piso:#C39BF5;
-  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9;
+  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9; --imp:#8DB7D8;
   --scrim:rgba(0,0,0,.6); --shadow:0 8px 28px rgba(0,0,0,.5); color-scheme:dark }
 
 * { box-sizing:border-box; }
@@ -394,6 +394,7 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
       <div class="bl">
         <div class="notice" id="notice" hidden><span><b>Exemplo</b> para testar. Pode ser excluído na lista de croquis.</span></div>
         <div class="notice info" id="refNote" hidden></div>
+        <div class="notice info" id="bgNote" hidden></div>
         <div class="scale" id="scale"><i id="scaleBar"></i><span id="scaleTxt">1 m</span><span>· grade 0,5 m</span></div>
       </div>
       <div class="zoom">
@@ -420,6 +421,7 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
   <div class="home-body"><div class="home-wrap">
     <div class="home-head"><h1 id="hTitle">Meus croquis</h1>
       <button class="btn" id="hExample">Criar exemplo</button>
+      <button class="btn" id="hImport"><svg class="i" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M5 20h14"/></svg>Importar desenho</button>
       <button class="btn primary" id="hNew"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Novo croqui</button></div>
     <div class="home-tools"><input class="txt" id="hSearch" type="search" placeholder="Buscar por nº da ficha, descrição ou desenhista" autocomplete="off">
       <div class="seg" id="hFilter" hidden><button data-hf="meus" class="on">Meus</button><button data-hf="todos">Todos</button></div></div>
@@ -430,6 +432,7 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
 <div class="menu" id="menu" hidden>
   <button data-m="dados">Dados do croqui</button>
   <button data-m="north">Norte do desenho</button>
+  <button data-m="import">Importar desenho neste pavimento</button>
   <button data-m="save">Salvar agora</button>
   <button data-m="help">Como usar</button>
   <button data-m="theme">Tema claro / escuro</button>
@@ -442,6 +445,8 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
 <div class="toast" id="toast" hidden></div>
 <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
 <input type="file" id="galIn" accept="image/*" multiple hidden>
+<!-- sem filtro de tipo: o Android esconde arquivos .dxf quando a lista de tipos não os reconhece -->
+<input type="file" id="impIn" hidden>
 
 <script>
 'use strict';
@@ -657,7 +662,7 @@ let me = null, cur = null, dirty = false;
 const cam = { ox: 0, oy: 0, z: 70 };
 const undoStack = [], redoStack = [];
 const F = () => doc.floors[doc.cur];
-const newFloor = name => ({ id: uid(), name, v: {}, walls: [], ops: [], rooms: [], notes: [], cols: [], hid: { n: {}, p: [] } });
+const newFloor = name => ({ id: uid(), name, v: {}, walls: [], ops: [], rooms: [], notes: [], cols: [], hid: { n: {}, p: [] }, lines: [], bg: null });
 const pad2 = n => String(n).padStart(2, '0');
 const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
 const brDate = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : ''; };
@@ -668,7 +673,7 @@ function migrate(d) {
   if (d.showUnder == null) d.showUnder = true;
   if (d.north === undefined) d.north = null;
   for (const f of d.floors) {
-    f.cols = f.cols || []; f.notes = f.notes || []; f.ops = f.ops || []; f.hid = f.hid || { n: {}, p: [] };
+    f.cols = f.cols || []; f.notes = f.notes || []; f.ops = f.ops || []; f.hid = f.hid || { n: {}, p: [] }; f.lines = f.lines || []; if (f.bg === undefined) f.bg = null;
     for (const w of f.walls) { if (!w.th) w.th = TH; if (!w.type) w.type = 'ceramico'; }
     for (const o of f.ops) o.kind = opKind(o);
     for (const r of f.rooms) { r.cat = r.cat || 'interno'; r.fin = r.fin || {}; r.photos = r.photos || []; if (r.pd == null) r.pd = d.pd || 2.6; }
@@ -873,6 +878,8 @@ function bounds(f) {
   const xs = [], ys = [], add = p => { xs.push(p.x); ys.push(p.y); };
   Object.values(f.v).forEach(add);
   f.notes.forEach(add);
+  (f.lines || []).forEach(l => l.pts.forEach(add));
+  if (f.bg) bgCorners(f.bg).forEach(add);
   (f.cols || []).forEach(c => { const r = Math.max(c.b, c.h || c.b) / 2; add({ x: c.x - r, y: c.y - r }); add({ x: c.x + r, y: c.y + r }); });
   f.walls.forEach(w => { if (w.s && f.v[w.a] && f.v[w.b]) add(arcInfo(f.v[w.a], f.v[w.b], w.s).apex); });
   f.rooms.forEach(r => { if (r.bul && r.bul.some(Boolean)) roomPts(f, r).forEach(add); });
@@ -1076,6 +1083,45 @@ function hidLabels(f) {
 const hasHid = f => !!(f.hid && (f.hid.p.length || Object.keys(f.hid.n).length));
 const newDevItem = k => Object.assign({ k }, DEV[k].b ? { b: DEV[k].b } : {}, DEV[k].h ? { h: DEV[k].h } : {});
 
+/* ================= desenho importado: linhas (DXF) e fundo (PNG/PDF) ================= */
+// f.lines = [{ id, ly, pts, closed }]: linhas do DXF que não viraram parede (dá para excluir ou transformar em parede)
+// f.bg = { id, name, w, h (px), x, y (canto de cima à esquerda, m), s (m por px), rot (rad), op, show }: imagem de fundo em escala
+function bgPt(b, u, v) { const c = Math.cos(b.rot || 0), s = Math.sin(b.rot || 0); return { x: b.x + (u * c - v * s) * b.s, y: b.y + (u * s + v * c) * b.s }; }
+const bgCorners = b => [[0, 0], [b.w, 0], [b.w, b.h], [0, b.h]].map(([u, v]) => bgPt(b, u, v));
+const bgImgs = {};
+// a imagem fica guardada no aparelho (junto das fotos); carrega uma vez e redesenha quando estiver pronta
+function bgImage(id) {
+  if (bgImgs[id]) return bgImgs[id].ok ? bgImgs[id].img : null;
+  const e = bgImgs[id] = { img: new Image(), ok: false, done: false };
+  Promise.resolve(idb.get(id)).then(v => {
+    if (!v) { e.done = true; return; }
+    e.img.onload = () => { e.ok = e.done = true; render(); }; e.img.onerror = () => { e.done = true; };
+    e.img.src = URL.createObjectURL(v.blob);
+  }).catch(() => { e.done = true; });
+  return null;
+}
+async function bgReady(f) {
+  if (!f.bg) return;
+  bgImage(f.bg.id); const e = bgImgs[f.bg.id];
+  for (let i = 0; i < 200 && !e.done; i++) await new Promise(r => setTimeout(r, 50));
+}
+function drawBg(c, f, X, Y, z) {
+  const b = f.bg; if (!b || b.show === false) return;
+  const img = bgImage(b.id); if (!img) return;
+  c.save(); c.globalAlpha = b.op ?? .5; c.translate(X(b.x), Y(b.y)); c.rotate(b.rot || 0); c.scale(b.s * z, b.s * z); c.drawImage(img, 0, 0); c.restore();
+}
+function drawLines(c, f, X, Y, fs, P, isSel, col) {
+  if (!f.lines || !f.lines.length) return;
+  c.lineJoin = 'round';
+  for (const l of f.lines) {
+    const on = isSel && isSel('line', l.id);
+    c.strokeStyle = on ? P.sel : col || P.imp; c.lineWidth = (on ? 2.6 : 1.3) * fs;
+    c.beginPath(); l.pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); if (l.closed) c.closePath(); c.stroke();
+  }
+}
+const lineSegs = l => l.pts.slice(0, -1).map((p, i) => [p, l.pts[i + 1]]).concat(l.closed && l.pts.length > 2 ? [[l.pts[l.pts.length - 1], l.pts[0]]] : []);
+const lineLen = l => lineSegs(l).reduce((s, [a, b]) => s + dist(a, b), 0);
+
 /* ================= tela / câmera ================= */
 const cv = $('#cv'), ctx = cv.getContext('2d'), stage = $('#stage');
 let VW = 0, VH = 0;
@@ -1115,7 +1161,7 @@ const underFloor = () => doc.showUnder ? refFloor() : null;
 const LIGHT = { paper: '#FFFFFF', gridMinor: '#E3E8EE', gridMajor: '#B4C0CC', wall: '#17212B', dim: '#5B6673', measured: '#1F4FB8',
   note: '#9A3D06', roomFill: 'rgba(27,122,61,.05)', roomFillSel: 'rgba(27,122,61,.05)', roomStroke: '#1B7A3D', sel: '#1F4FB8', text: '#17212B',
   varanda: '#B54708', calcada: '#6B7280', permeavel: '#2E7D32', piscina: '#1A7FB5', piso: '#7A3FB8', ghost: '#8C99A6', ghostFill: '#CBD3DB',
-  esgoto: '#4F8A0B', dren: '#B4239E' };
+  esgoto: '#4F8A0B', dren: '#B4239E', imp: '#3F6E92' };
 let PAL = LIGHT;
 function readPalette() {
   const cs = getComputedStyle(document.documentElement), g = n => cs.getPropertyValue(n).trim();
@@ -1123,7 +1169,7 @@ function readPalette() {
     measured: g('--blue'), note: g('--note'), roomFill: g('--room-fill'), roomFillSel: g('--room-fill-sel'),
     roomStroke: g('--room-stroke'), sel: g('--sel'), text: g('--fg'), varanda: g('--c-varanda'), calcada: g('--c-calcada'),
     permeavel: g('--c-permeavel'), piscina: g('--c-piscina'), piso: g('--c-piso'), ghost: g('--ghost'), ghostFill: g('--ghost-fill'),
-    esgoto: g('--esgoto'), dren: g('--dren') };
+    esgoto: g('--esgoto'), dren: g('--dren'), imp: g('--imp') };
   render();
 }
 
@@ -1229,6 +1275,7 @@ function drawGhost(c, V, P, f) {
     c.setLineDash([4, 4]); c.strokeStyle = P.ghost; c.lineWidth = 1; c.stroke(regionPath(p, X, Y));
   }
   c.setLineDash([]);
+  drawLines(c, f, X, Y, 1, P, null, P.ghost);
   drawWalls(c, f, X, Y, P, { color: P.ghostFill, ghost: true });
   for (const cl of f.cols || []) drawCol(c, cl, X, Y, z, P.ghostFill, P.paper, 1);
   if (z >= 40) for (const r of f.rooms) { const i = roomInfo(f, r); if (i.c) text(c, roomName(f, r), X(i.c.x), Y(i.c.y) + 26, { font: `italic 500 12px ${FONT}`, color: P.ghost }); }
@@ -1240,6 +1287,7 @@ function drawScene(c, V, P, M) {
   const isSel = (type, id) => M.sel && M.sel.type === type && M.sel.id === id;
   GA = 1; c.globalAlpha = 1;
   c.fillStyle = P.paper; c.fillRect(0, 0, V.W, V.H);
+  if (!M.noBg) drawBg(c, f, X, Y, z);
   if (M.grid !== false) drawGrid(c, V, P);
   if (M.under) drawGhost(c, V, P, M.under);
   const cen = floorCenter(f);
@@ -1249,6 +1297,9 @@ function drawScene(c, V, P, M) {
   // regiões (ambientes, varandas, áreas externas, piscina, áreas de piso), em camadas
   const order = ['permeavel', 'calcada', 'varanda', 'interno', 'piscina', 'piso'];
   for (const r of f.rooms.slice().sort((a, b) => order.indexOf(a.cat) - order.indexOf(b.cat))) drawRegion(c, f, r, X, Y, z, fs, P, isSel('room', r.id));
+
+  // linhas trazidas do DXF (por baixo das paredes desenhadas por cima delas)
+  drawLines(c, f, X, Y, fs, P, isSel);
 
   // paredes com espessura, com vãos onde há portas/janelas
   drawWalls(c, f, X, Y, P, { sel: M.sel && M.sel.type === 'wall' ? M.sel.id : null, fs, fin: M.fin });
@@ -1470,6 +1521,11 @@ function drawOverlay(c) {
   };
   const line = (pts, col, w, dash) => { c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); c.stroke(); c.setLineDash([]); };
 
+  if (tool === 'calib' && calib) {
+    if (calib.pts.length === 2) line(calib.pts, P.sel, 2.5, [8, 6]);
+    calib.pts.forEach(q => { dot(q, 9, null, P.sel, 2.5); dot(q, 2.5, P.sel); });
+    return;
+  }
   if (!isDraw()) {
     if (tool === 'elementos' && hover) dot(hover, 8, null, P.sel, 2.5);
     return;
@@ -1549,6 +1605,8 @@ function snap(sp, o = {}) {
   const f = F(), z = cam.z, w = toWorld(sp), U = underFloor(), pool = [];
   for (const id in f.v) if (id !== o.exclude) pool.push(f.v[id]);
   if (U) for (const id in U.v) pool.push(U.v[id]);
+  // cantos das linhas importadas também servem de encaixe (para passar paredes por cima delas)
+  for (const l of f.lines || []) pool.push(...l.pts);
   if (!o.noVertex) {
     let best = null, bd = 22;
     for (const v of pool) { const d = dist(v, w) * z; if (d < bd) { bd = d; best = { x: v.x, y: v.y }; } }
@@ -1565,9 +1623,10 @@ function snap(sp, o = {}) {
   let p = { x, y, ax, ay };
   if (!o.noWall) {
     let bw = null, bd = 12;
-    for (const wl of f.walls) { if (wl.s) continue; const d = projSeg(w, f.v[wl.a], f.v[wl.b]).d * z; if (d < bd) { bd = d; bw = wl; } }
+    for (const wl of f.walls) { if (wl.s) continue; const d = projSeg(w, f.v[wl.a], f.v[wl.b]).d * z; if (d < bd) { bd = d; bw = [f.v[wl.a], f.v[wl.b]]; } }
+    for (const l of f.lines || []) for (const sg of lineSegs(l)) { const d = projSeg(w, sg[0], sg[1]).d * z; if (d < bd) { bd = d; bw = sg; } }
     if (bw) {
-      const q = projSeg(p, f.v[bw.a], f.v[bw.b]);
+      const q = projSeg(p, bw[0], bw[1]);
       if (q.d > 1e-4 && q.d < 0.3 && q.t > 0 && q.t < 1) p = { x: q.x, y: q.y };
     }
   }
@@ -1697,6 +1756,7 @@ function hitTest(p, o = {}) {
   for (const r of [...f.rooms].reverse()) { const c = roomInfo(f, r).c; if (c && Math.abs(c.x - w.x) * z < 60 && Math.abs(c.y - w.y) * z < 26) return { type: 'room', id: r.id }; }
   const bw = nearestWall(f, w, Math.max(16, 8 + Math.max(0, ...f.walls.map(x => wth(x))) * z / 2));
   if (bw) return { type: 'wall', id: bw.id };
+  for (const l of f.lines || []) if (lineSegs(l).some(([a, b]) => projSeg(w, a, b).d * z < 12)) return { type: 'line', id: l.id };
   const r = roomAt(f, w); if (r) return { type: 'room', id: r.id };
   return null;
 }
@@ -1832,7 +1892,9 @@ function onTap(p, hit) {
     else if (hit.type === 'room') openRoomSheet(hit.id);
     else if (hit.type === 'note') openNoteSheet(hit.id);
     else if (hit.type === 'col') openColSheet(hit.id);
-  } else if (tool === 'esquadria') insertOpNear(opSel, w);
+    else if (hit.type === 'line') openLineSheet(hit.id);
+  } else if (tool === 'calib') calibTap(w);
+  else if (tool === 'esquadria') insertOpNear(opSel, w);
   else if (tool === 'hidro') hidTap(p, hit);
   else if (tool === 'nota') openNoteSheet(null, w);
   else if (tool === 'elementos') {
@@ -2290,6 +2352,30 @@ function openColSheet(id, isNew) {
   });
 }
 
+/* ---------- linha importada do DXF ---------- */
+function linesToWalls(ls) {
+  const f = F();
+  for (const l of ls) for (const [a, b] of lineSegs(l)) if (dist(a, b) > 0.01) addWall(a, b);
+  f.lines = f.lines.filter(x => !ls.includes(x));
+}
+function openLineSheet(id) {
+  const f = F(), l = f.lines.find(x => x.id === id); if (!l) return;
+  sel = { type: 'line', id };
+  const lay = f.lines.filter(x => x.ly === l.ly), n = lay.length;
+  openSheet({
+    kind: 'line', id, title: 'Linha importada', sub: `Camada ${l.ly || '0'} · ${fmt(lineLen(l))} m · ${lineSegs(l).length} trecho${lineSegs(l).length > 1 ? 's' : ''}`,
+    body: `<span class="small muted">Veio do DXF. Pode virar parede (no tipo escolhido em Parede, com 15 cm) ou ser excluída. Os cantos dela servem de encaixe para desenhar por cima.</span>
+      <div class="row"><button class="btn sm primary" data-act="wall">Transformar em parede</button>${n > 1 ? `<button class="btn sm" data-act="wallAll">Camada inteira vira parede (${n})</button>` : ''}</div>
+      <div class="row"><span class="grow"></span><button class="btn sm danger" data-act="del">Excluir linha</button>${n > 1 ? `<button class="btn sm danger" data-act="delAll">Excluir a camada (${n})</button>` : ''}</div>`,
+    on: {
+      wall() { touch(); linesToWalls([l]); save(); closeSheet(); },
+      wallAll() { touch(); linesToWalls(lay); save(); closeSheet(); toast(`${n} linhas da camada ${l.ly} viraram paredes.`); },
+      del() { touch(); f.lines = f.lines.filter(x => x !== l); save(); closeSheet(); },
+      delAll() { touch(); f.lines = f.lines.filter(x => x.ly !== l.ly); save(); closeSheet(); toast(`Camada ${l.ly} excluída.`); }
+    }
+  });
+}
+
 /* ---------- hidrossanitário: tubo, conexão/caixa e ponto de contribuição ---------- */
 function openPipeSheet(id) {
   const f = F(), p = f.hid.p.find(x => x.id === id); if (!p) return;
@@ -2477,8 +2563,12 @@ function openFloorSheet(i) {
           ${others.map(o => `<button class="chip${refOn(o.id) ? ' on' : ''}" data-act="ref" data-v="${o.id}">${esc(o.name)}</button>`).join('')}
           <button class="chip${refOn('none') ? ' on' : ''}" data-act="ref" data-v="none">Nenhuma</button></div>
         <span class="small muted">O pavimento de referência aparece em cinza por baixo, sem poder ser alterado, e os cantos dele servem de encaixe.</span></div>` : ''}
+      ${bgControls(fl)}
+      <div class="row"><button class="btn sm" data-act="imp">Importar desenho (DXF, PDF, imagem)</button></div>
       <div class="row"><button class="btn primary grow" data-close>Pronto</button>${doc.floors.length > 1 ? '<button class="btn danger" data-act="del">Excluir pavimento</button>' : ''}</div>`,
     on: {
+      ...bgActs(fl),
+      imp() { pickImport('floor'); },
       pick(el) { touch(); fl.name = el.dataset.v; $('#fName').value = fl.name; save(); renderFloors(); },
       ref(el) { touch(); if (el.dataset.v) fl.ref = el.dataset.v; else delete fl.ref; doc.showUnder = true; markChips('ref', el.dataset.v); save(); refresh(); },
       del() { touch(); doc.floors.splice(i, 1); doc.cur = 0; save(); closeSheet(); renderFloors(); fit(); }
@@ -2587,7 +2677,8 @@ function photoNumbers() {
 // apaga do aparelho as fotos que não pertencem mais a nenhum croqui salvo nem a rascunho
 async function photoGC() {
   try {
-    const used = new Set(), scan = d => d && d.floors && d.floors.forEach(f => f.rooms.forEach(r => (r.photos || []).forEach(p => used.add(p.id))));
+    // as imagens de fundo importadas também ficam nesse banco
+    const used = new Set(), scan = d => d && d.floors && d.floors.forEach(f => { if (f.bg) used.add(f.bg.id); f.rooms.forEach(r => (r.photos || []).forEach(p => used.add(p.id))); });
     (await CRO.all() || []).forEach(r => scan(r && r.doc)); scan(doc);
     for (const k of (await idb.keys()) || []) if (!used.has(k)) idb.del(k);
   } catch (e) {}
@@ -2689,7 +2780,8 @@ $('#hbar').addEventListener('click', e => {
 function setTool(t) {
   if (tool === t) return;
   tool = t; chain = null; amb = null; pend = null; hchain = null; hover = null;
-  if (S && !(t === 'editar' && ['wall', 'op', 'room', 'note', 'col'].includes(S.kind))) closeSheet();
+  if (t !== 'calib') calib = null;
+  if (S && !(t === 'editar' && ['wall', 'op', 'room', 'note', 'col', 'line'].includes(S.kind))) closeSheet();
   refresh();
 }
 function hintHTML() {
@@ -2707,6 +2799,7 @@ function hintHTML() {
       : acabMode === 'area' ? '<b>Área de piso:</b> contorne a parte do piso com acabamento diferente (pelas paredes ou pelos cantos).' + two
       : '<b>Toque dentro de um ambiente</b> para definir piso, parede e teto.' + two;
     case 'nota': return '<b>Toque onde quer escrever</b> uma observação.' + two;
+    case 'calib': return `<b>Calibrar o fundo:</b> toque no ${calib && calib.pts.length ? 'fim' : 'início'} de uma medida que você conhece (por exemplo, uma parede cotada). Aproxime com dois dedos para acertar o ponto.`;
     case 'hidro': {
       const s = `<b>${esc(SYS[hidSys].n)} ·</b> `;
       if (hidTool === 'tubo') return s + 'toque ponto a ponto para traçar o tubo, no sentido do fluxo. Ele encaixa nos pontos e sobre outros tubos.' + two;
@@ -2735,7 +2828,12 @@ function updateUI() {
       (tool === 'hidro' && hchain ? '<button class="btn primary shadow" data-c="end">Concluir tubo</button>' : '') +
       (region && has ? `<button class="btn primary shadow" data-c="afin" ${canClose ? '' : 'disabled'}>Fechar área</button><button class="btn shadow" data-c="acancel">Cancelar</button>` : '');
     cb.hidden = !cb.innerHTML;
-  } else cb.hidden = true;
+  } else if (tool === 'calib') { cb.innerHTML = '<button class="btn shadow" data-c="ccancel">Cancelar calibração</button>'; cb.hidden = false; }
+  else cb.hidden = true;
+  const bg = F().bg, bn = $('#bgNote');
+  bn.hidden = !bg || tool === 'calib';
+  if (bg) bn.innerHTML = `<span>Fundo: <b>${esc(bg.name.length > 28 ? bg.name.slice(0, 26) + '…' : bg.name)}</b>${bg.cal ? '' : ' (sem calibrar)'}</span>
+    <button class="btn sm" data-bgn="show">${bg.show === false ? 'Mostrar' : 'Ocultar'}</button><button class="btn sm" data-bgn="adj">Ajustar</button>`;
   requestAnimationFrame(() => stage.style.setProperty('--chain-top', ($('#hint').hidden ? 12 : $('#hint').offsetHeight + 22) + 'px'));
   $('#bUndo').disabled = !undoStack.length; $('#bRedo').disabled = !redoStack.length;
   $('#bSave').classList.toggle('dirty', dirty);
@@ -2749,12 +2847,17 @@ function updateUI() {
     : `<span><b>${esc(u.name)}</b> oculto</span><button class="btn sm" data-u="1">Mostrar por baixo</button>`;
   $('#subTitle').textContent = doc.example ? `Exemplo · ${me ? me.nome : ''}` : `${doc.ficha ? 'Ficha nº ' + doc.ficha : 'Sem nº de ficha'} · ${me ? me.nome : brDate(doc.data)}`;
 }
+$('#bgNote').addEventListener('click', e => {
+  const b = e.target.closest('[data-bgn]'), f = F(); if (!b || !f.bg) return;
+  if (b.dataset.bgn === 'show') { f.bg.show = f.bg.show === false; save(); refresh(); } else openFloorSheet(doc.cur);
+});
 $('#refNote').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; doc.showUnder = b.dataset.u === '1'; save(); refresh(); });
 $('#chainbar').addEventListener('click', e => {
   const c = e.target.closest('[data-c]'); if (!c) return;
   const k = c.dataset.c;
   if (k === 'reta' || k === 'curva') { curve = k === 'curva'; pend = null; refresh(); return; }
   if (k === 'diam') { hidDiam[hidSys] = +c.dataset.v; refresh(); return; }
+  if (k === 'ccancel') { calib = null; setTool('editar'); return; }
   if (k === 'back') {
     if (pend) pend = null;
     else if (tool === 'parede' || tool === 'hidro') { chainBack(); return; }
@@ -2904,6 +3007,7 @@ function showHelp() {
       <li><b>Ambiente:</b> toque numa parede do ambiente e o app sugere o contorno pelas paredes (toque em Fechar área), ou toque nos cantos, um a um. Varanda, calçamento, área permeável e piscina ficam na mesma lista.</li>
       <li><b>Acabamentos:</b> piso, parede e teto do ambiente, de uma parede só ou de uma área de piso. Na parede, use + Faixa acima para, por exemplo, cerâmica até 1,50 m e pintura até o teto.</li>
       <li><b>Hidrossanitário:</b> escolha Esgoto (verde) ou Drenagem (roxo). Na barra de baixo: Tubulação (no sentido do fluxo, com o diâmetro), Caixas e conexões (toque num encontro de tubos para ver o que pode existir ali), Ponto de contribuição (banheiro, cozinha…) e Selecionar. Fechar volta ao desenho normal.</li>
+      <li><b>Desenho pronto:</b> na lista de croquis, Importar desenho (ou no menu ⋮ do desenho). DXF: as linhas vêm editáveis (excluir ou transformar em parede) e os textos viram notas. PDF e imagem: ficam de fundo em escala; marque uma medida conhecida para calibrar e desenhe por cima. O JSON exportado pelo app volta completo.</li>
       <li><b>Fotos:</b> no painel do ambiente, Tirar foto ou Da galeria. Elas saem só no PDF.</li>
       <li><b>Exportar:</b> PNG para a ficha, PDF com croqui, tabela e fotos, DXF para o CAD e JSON com os dados.</li>
     </ol>
@@ -2917,7 +3021,7 @@ $('#bMenu').addEventListener('click', e => { e.stopPropagation(); $('#menu').hid
 $('#menu').addEventListener('click', e => {
   const m = e.target.closest('[data-m]'); if (!m) return; closeMenu();
   const k = m.dataset.m;
-  if (k === 'dados') openDados(); else if (k === 'north') openNorthSheet(); else if (k === 'save') saveCroqui();
+  if (k === 'dados') openDados(); else if (k === 'north') openNorthSheet(); else if (k === 'save') saveCroqui(); else if (k === 'import') pickImport('floor');
   else if (k === 'theme') $('#bTheme').click(); else if (k === 'home') leaveDrawing(showHome); else if (k === 'user') leaveDrawing(() => logout());
   else if (k === 'clear') confirmClear(); else showHelp();
 });
@@ -2944,7 +3048,8 @@ const northAfter = k => doc.north == null ? null : doc.north - 90 * k;
 function rotFloor(f, k) {
   if (!k) return f;
   const g = JSON.parse(JSON.stringify(f)), R = p => { for (let i = 0; i < k; i++) { const x = p.x; p.x = p.y; p.y = -x; } };
-  Object.values(g.v).forEach(R); g.notes.forEach(R); Object.values(g.hid.n).forEach(R);
+  Object.values(g.v).forEach(R); g.notes.forEach(R); Object.values(g.hid.n).forEach(R); (g.lines || []).forEach(l => l.pts.forEach(R));
+  if (g.bg) { R(g.bg); g.bg.rot = (g.bg.rot || 0) - k * Math.PI / 2; }
   g.cols.forEach(c => { R(c); c.rot = (((c.rot || 0) - 90 * k) % 360 + 360) % 360; });
   // caixas retangulares (fossa, cisterna…) trocam de em pé para deitado a cada quarto de volta
   if (k % 2) Object.values(g.hid.n).forEach(n => { if (n.item && DEV[n.item.k] && DEV[n.item.k].sh === 'rect') n.item.rot = n.item.rot ? 0 : 90; });
@@ -2960,7 +3065,7 @@ function drawNorthArrow(c, x, y, r, ang, col) {
   text(c, 'N', x + Math.sin(t) * (r + r * .45), y - Math.cos(t) * (r + r * .45), { font: `700 ${r * .6}px ${FONT}`, color: col });
 }
 function exOpts() {
-  return { grid: $('#exGrid').checked, k: $('#exNorth') && $('#exNorth').checked ? northTurns() : 0, hid: !$('#exHid') || $('#exHid').checked };
+  return { grid: $('#exGrid').checked, k: $('#exNorth') && $('#exNorth').checked ? northTurns() : 0, hid: !$('#exHid') || $('#exHid').checked, bg: !!$('#exBg') && $('#exBg').checked };
 }
 
 // desenho do pavimento num quadro de W×H px, sem carimbo
@@ -2978,7 +3083,7 @@ function renderPNG(o) {
   const W = Math.round(bw * z), Hd = Math.round(bh * z), foot = Math.round(88 * fs), H = Hd + foot;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
-  drawScene(x, { ox: (1.2 - b.x0) * z, oy: (1.2 - b.y0) * z, z, W, H: Hd }, LIGHT, { floor: f, grid: o.grid, fs, noHid: !o.hid });
+  drawScene(x, { ox: (1.2 - b.x0) * z, oy: (1.2 - b.y0) * z, z, W, H: Hd }, LIGHT, { floor: f, grid: o.grid, fs, noHid: !o.hid, noBg: !o.bg });
   x.fillStyle = '#FFFFFF'; x.fillRect(0, Hd, W, foot);
   x.fillStyle = '#17212B'; x.fillRect(0, Hd, W, 2 * fs);
   text(x, fichaLine(), 16 * fs, Hd + 22 * fs, { font: `700 ${15 * fs}px ${FONT}`, color: '#17212B', align: 'left' });
@@ -3083,6 +3188,8 @@ function buildDXF(o = { k: 0, hid: true }) {
     txt('PILARES', 1, { x: cl.x + r + 0.25, y: cl.y - r - 0.1 }, 0.1, `${colLabel(cl, k)} ${colDims(cl)} ${(cl.mat || '').toUpperCase()}`);
   });
   for (const nt of f.notes) txt('TEXTOS', 1, nt, 0.12, nt.text);
+  // linhas trazidas de outro DXF voltam nas camadas de origem (com o prefixo IMPORT-)
+  for (const l of f.lines || []) for (const [a, b] of lineSegs(l)) line('IMPORT-' + String(l.ly || '0').replace(/[^\w$-]/g, '_'), 8, a, b);
   // instalações hidrossanitárias: tubos e dispositivos em camadas por sistema
   if (o.hid && hasHid(f)) {
     const H = f.hid, lbl = hidLabels(f), circ = (ly, col, p, r) => add(0, 'CIRCLE', 8, ly, 62, col, 10, n(p.x), 20, n(-p.y), 30, 0, 40, n(r));
@@ -3243,7 +3350,8 @@ async function buildPDF(o) {
   for (const f of floors) {
     const P = pdfPage(841.89, 595.28), ax = 28, ay = 66, aw = P.w - 56, ah = P.h - 66 - 48, k = 3;
     head(P, `Croqui — ${f.name}`, [doc.title, autorLine(), areaLine(f)].filter(Boolean).join(' · '));
-    const img = renderFloor(rotFloor(f, o.k), Math.round(aw * k), Math.round(ah * k), o.grid, { fs: k * 0.72, photos: nums.lbl, noHid: !o.hid });
+    if (o.bg) await bgReady(f);
+    const img = renderFloor(rotFloor(f, o.k), Math.round(aw * k), Math.round(ah * k), o.grid, { fs: k * 0.72, photos: nums.lbl, noHid: !o.hid, noBg: !o.bg });
     P.image(await canvasJPEG(img.canvas), img.canvas.width, img.canvas.height, ax, ay, aw, ah);
     P.box(ax, ay, aw, ah, .5, '#B4C0CC');
     const m = img.z / k;
@@ -3365,6 +3473,7 @@ function openExport() {
     ${doc.north == null ? '<p class="small muted" style="margin:0">Norte não indicado: o desenho sai na mesma posição da tela. Toque em Indicar o norte (acima) para poder girá-lo.</p>'
       : `<label class="row small"><input type="checkbox" id="exNorth" checked> Norte para cima${k ? ` (o desenho gira ${k * 90}° no sentido anti-horário)` : ' (o desenho já está nessa posição)'}. Desmarcado: sai como está na tela.</label>`}
     ${anyHid ? '<label class="row small"><input type="checkbox" id="exHid" checked> Incluir as instalações hidrossanitárias (esgoto e drenagem)</label>' : ''}
+    ${doc.floors.some(f => f.bg) ? '<label class="row small"><input type="checkbox" id="exBg" checked> Incluir o desenho de fundo importado (PNG e PDF; o DXF leva só as linhas)</label>' : ''}
     <div class="ex-opts">
       <button class="ex-opt" data-mact="png"><b>Imagem PNG</b><span>Pavimento ${esc(F().name)}, com carimbo. Sem fotos.</span></button>
       <button class="ex-opt" data-mact="pdf"><b>PDF</b><span>Todos os pavimentos, tabela de ambientes e acabamentos${nPh ? ` e as ${nPh} fotos identificadas` : ''}.</span></button>
@@ -3374,8 +3483,9 @@ function openExport() {
     <div class="ex-out" id="exOut"></div>
     <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Fechar</button></div>`, {
     north() { closeModal(); openNorthSheet(); },
-    png() {
-      const c = renderPNG(exOpts()), url = c.toDataURL('image/png');
+    async png() {
+      const o = exOpts(); if (o.bg) await bgReady(F());
+      const c = renderPNG(o), url = c.toDataURL('image/png');
       c.toBlob(b => { if (!b) return; deliver(fileBase() + '.png', b); $('#exBtns').innerHTML = fileButtons(); }, 'image/png');
       $('#exOut').innerHTML = `<p class="small muted" style="margin:0">Se o download não começar, toque e segure na imagem para salvar.</p><div id="exBtns"></div><img alt="Croqui exportado" src="${url}">`;
     },
@@ -3486,7 +3596,334 @@ $('#bTheme').addEventListener('click', () => {
 try { const t = localStorage.getItem(THEME_KEY); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
 themeIcon();
 
-/* ================= usuários (PIN), sessão e croquis salvos ================= */
+/* ================= importar desenho externo (DXF, PDF, PNG/JPG, JSON do app) ================= */
+// DXF: as linhas viram linhas editáveis ou paredes, os textos viram notas.
+// PDF e imagens: ficam como desenho de fundo em escala, para desenhar por cima (são imagem, não dá para editar o traço).
+// JSON exportado pelo próprio app: volta como croqui completo.
+let impTarget = 'new', calib = null;
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+function pickImport(target) { impTarget = target; closeMenu(); $('#impIn').click(); }
+$('#hImport').addEventListener('click', () => pickImport('new'));
+$('#impIn').addEventListener('change', e => { const file = e.target.files[0]; e.target.value = ''; if (file) importFile(file, impTarget); });
+async function importFile(file, target) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  try {
+    if (ext === 'dxf') await importDXF(file, target);
+    else if (ext === 'pdf' || file.type === 'application/pdf') await importPDF(file, target);
+    else if (['png', 'jpg', 'jpeg', 'webp'].includes(ext) || /^image\//.test(file.type)) await importImage(file, target);
+    else if (ext === 'json') await importJSON(file, target);
+    else toast('Formato não reconhecido. Use DXF, PDF, PNG, JPG ou o JSON exportado por este app.');
+  } catch (err) { toast('Não foi possível importar: ' + (err.message || err)); }
+}
+const baseName = n => String(n || '').replace(/\.[^.]+$/, '');
+// croqui novo (a partir da lista) ou o pavimento aberto; devolve o pavimento que recebe o desenho
+function importInto(target, name) {
+  if (target === 'new') {
+    doc = blankDoc(); doc.title = baseName(name);
+    openCroqui({ id: uid() + uid(), owner: me.id, created: Date.now() }, doc, true);
+  } else commit();
+  doc.example = false;
+  return F();
+}
+// ponto de partida do desenho importado: à direita do que já existe no pavimento
+function importOrigin(f) { const b = bounds(f); return b ? { x: Math.ceil((b.x1 + 2) / GRID) * GRID, y: Math.floor(b.y0 / GRID) * GRID } : { x: 0, y: 0 }; }
+
+/* ---------- DXF ---------- */
+const DXF_UNITS = { 1: ['pol', 0.0254], 2: ['pés', 0.3048], 4: ['mm', 0.001], 5: ['cm', 0.01], 6: ['m', 1] };
+function dxfText(buf) {
+  const b = new Uint8Array(buf);
+  if (String.fromCharCode(...b.slice(0, 18)) === 'AutoCAD Binary DXF') throw new Error('DXF binário. Salve no CAD como DXF de texto (ASCII).');
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch (e) { return new TextDecoder('windows-1252').decode(b); }
+}
+// Lê o DXF em registros { t: tipo, d: [[código, valor]...] }, por seção; expande blocos (INSERT) e devolve caminhos e textos.
+function parseDXF(text) {
+  const L = text.split(/\r\n|\r|\n/), recs = { HEADER: [], BLOCKS: [], ENTITIES: [] };
+  let sec = null, rec = null, wantSec = false;
+  for (let i = 0; i + 1 < L.length; i += 2) {
+    const code = parseInt(L[i], 10), val = L[i + 1].trim();
+    if (code === 0) {
+      if (val === 'SECTION') { wantSec = true; rec = null; continue; }
+      if (val === 'ENDSEC') { sec = null; rec = null; continue; }
+      rec = { t: val, d: [] }; if (sec && recs[sec]) recs[sec].push(rec); continue;
+    }
+    if (wantSec && code === 2) { sec = val; wantSec = false; if (sec === 'HEADER') { rec = { t: 'HEADER', d: [] }; recs.HEADER.push(rec); } continue; }
+    if (rec) rec.d.push([code, val]);
+  }
+  const g = (r, c, def) => { const p = r.d.find(x => x[0] === c); return p ? p[1] : def; }, gn = (r, c, def = 0) => { const v = parseFloat(g(r, c, '')); return Number.isFinite(v) ? v : def; };
+  let insunits = 0;
+  for (const r of recs.HEADER) for (let k = 0; k < r.d.length; k++) if (r.d[k][0] === 9 && r.d[k][1] === '$INSUNITS') insunits = parseInt((r.d[k + 1] || [])[1], 10) || 0;
+  // blocos
+  const blocks = {}; let cur = null;
+  for (const r of recs.BLOCKS) {
+    if (r.t === 'BLOCK') { cur = { name: g(r, 2, ''), base: { x: gn(r, 10), y: gn(r, 20) }, ents: [] }; blocks[cur.name] = cur; }
+    else if (r.t === 'ENDBLK') cur = null;
+    else if (cur) cur.ents.push(r);
+  }
+  const paths = [], texts = [], skipped = {};
+  const T = (m, p) => ({ x: m[0] * p.x + m[2] * p.y + m[4], y: m[1] * p.x + m[3] * p.y + m[5] });
+  const mul = (m, n) => [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3], m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
+  // trecho com "barriga" (bulge) do DXF: ponto do meio do arco
+  const bulgeApex = (P, Q, bg) => { const dx = Q.x - P.x, dy = Q.y - P.y, Lq = Math.hypot(dx, dy) || 1, h = bg * Lq / 2; return { x: (P.x + Q.x) / 2 + dy / Lq * h, y: (P.y + Q.y) / 2 - dx / Lq * h }; };
+  const addPath = (ly, m, pts, apx, closed) => { if (pts.length < 2) return; paths.push({ ly, pts: pts.map(p => T(m, p)), apx: apx.map(a => a ? T(m, a) : null), closed }); };
+  const cleanTxt = s => s.replace(/\\P/g, ' ').replace(/\\[A-Za-z][^;\\]*;/g, '').replace(/[{}]/g, '').replace(/%%[cC]/g, 'Ø').replace(/%%[dD]/g, '°').replace(/%%[pP]/g, '±').trim();
+  const walk = (list, m, depth, lyIn) => {
+    for (let k = 0; k < list.length; k++) {
+      const r = list[k], ly0 = g(r, 8, '0'), ly = lyIn && ly0 === '0' ? lyIn : ly0;
+      switch (r.t) {
+        case 'LINE': addPath(ly, m, [{ x: gn(r, 10), y: gn(r, 20) }, { x: gn(r, 11), y: gn(r, 21) }], [null], false); break;
+        case 'LWPOLYLINE': {
+          const vs = []; for (const [c, v] of r.d) { if (c === 10) vs.push({ x: +v, y: 0, b: 0 }); else if (c === 20 && vs.length) vs[vs.length - 1].y = +v; else if (c === 42 && vs.length) vs[vs.length - 1].b = +v; }
+          const closed = (gn(r, 70) & 1) === 1;
+          addPath(ly, m, vs, vs.map((p, i) => { const q = vs[(i + 1) % vs.length]; return p.b && (closed || i < vs.length - 1) ? bulgeApex(p, q, p.b) : null; }).slice(0, closed ? vs.length : vs.length - 1), closed); break;
+        }
+        case 'POLYLINE': {
+          const fl = gn(r, 70), vs = [];
+          for (k++; k < list.length && list[k].t === 'VERTEX'; k++) vs.push({ x: gn(list[k], 10), y: gn(list[k], 20), b: gn(list[k], 42) });
+          if (fl & (16 | 64)) break; // malhas 3D
+          const closed = (fl & 1) === 1;
+          addPath(ly, m, vs, vs.map((p, i) => p.b && (closed || i < vs.length - 1) ? bulgeApex(p, vs[(i + 1) % vs.length], p.b) : null).slice(0, closed ? vs.length : vs.length - 1), closed); break;
+        }
+        case 'ARC': {
+          const c = { x: gn(r, 10), y: gn(r, 20) }, R = gn(r, 40), a0 = gn(r, 50) * Math.PI / 180;
+          let a1 = gn(r, 51) * Math.PI / 180; while (a1 <= a0) a1 += 2 * Math.PI;
+          const at = a => ({ x: c.x + R * Math.cos(a), y: c.y + R * Math.sin(a) });
+          addPath(ly, m, [at(a0), at(a1)], [at((a0 + a1) / 2)], false); break;
+        }
+        case 'CIRCLE': {
+          const c = { x: gn(r, 10), y: gn(r, 20) }, R = gn(r, 40);
+          addPath(ly, m, [{ x: c.x + R, y: c.y }, { x: c.x - R, y: c.y }], [{ x: c.x, y: c.y + R }, { x: c.x, y: c.y - R }], true); break;
+        }
+        case 'TEXT': case 'MTEXT': {
+          const al = r.t === 'TEXT' && (gn(r, 72) || gn(r, 73)) && g(r, 11) != null;
+          const s = cleanTxt(r.d.filter(x => x[0] === 3 || x[0] === 1).map(x => x[1]).join(''));
+          if (s) texts.push({ ly, p: T(m, al ? { x: gn(r, 11), y: gn(r, 21) } : { x: gn(r, 10), y: gn(r, 20) }), t: s }); break;
+        }
+        case 'INSERT': {
+          const b = blocks[g(r, 2, '')]; if (!b || depth > 6) break;
+          const a = gn(r, 50) * Math.PI / 180, sx = gn(r, 41, 1) || 1, sy = gn(r, 42, 1) || 1, cs = Math.cos(a), sn = Math.sin(a);
+          const mi = mul(mul([1, 0, 0, 1, gn(r, 10), gn(r, 20)], [cs, sn, -sn, cs, 0, 0]), mul([sx, 0, 0, sy, 0, 0], [1, 0, 0, 1, -b.base.x, -b.base.y]));
+          walk(b.ents, mul(m, mi), depth + 1, ly); break;
+        }
+        case 'VERTEX': case 'SEQEND': case 'ATTRIB': case 'ATTDEF': break;
+        default: skipped[r.t] = (skipped[r.t] || 0) + 1;
+      }
+    }
+  };
+  walk(recs.ENTITIES, [1, 0, 0, 1, 0, 0], 0, null);
+  return { paths, texts, skipped, insunits };
+}
+const SKIP_N = { DIMENSION: 'cotas', HATCH: 'hachuras', SPLINE: 'curvas spline', ELLIPSE: 'elipses', SOLID: 'preenchimentos', POINT: 'pontos', LEADER: 'chamadas', MLEADER: 'chamadas', VIEWPORT: 'janelas de layout', IMAGE: 'imagens' };
+async function importDXF(file, target) {
+  const P = parseDXF(dxfText(await file.arrayBuffer()));
+  if (!P.paths.length && !P.texts.length) { toast('Nenhuma linha encontrada no DXF.'); return; }
+  const all = P.paths.flatMap(p => p.pts.concat(p.apx.filter(Boolean))).concat(P.texts.map(t => t.p));
+  const xs = all.map(p => p.x), ys = all.map(p => p.y), ext = { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  const D = Math.max(ext.x1 - ext.x0, ext.y1 - ext.y0);
+  let unit = DXF_UNITS[P.insunits] ? P.insunits : D > 1000 ? 4 : D > 150 ? 5 : 6;
+  const layers = {};
+  P.paths.forEach(p => { (layers[p.ly] = layers[p.ly] || { n: 0, t: 0 }).n++; });
+  P.texts.forEach(t => { (layers[t.ly] = layers[t.ly] || { n: 0, t: 0 }).t++; });
+  const names = Object.keys(layers).sort(), role = {};
+  // camadas de cota e hachura ficam de fora por padrão
+  names.forEach(n => { role[n] = /COTA|DIM|HACH|HATCH|DEFPOINTS/i.test(n) ? 'ignorar' : 'linhas'; });
+  const skipTxt = Object.entries(P.skipped).map(([k, n]) => `${n} ${SKIP_N[k] || k.toLowerCase()}`).join(', ');
+  const sizeTxt = () => `O desenho terá ${fmt((ext.x1 - ext.x0) * DXF_UNITS[unit][1])} × ${fmt((ext.y1 - ext.y0) * DXF_UNITS[unit][1])} m.`;
+  const roleBtns = n => ['linhas', 'paredes', 'ignorar'].map(v => `<button class="${role[n] === v ? 'on' : ''}" data-mact="role" data-l="${esc(n)}" data-v="${v}">${{ linhas: 'Linhas', paredes: 'Paredes', ignorar: 'Ignorar' }[v]}</button>`).join('');
+  openModal(`<h2>Importar DXF</h2>
+    <p class="small muted" style="margin:0">${esc(file.name)} · ${P.paths.length} linhas e arcos, ${P.texts.length} textos, ${names.length} camadas${skipTxt ? `. Não são trazidos: ${esc(skipTxt)}` : ''}.</p>
+    <div class="field"><span class="lbl">Unidade do desenho no CAD</span>
+      <div class="chips">${[4, 5, 6, 1].map(u => `<button class="chip${u === unit ? ' on' : ''}" data-mact="unit" data-v="${u}">${DXF_UNITS[u][0]}</button>`).join('')}</div>
+      <span class="small" id="impSize">${sizeTxt()}</span></div>
+    <div class="field"><span class="lbl">O que fazer com cada camada</span>
+      <div class="ulist">${names.map(n => `<div class="urow"><div><b>${esc(n)}</b><span>${layers[n].n} linhas${layers[n].t ? ` · ${layers[n].t} textos` : ''}</span></div><div class="seg" style="flex:none">${roleBtns(n)}</div></div>`).join('')}</div>
+      <span class="small muted"><b>Linhas:</b> ficam no desenho e podem ser excluídas ou transformadas em parede depois; os cantos servem de encaixe. <b>Paredes:</b> cada linha vira uma parede editável. Use só em camadas com a parede desenhada por uma linha (no eixo). Paredes desenhadas com as duas faces ficam melhor como Linhas, passando a parede por cima.</span></div>
+    ${P.texts.length ? '<label class="row small"><input type="checkbox" id="impTxt" checked> Trazer os textos como notas</label>' : ''}
+    <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Cancelar</button><button class="btn primary" data-mact="ok">Importar</button></div>`, {
+    unit(b) { unit = +b.dataset.v; $('#modal').querySelectorAll('[data-mact="unit"]').forEach(x => x.classList.toggle('on', x === b)); $('#impSize').textContent = sizeTxt(); },
+    role(b) { role[b.dataset.l] = b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); },
+    ok() {
+      const withTxt = !$('#impTxt') || $('#impTxt').checked;
+      closeModal();
+      const f = importInto(target, file.name), u = DXF_UNITS[unit][1], o = importOrigin(f);
+      // DXF tem o eixo y para cima; aqui o y cresce para baixo
+      const tp = p => ({ x: Math.round((o.x + (p.x - ext.x0) * u) * 1000) / 1000, y: Math.round((o.y + (ext.y1 - p.y) * u) * 1000) / 1000 });
+      let nW = 0, nL = 0, nT = 0;
+      const keepType = wallType;
+      for (const p of P.paths) {
+        const r = role[p.ly]; if (r === 'ignorar') continue;
+        const pts = p.pts.map(tp), n = p.closed ? pts.length : pts.length - 1;
+        if (r === 'paredes') {
+          for (let i = 0; i < n; i++) {
+            const A = pts[i], B = pts[(i + 1) % pts.length]; if (dist(A, B) < 0.01) continue;
+            if (p.apx[i]) { const ap = tp(p.apx[i]), Lq = dist(A, B), s = ((ap.x - (A.x + B.x) / 2) * -(B.y - A.y) + (ap.y - (A.y + B.y) / 2) * (B.x - A.x)) / Lq; addArcWall(A, B, s); }
+            else addWall(A, B);
+            nW++;
+          }
+        } else {
+          // arcos viram pontos ao longo da curva
+          const out = [pts[0]];
+          for (let i = 0; i < n; i++) {
+            const A = pts[i], B = pts[(i + 1) % pts.length];
+            if (p.apx[i]) { const ap = tp(p.apx[i]), Lq = dist(A, B) || 1e-9, s = ((ap.x - (A.x + B.x) / 2) * -(B.y - A.y) + (ap.y - (A.y + B.y) / 2) * (B.x - A.x)) / Lq; out.push(...arcPts(A, B, s).slice(1)); }
+            else out.push(B);
+          }
+          if (p.closed) out.pop();
+          f.lines.push({ id: uid(), ly: p.ly, pts: out, closed: p.closed }); nL++;
+        }
+      }
+      wallType = keepType;
+      if (withTxt) for (const t of P.texts) if (role[t.ly] !== 'ignorar') { f.notes.push({ id: uid(), ...tp(t.p), text: t.t }); nT++; }
+      save(); setTool('editar'); refresh(); fit();
+      toast(`Importado: ${nW} paredes, ${nL} linhas e ${nT} notas.${target === 'new' ? ' Toque no título para preencher os dados do croqui.' : ''}`);
+    }
+  });
+}
+
+/* ---------- imagem e PDF: desenho de fundo em escala ---------- */
+async function blobImage(blob) {
+  const url = URL.createObjectURL(blob), im = new Image();
+  await new Promise((res, rej) => { im.onload = res; im.onerror = () => rej(new Error('imagem inválida')); im.src = url; });
+  return { im, url };
+}
+// guarda a imagem do fundo no aparelho (até 4096 px no lado maior)
+async function storeBg(blob, w, h, im) {
+  const k = Math.min(1, 4096 / Math.max(w, h));
+  if (k < 1 || !/^image\/(png|jpeg|webp)$/.test(blob.type)) {
+    const c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+    blob = await new Promise(r => c.toBlob(r, 'image/png')); w = c.width; h = c.height;
+  }
+  const id = 'bg-' + uid() + uid();
+  await idb.put(id, { blob, w, h });
+  return { id, w, h };
+}
+function placeBg(target, name, st, s, needCalib) {
+  const f = importInto(target, name), b = bounds(f), o = b ? { x: Math.floor(b.x0 / GRID) * GRID, y: Math.floor(b.y0 / GRID) * GRID } : { x: 0, y: 0 };
+  f.bg = { id: st.id, name, w: st.w, h: st.h, x: o.x, y: o.y, s, rot: 0, op: .5, show: true };
+  save(); setTool('editar'); refresh(); fit();
+  if (needCalib) startCalib(); else toast('Fundo importado na escala escolhida. Confira uma medida conhecida; se precisar, use Calibrar no aviso do fundo.');
+}
+async function importImage(file, target) {
+  const { im, url } = await blobImage(file);
+  const w = im.naturalWidth, h = im.naturalHeight;
+  openModal(`<h2>Importar imagem</h2>
+    <p class="small muted" style="margin:0">${esc(file.name)} · ${w} × ${h} px</p>
+    <img src="${url}" alt="" style="max-height:200px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fff">
+    <p style="margin:0;font-size:14px;line-height:1.5">A imagem fica como <b>fundo do pavimento</b>, em escala, para você desenhar paredes e ambientes por cima. Em seguida, toque no início e no fim de uma medida conhecida e informe a distância.</p>
+    <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Cancelar</button><button class="btn primary" data-mact="ok">Importar e calibrar</button></div>`, {
+    async ok(b) { b.disabled = true; const st = await storeBg(file, w, h, im); closeModal(); placeBg(target, file.name, st, 20 / st.w, true); }
+  });
+}
+async function loadPdfJs() {
+  if (window.pdfjsLib) return window.pdfjsLib;
+  await new Promise((res, rej) => { const s = document.createElement('script'); s.src = PDFJS + 'pdf.min.js'; s.onload = res; s.onerror = () => rej(new Error('para ler PDF o tablet precisa de internet na hora de importar')); document.head.appendChild(s); });
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
+  return window.pdfjsLib;
+}
+async function importPDF(file, target) {
+  toast('Abrindo o PDF…');
+  const lib = await loadPdfJs(), pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  let page = 1, den = 0;
+  const pages = Array.from({ length: Math.min(pdf.numPages, 40) }, (_, i) => i + 1);
+  openModal(`<h2>Importar PDF</h2>
+    <p class="small muted" style="margin:0">${esc(file.name)} · ${pdf.numPages} página${pdf.numPages > 1 ? 's' : ''}</p>
+    ${pdf.numPages > 1 ? `<div class="field"><span class="lbl">Página</span><div class="chips">${pages.map(n => `<button class="chip${n === 1 ? ' on' : ''}" data-mact="pg" data-v="${n}">${n}</button>`).join('')}</div></div>` : ''}
+    <div class="field"><span class="lbl">Escala de impressão do PDF</span>
+      <div class="chips">${[[0, 'Não sei: calibrar com uma medida'], [50, '1:50'], [75, '1:75'], [100, '1:100'], [200, '1:200']].map(([v, n]) => `<button class="chip${v === den ? ' on' : ''}" data-mact="sc" data-v="${v}">${n}</button>`).join('')}</div>
+      <span class="small muted">Se o PDF foi gerado do CAD numa escala, escolha a escala. Senão, depois de importar, toque nos dois extremos de uma medida conhecida.</span></div>
+    <p style="margin:0;font-size:14px;line-height:1.5">A página fica como <b>fundo do pavimento</b>, em escala, para você desenhar paredes e ambientes por cima.</p>
+    <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Cancelar</button><button class="btn primary" data-mact="ok">Importar</button></div>`, {
+    pg(b) { page = +b.dataset.v; $('#modal').querySelectorAll('[data-mact="pg"]').forEach(x => x.classList.toggle('on', x === b)); },
+    sc(b) { den = +b.dataset.v; $('#modal').querySelectorAll('[data-mact="sc"]').forEach(x => x.classList.toggle('on', x === b)); },
+    async ok(b) {
+      b.disabled = true; b.textContent = 'Importando…';
+      const pg = await pdf.getPage(page), v1 = pg.getViewport({ scale: 1 }), k = Math.min(6, 4096 / Math.max(v1.width, v1.height)), vp = pg.getViewport({ scale: k });
+      const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+      // intent 'print': desenha de uma vez, sem esperar quadros da tela (não trava se o app estiver em segundo plano)
+      await pg.render({ canvasContext: x, viewport: vp, intent: 'print' }).promise;
+      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+      const st = await storeBg(blob, c.width, c.height, c);
+      closeModal();
+      // 1 ponto do PDF = 1/72 polegada no papel; na escala 1:N vale N vezes mais no real
+      placeBg(target, file.name + (pdf.numPages > 1 ? ` (pág. ${page})` : ''), st, den ? 0.0254 / 72 * den / k : 20 / st.w, !den);
+    }
+  });
+}
+// calibração: dois toques sobre uma medida conhecida do fundo e a distância real
+function startCalib() {
+  const f = F(); if (!f.bg) return;
+  f.bg.show = true; closeSheet(); tool = ''; setTool('calib'); calib = { pts: [] };
+  const cs = bgCorners(f.bg), xs = cs.map(p => p.x), ys = cs.map(p => p.y), bw = Math.max(...xs) - Math.min(...xs), bh = Math.max(...ys) - Math.min(...ys);
+  cam.z = clamp(Math.min((VW - 80) / bw, (VH - 160) / bh), ZMIN, ZMAX); cam.ox = VW / 2 - (Math.min(...xs) + bw / 2) * cam.z; cam.oy = VH / 2 - (Math.min(...ys) + bh / 2) * cam.z;
+  refresh();
+}
+function calibTap(w) {
+  if (!calib) calib = { pts: [] };
+  if (calib.pts.length >= 2) calib.pts = [];
+  calib.pts.push(pt(w)); refresh();
+  if (calib.pts.length === 2) openCalibSheet();
+}
+function openCalibSheet() {
+  const [p1, p2] = calib.pts, d0 = dist(p1, p2); let dir = Math.abs(p2.y - p1.y) <= Math.abs(p2.x - p1.x) ? 'h' : 'v';
+  openSheet({
+    kind: 'calib', title: 'Calibrar o fundo', sub: `Hoje essa medida está com ${fmt(d0)} m no desenho.`, active: 'd',
+    fields: { d: { value: fmt(d0) } },
+    body: `<div class="field"><span class="lbl">Medida real entre os dois pontos</span><div class="row"><button class="num" data-field="d"></button><span class="unit">m</span></div></div>
+      ${keypad()}
+      <div class="field"><span class="lbl">Essa medida no desenho é</span>
+        <div class="seg"><button data-act="dir" data-v="h" class="${dir === 'h' ? 'on' : ''}">Horizontal</button><button data-act="dir" data-v="v" class="${dir === 'v' ? 'on' : ''}">Vertical</button><button data-act="dir" data-v="x">Inclinada</button></div>
+        <span class="small muted">Horizontal ou vertical: o fundo gira um pouco para essa linha ficar alinhada com a grade.</span></div>
+      <div class="row"><button class="btn" data-act="redo">Marcar de novo</button><span class="grow"></span><button class="btn primary" data-act="apply">Aplicar</button></div>`,
+    on: {
+      dir(el) { dir = el.dataset.v; sheetEl.querySelectorAll('[data-act="dir"]').forEach(b => b.classList.toggle('on', b === el)); },
+      redo() { calib.pts = []; closeSheet(); refresh(); },
+      apply() {
+        const D = parseNum(S.fields.d.value); if (!(D > 0.05 && D < 2000)) { toast('Informe a medida real em metros.'); return; }
+        touch(); const b = F().bg, k = D / d0;
+        // escala em torno do 1º ponto
+        b.s *= k; b.x = p1.x + (b.x - p1.x) * k; b.y = p1.y + (b.y - p1.y) * k;
+        if (dir !== 'x') {
+          const a = Math.atan2(p2.y - p1.y, p2.x - p1.x), tg = dir === 'h' ? (Math.abs(a) > Math.PI / 2 ? Math.PI : 0) : (a > 0 ? Math.PI / 2 : -Math.PI / 2);
+          let da = tg - a; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+          const c = Math.cos(da), s = Math.sin(da), rx = b.x - p1.x, ry = b.y - p1.y;
+          b.rot = (b.rot || 0) + da; b.x = p1.x + rx * c - ry * s; b.y = p1.y + rx * s + ry * c;
+        }
+        // o 1º ponto vai para o cruzamento da grade mais próximo
+        b.x += Math.round(p1.x / GRID) * GRID - p1.x; b.y += Math.round(p1.y / GRID) * GRID - p1.y;
+        b.cal = true; save(); calib = null; closeSheet(); setTool('editar'); fit();
+        toast(`Fundo calibrado: ${fmt(D)} m. Agora desenhe por cima com Parede e Ambiente.`);
+      }
+    }
+  });
+}
+// fundo do pavimento: transparência, mostrar/ocultar, calibrar e remover
+function bgControls(fl) {
+  if (!fl.bg) return '';
+  const op = Math.round((fl.bg.op ?? .5) * 100);
+  return `<div class="field"><span class="lbl">Desenho de fundo importado</span><span class="small">${esc(fl.bg.name)}${fl.bg.cal ? '' : ' · ainda não calibrado'}</span>
+    <div class="chips">${[25, 50, 75, 100].map(v => `<button class="chip${v === op ? ' on' : ''}" data-act="bgop" data-v="${v}">${v}%</button>`).join('')}</div>
+    <div class="row"><button class="btn sm" data-act="bgshow">${fl.bg.show === false ? 'Mostrar' : 'Ocultar'}</button><button class="btn sm" data-act="bgcal">Calibrar escala</button><span class="grow"></span><button class="btn sm danger" data-act="bgdel">Remover fundo</button></div></div>`;
+}
+const bgActs = fl => ({
+  bgop(el) { touch(); fl.bg.op = +el.dataset.v / 100; markChips('bgop', el.dataset.v); save(); render(); },
+  bgshow(el) { touch(); fl.bg.show = fl.bg.show === false; el.textContent = fl.bg.show ? 'Ocultar' : 'Mostrar'; save(); refresh(); },
+  bgcal() { startCalib(); },
+  bgdel() { touch(); fl.bg = null; save(); closeSheet(); refresh(); fit(); toast('Fundo removido.'); }
+});
+
+/* ---------- JSON exportado pelo próprio app ---------- */
+async function importJSON(file, target) {
+  let o; try { o = JSON.parse(await file.text()); } catch (e) { throw new Error('arquivo JSON inválido'); }
+  if (!o || !o.geometria || !/^croqui-vistoria/.test(o.formato || '')) throw new Error('este JSON não foi exportado pelo Croqui de Vistoria');
+  const fl = Object.assign(newFloor(o.pavimento || 'Térreo'), o.geometria, { id: uid(), name: o.pavimento || o.geometria.name || 'Térreo' });
+  delete fl.ref;
+  if (target === 'new') {
+    doc = blankDoc(); Object.assign(doc, { ficha: o.ficha || '', title: o.descricao || '', data: o.data || doc.data, desenhista: o.desenhista || doc.desenhista, north: o.norte_graus ?? null });
+    doc.floors = [fl]; openCroqui({ id: uid() + uid(), owner: me.id, created: Date.now() }, doc, true);
+  } else { commit(); doc.floors.push(migrate({ floors: [fl] }).floors[0]); doc.cur = doc.floors.length - 1; save(); refresh(); fit(); }
+  toast('Croqui importado do JSON. As fotos não vêm junto (ficam no aparelho de origem).');
+}
 // Cada desenhista entra com um PIN de 4 números. O primeiro cadastrado é administrador e cadastra os demais.
 // Depois de 5 minutos sem uso, o croqui aberto é salvo e o app volta para a tela do PIN.
 const USERS_KEY = 'croqui-usuarios', SES_KEY = 'croqui-sessao', IDLE = 5 * 60 * 1000;
