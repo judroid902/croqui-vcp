@@ -20,7 +20,7 @@
   --paper:#FBFBF8; --grid-minor:#DFE5EB; --grid-major:#A7B4C2; --wall:#17212B; --dim:#5B6673;
   --room-fill:rgba(27,122,61,.06); --room-fill-sel:rgba(31,79,184,.12); --room-stroke:#1B7A3D; --sel:#1F4FB8; --note:#9A3D06;
   --c-varanda:#B54708; --c-calcada:#6B7280; --c-permeavel:#2E7D32; --c-piscina:#1A7FB5; --c-piso:#7A3FB8;
-  --ghost:#8C99A6; --ghost-fill:#CBD3DB; --esgoto:#4F8A0B; --dren:#B4239E; --imp:#3F6E92;
+  --ghost:#8C99A6; --ghost-fill:#CBD3DB; --esgoto:#4F8A0B; --dren:#B4239E; --imp:#3F6E92; --roof:#9A4A16; --lot:#6B4E16;
   --scrim:rgba(10,15,20,.45); --shadow:0 8px 28px rgba(23,33,43,.18);
   --font:Roboto, "Segoe UI", system-ui, sans-serif; --mono:"Roboto Mono", Consolas, monospace;
 }
@@ -32,7 +32,7 @@
   --paper:#11181F; --grid-minor:#1D2731; --grid-major:#364553; --wall:#E7ECF1; --dim:#9DA9B6;
   --room-fill:rgba(92,196,135,.07); --room-fill-sel:rgba(134,169,245,.16); --room-stroke:#5CC487; --sel:#86A9F5; --note:#F2A15F;
   --c-varanda:#F2A15F; --c-calcada:#A3ACB8; --c-permeavel:#6FCF87; --c-piscina:#5BB8F0; --c-piso:#C39BF5;
-  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9; --imp:#8DB7D8;
+  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9; --imp:#8DB7D8; --roof:#F0A06A; --lot:#D8B86A;
   --scrim:rgba(0,0,0,.6); --shadow:0 8px 28px rgba(0,0,0,.5); color-scheme:dark } }
 :root[data-theme="dark"] {
   --top-bg:#0A0F14; --top-pill:#1C2733; --top-fg:#FFFFFF; --top-muted:#9DA9B6; --top-on-bg:#E7ECF1; --top-on-fg:#0A0F14;
@@ -42,7 +42,7 @@
   --paper:#11181F; --grid-minor:#1D2731; --grid-major:#364553; --wall:#E7ECF1; --dim:#9DA9B6;
   --room-fill:rgba(92,196,135,.07); --room-fill-sel:rgba(134,169,245,.16); --room-stroke:#5CC487; --sel:#86A9F5; --note:#F2A15F;
   --c-varanda:#F2A15F; --c-calcada:#A3ACB8; --c-permeavel:#6FCF87; --c-piscina:#5BB8F0; --c-piso:#C39BF5;
-  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9; --imp:#8DB7D8;
+  --ghost:#5D6C7A; --ghost-fill:#2A3642; --esgoto:#A3E635; --dren:#E879F9; --imp:#8DB7D8; --roof:#F0A06A; --lot:#D8B86A;
   --scrim:rgba(0,0,0,.6); --shadow:0 8px 28px rgba(0,0,0,.5); color-scheme:dark }
 
 * { box-sizing:border-box; }
@@ -124,6 +124,9 @@ svg.i { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2;
   background:var(--surface); color:var(--fg); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; padding:0; }
 .north svg { width:42px; height:42px; }
 .north.unset { color:var(--muted); }
+/* nota: balão logo abaixo da bússola */
+.north.notebtn { top:76px; }
+.north.notebtn.on { background:var(--blue); border-color:var(--blue); color:var(--on-blue); }
 
 /* ---------- barra do modo hidrossanitário (logo acima do menu de ferramentas) ---------- */
 .hbar { position:absolute; left:0; right:0; bottom:0; z-index:15; display:flex; align-items:center; gap:4px; padding:6px 8px;
@@ -150,7 +153,8 @@ svg.i { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2;
 .grow { flex:1; }
 
 /* ---------- lista de opções da ferramenta (sobe a partir do trilho) ---------- */
-.picker { position:absolute; z-index:26; left:10px; width:min(340px, calc(100% - 20px)); max-height:calc(100% - 20px); overflow:auto;
+/* a lista fica só da largura da opção mais comprida, para não esconder o desenho */
+.picker { position:absolute; z-index:26; left:10px; width:max-content; max-width:min(400px, calc(100% - 20px)); max-height:calc(100% - 20px); overflow:auto;
   background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:6px;
   display:flex; flex-direction:column; gap:2px; }
 .pk-title { font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:8px 10px 4px; }
@@ -234,12 +238,26 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
 /* opções com caixa de marcar: o texto longo quebra ao lado da caixa, não embaixo dela */
 label.row { flex-wrap:nowrap; align-items:flex-start; }
 label.row input[type="checkbox"] { flex:none; margin:2px 0 0; width:18px; height:18px; }
+/* situação da medida da parede */
+.okline { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px; background:var(--orange-bg); color:var(--fg); font-size:14px; font-weight:500; }
+.okline.ok { background:var(--green-bg); color:var(--green); font-weight:600; }
+/* conferência de paredes no celular: painel embaixo, desenho visível em cima */
+@media (max-width: 719px) { .sheet.dock { top:auto; bottom:12px; left:12px; right:12px; width:auto; max-height:52%; } }
+.wlist { display:flex; flex-direction:column; gap:2px; }
+.wlist button { display:flex; align-items:center; gap:10px; padding:8px 10px; border:none; border-radius:10px; background:var(--soft); color:var(--fg); text-align:left; font-size:14px; }
+.wlist button b { min-width:34px; }
+.wlist button .ok { color:var(--green); font-weight:700; }
+.wlist button span.grow { color:var(--muted); font-size:12.5px; }
 /* tabela de quantitativos */
 .qt { width:100%; border-collapse:collapse; font-size:14px; }
 .qt td { padding:7px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
 .qt td small { display:block; font-size:12px; color:var(--muted); margin-top:2px; }
 .qt td.q { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; width:1%; }
 .qt td.u { color:var(--muted); width:1%; white-space:nowrap; padding-left:6px; }
+.qt tr.inf td:first-child { color:var(--orange); }
+.qt td .btn { margin-top:6px; }
+.qamb { display:flex; align-items:baseline; gap:10px; margin-top:8px; padding:8px 0 2px; border-top:2px solid var(--line); }
+.qamb b { font-size:16px; } .qamb span { font-size:12.5px; color:var(--muted); }
 /* círculo do norte */
 .dial { position:relative; width:220px; height:220px; margin:4px auto; border-radius:50%; border:1px dashed var(--line); }
 .dial button { position:absolute; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:23px; border:1px solid var(--line);
@@ -365,7 +383,7 @@ label.row input[type="checkbox"] { flex:none; margin:2px 0 0; width:18px; height
   .tb-title span, .tb-pill .lbl-t { display:none; }
   .tb-pill { padding:0 11px; }
   .hint { font-size:12.5px; }
-  .picker { width:auto; right:10px; }
+  .picker { max-width:calc(100% - 20px); }
 }
 @media (max-width: 719px) {
   .hb-btn { flex-direction:column; gap:2px; height:56px; padding:0 10px; font-size:11px; }
@@ -400,6 +418,7 @@ label.row input[type="checkbox"] { flex:none; margin:2px 0 0; width:18px; height
       <div class="hint" id="hint"></div>
       <div class="chainbar" id="chainbar" hidden></div>
       <button class="north" id="bNorth" aria-label="Norte do desenho" title="Norte do desenho"></button>
+      <button class="north notebtn" id="bNote" aria-label="Notas" title="Notas: toque e depois toque no desenho para escrever" aria-pressed="false"><svg class="i" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M5 5h14v10h-8l-4 4v-4H5z"/></svg></button>
       <div class="bl">
         <div class="notice" id="notice" hidden><span><b>Exemplo</b> para testar. Pode ser excluído na lista de croquis.</span></div>
         <div class="notice info" id="refNote" hidden></div>
@@ -520,6 +539,20 @@ const OPK = {
     ic: '<path d="M3 8v8M21 8v8M3 8h18M3 16h18"/><path d="M3 12h18" stroke-width="2.6"/>' }
 };
 const opKind = o => OPK[o.kind] ? o.kind : o.type === 'porta' ? 'giro' : 'jcorrer';
+// Código da esquadria por tipo (modelo + medidas): P1, P2… portas; J1… janelas; V1… vãos livres.
+// Esquadrias iguais têm o mesmo código, em todos os pavimentos; a numeração segue a ordem em que cada tipo aparece.
+const opType = o => [opKind(o), fmt(o.w), fmt(o.h), o.type === 'janela' ? fmt(o.sill ?? 1) : ''].join('|');
+const opPrefix = o => opKind(o) === 'vao' ? 'V' : o.type === 'porta' ? 'P' : 'J';
+function opCodes() {
+  const types = {}, cnt = {}, code = {};
+  if (doc) for (const f of doc.floors) for (const o of f.ops) {
+    const t = opType(o), p = opPrefix(o);
+    if (!types[t]) { cnt[p] = (cnt[p] || 0) + 1; types[t] = p + cnt[p]; }
+    code[o.id] = types[t];
+  }
+  return code;
+}
+const opDesc = o => `${OPK[opKind(o)].n} ${fmt(o.w)} × ${fmt(o.h)} m${o.type === 'janela' ? `, peitoril ${fmt(o.sill ?? 1)} m` : ''}`;
 const opIcon = k => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${OPK[k].ic}</svg>`;
 
 /* instalações hidrossanitárias: esgoto e drenagem */
@@ -605,9 +638,20 @@ const CATS = {
   calcada: { n: 'Calçamento', short: 'Calçamento', s: 'Calçada, pátio, piso externo', ly: 'CALCAMENTO', col: 'calcada', names: ['Calçada', 'Passeio', 'Pátio', 'Garagem descoberta', 'Rampa'] },
   permeavel: { n: 'Área permeável', short: 'Permeável', s: 'Jardim, gramado, canteiro', ly: 'AREA-PERMEAVEL', col: 'permeavel', names: ['Jardim', 'Gramado', 'Canteiro', 'Horta'] },
   piscina: { n: 'Piscina', short: 'Piscina', s: 'Contorno reto ou curvo; profundidade e revestimento', ly: 'PISCINA', col: 'piscina', names: ['Piscina', 'Piscina infantil', 'Spa / hidro', 'Prainha'] },
-  piso: { n: 'Área de piso', short: 'Área de piso', s: '', ly: 'PISO-ACABAMENTO', col: 'piso', names: [] }
+  piso: { n: 'Área de piso', short: 'Área de piso', s: '', ly: 'PISO-ACABAMENTO', col: 'piso', names: [] },
+  cobertura: { n: 'Área de telhado', short: 'Telhado', s: 'Contorne a área do telhado; depois tipo, estrutura e águas', ly: 'COBERTURA', col: 'roof', names: ['Telhado principal', 'Telhado da varanda', 'Telhado da garagem', 'Laje de cobertura', 'Marquise'] }
 };
 const REGION_CATS = ['interno', 'varanda', 'calcada', 'permeavel', 'piscina'];
+// cobertura: só nos pavimentos acima do térreo
+const ROOF_TEL = ['Telha cerâmica', 'Telha de concreto', 'Telha metálica', 'Fibrocimento', 'Telha sanduíche', 'Laje impermeabilizada', 'Policarbonato', 'Vidro', 'Shingle'];
+const ROOF_EST = ['Madeira', 'Metálica', 'Concreto', 'Sem estrutura aparente'];
+const ROOF_LINES = {
+  calha: { n: 'Calha', s: 'Coleta a água na borda do telhado', ly: 'CALHAS', col: 'piscina', ic: '<path d="M3 8v6a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8" stroke-width="2.4"/>' },
+  rufo: { n: 'Rufo', s: 'Arremate entre telhado e parede', ly: 'RUFOS', col: 'varanda', ic: '<path d="M4 4v14h16" stroke-width="2.4"/><path d="M4 9l6-3" />' },
+  platibanda: { n: 'Platibanda', s: 'Mureta que esconde o telhado', ly: 'PLATIBANDAS', col: 'dim', ic: '<rect x="3" y="9" width="18" height="6" rx="1"/><path d="M3 12h18" stroke-dasharray="2 2"/>' }
+};
+const RL_MAT = ['Chapa galvanizada', 'Alumínio', 'PVC', 'Concreto', 'Alvenaria'];
+const roofFloor = () => !!doc && doc.cur > 0 && !/subsolo|funda/i.test(F().name || '');
 const catOf = r => CATS[r.cat] || CATS.interno;
 const hasPD = r => !r.cat || r.cat === 'interno' || r.cat === 'varanda';
 const isRoomLike = r => hasPD(r);
@@ -634,7 +678,7 @@ const finVal = (fin, k) => fin ? (k === 'parede' ? finText(fin.parede) : fin[k] 
 // faixas para o JSON: de/até em metros a partir do piso (até = null: até o teto)
 function finFaixas(v) { if (!Array.isArray(v)) return null; let lo = 0; return v.map(b => { const o = { de_m: lo, ate_m: b.ate, acabamento: b.v }; lo = b.ate ?? lo; return o; }); }
 function finKeys(r) {
-  if (r.cat === 'piscina') return [];
+  if (r.cat === 'piscina' || r.cat === 'cobertura') return [];
   if (r.cat === 'calcada' || r.cat === 'permeavel' || r.cat === 'piso') return ['piso'];
   return ['piso', 'parede', 'teto'];
 }
@@ -658,7 +702,8 @@ const SEC_IC = {
   I: '<path d="M7 5h10M7 19h10M12 5v14" stroke-width="2.8"/>'
 };
 const MATS = ['Concreto', 'Metal', 'Madeira', 'Alvenaria'];
-const colLabel = (c, i) => `P${i + 1}`;
+// pilares: PL1, PL2… (P1 é das portas)
+const colLabel = (c, i) => `PL${i + 1}`;
 const colDims = c => c.sec === 'circular' ? `Ø ${fmt(c.b * 100, 0)} cm` : c.sec === 'quadrada' ? `${fmt(c.b * 100, 0)}×${fmt(c.b * 100, 0)} cm` : `${fmt(c.b * 100, 0)}×${fmt(c.h * 100, 0)} cm`;
 
 /* ================= estado ================= */
@@ -666,13 +711,15 @@ let doc = null, tool = 'editar', sel = null, chain = null, amb = null, pend = nu
 let curve = false, wallType = 'ceramico', regCat = 'interno', colSec = 'quadrada', acabMode = 'amb', opSel = 'giro';
 // modo hidrossanitário: sistema (esgoto/drenagem), ferramenta da barra, dispositivo escolhido e traço de tubo em andamento
 let hidSys = 'esgoto', hidTool = 'tubo', hidDev = null, hchain = null;
+// cobertura: o que está sendo desenhado (área de telhado ou calha/rufo/platibanda) e a linha em andamento
+let roofMode = 'area', rchain = null;
 const hidDiam = { esgoto: 100, dren: 100 };
 // usuário que entrou com o PIN, croqui aberto e se há alterações ainda não salvas
 let me = null, cur = null, dirty = false;
 const cam = { ox: 0, oy: 0, z: 70 };
 const undoStack = [], redoStack = [];
 const F = () => doc.floors[doc.cur];
-const newFloor = name => ({ id: uid(), name, v: {}, walls: [], ops: [], rooms: [], notes: [], cols: [], hid: { n: {}, p: [] }, lines: [], bg: null });
+const newFloor = name => ({ id: uid(), name, v: {}, walls: [], ops: [], rooms: [], notes: [], cols: [], hid: { n: {}, p: [] }, lines: [], bg: null, roofLines: [] });
 const pad2 = n => String(n).padStart(2, '0');
 const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
 const brDate = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : ''; };
@@ -686,13 +733,21 @@ function migrate(d) {
     f.cols = f.cols || []; f.notes = f.notes || []; f.ops = f.ops || []; f.hid = f.hid || { n: {}, p: [] }; f.lines = f.lines || []; if (f.bg === undefined) f.bg = null;
     for (const w of f.walls) { if (!w.th) w.th = TH; if (!w.type) w.type = 'ceramico'; }
     for (const o of f.ops) o.kind = opKind(o);
-    for (const r of f.rooms) { r.cat = r.cat || 'interno'; r.fin = r.fin || {}; r.photos = r.photos || []; if (r.pd == null) r.pd = d.pd || 2.6; }
+    for (const r of f.rooms) { r.cat = r.cat || 'interno'; r.fin = r.fin || {}; r.photos = r.photos || []; if (r.pd == null) r.pd = d.pd || 2.6; r.finW = r.finW || {}; }
+    f.roofLines = f.roofLines || [];
+    // até a v0.7 o acabamento próprio de uma parede valia para as duas faces: passa para a face de cada ambiente
+    for (const w of f.walls) if (w.fin && w.fin.parede) {
+      const rs = f.rooms.filter(r => hasPD(r) && roomWalls(f, r).includes(w));
+      rs.forEach(r => { if (r.finW[w.id] == null) r.finW[w.id] = JSON.parse(JSON.stringify(w.fin.parede)); });
+      if (rs.length < 2) w.finExt = w.fin.parede;
+      delete w.fin.parede; if (!Object.keys(w.fin).length) delete w.fin;
+    }
   }
   return d;
 }
 
 function commit() { undoStack.push(JSON.stringify(doc)); if (undoStack.length > 150) undoStack.shift(); redoStack.length = 0; }
-function restore(json) { doc = JSON.parse(json); chain = null; amb = null; pend = null; hchain = null; sel = null; S = null; $('#sheet').hidden = true; save(); refresh(); }
+function restore(json) { doc = JSON.parse(json); chain = null; amb = null; pend = null; hchain = null; rchain = null; sel = null; S = null; $('#sheet').hidden = true; save(); refresh(); }
 function undo() { if (!undoStack.length) return; redoStack.push(JSON.stringify(doc)); restore(undoStack.pop()); }
 function redo() { if (!redoStack.length) return; undoStack.push(JSON.stringify(doc)); restore(redoStack.pop()); }
 // Cada mudança marca o croqui como "não salvo" e guarda um rascunho no aparelho (se o app fechar sozinho, nada se perde).
@@ -787,6 +842,35 @@ function edgeOnWall(f, e, w) {
 }
 function roomWalls(f, r) { const es = roomEdges(f, r); return f.walls.filter(w => es.some(e => edgeOnWall(f, e, w))); }
 const wallOk = (f, w) => w.note != null || (w.measured != null && Math.abs(w.measured - wallGeom(f, w).L) < 0.005);
+// Paredes de cada ambiente numeradas na ordem do contorno (Parede 1, 2…; P1, P2… são portas). Uma parede entre dois ambientes tem um número
+// em cada um, porque cada ambiente vê a sua face dela.
+function roomWallList(f, r) {
+  if (!hasPD(r)) return [];
+  const seen = new Set(), out = [];
+  for (const sp of roomWallSpans(f, r)) { if (seen.has(sp.w.id)) continue; seen.add(sp.w.id); out.push(Object.assign(sp, { n: out.length + 1 })); }
+  return out;
+}
+const wallRefList = (f, w) => f.rooms.filter(hasPD).map(r => { const s = roomWallList(f, r).find(x => x.w === w); return s ? { r, n: s.n } : null; }).filter(Boolean);
+const wallRefs = (f, w) => wallRefList(f, w).map(x => `${roomName(f, x.r)} parede ${x.n}`);
+// acabamento de uma face: o próprio dessa parede no ambiente ou, se não houver, o do ambiente
+const ownFace = (r, w) => r.finW && r.finW[w.id] != null && finText(r.finW[w.id]) !== '';
+const faceFin = (r, w) => ownFace(r, w) ? r.finW[w.id] : r.fin && r.fin.parede;
+const wallHasOwnFin = (f, w) => (w.finExt != null && finText(w.finExt) !== '') || f.rooms.some(r => ownFace(r, w));
+// texto do acabamento de parede de um ambiente, com as paredes que fogem do padrão
+function paredeText(f, r) {
+  const base = finText(r.fin && r.fin.parede), ex = roomWallList(f, r).filter(s => ownFace(r, s.w)).map(s => `parede ${s.n}: ${finText(r.finW[s.w.id])}`);
+  return ex.length ? `${base || 'não informado'} (demais paredes); ${ex.join('; ')}` : base;
+}
+const roomFinVal = (f, r, k) => k === 'parede' ? paredeText(f, r) : finVal(r.fin, k);
+function faceAt(f, w, q) {
+  const rs = f.rooms.filter(r => hasPD(r) && roomWalls(f, r).includes(w));
+  let p = q;
+  if (!w.s) {
+    const g = wallGeom(f, w), pr = projSeg(q, g.A, g.B), s = ((q.x - pr.x) * g.nx + (q.y - pr.y) * g.ny) < 0 ? -1 : 1, k = wth(w) / 2 + 0.1;
+    p = { x: pr.x + g.nx * s * k, y: pr.y + g.ny * s * k };
+  }
+  return rs.find(r => pointInPoly(p, roomPts(f, r))) || (rs.length >= 2 ? rs[0] : null);
+}
 // parede curva entre dois pontos do contorno: o contorno acompanha a curva sem precisar ligar o modo Curva
 function arcWallS(f, a, b) {
   const ia = findVertex(f, a), ib = findVertex(f, b); if (!ia || !ib) return 0;
@@ -889,6 +973,8 @@ function bounds(f) {
   Object.values(f.v).forEach(add);
   f.notes.forEach(add);
   (f.lines || []).forEach(l => l.pts.forEach(add));
+  (f.roofLines || []).forEach(l => l.pts.forEach(add));
+  if (f.lot) f.lot.pts.forEach(add);
   if (f.bg) bgCorners(f.bg).forEach(add);
   (f.cols || []).forEach(c => { const r = Math.max(c.b, c.h || c.b) / 2; add({ x: c.x - r, y: c.y - r }); add({ x: c.x + r, y: c.y + r }); });
   f.walls.forEach(w => { if (w.s && f.v[w.a] && f.v[w.b]) add(arcInfo(f.v[w.a], f.v[w.b], w.s).apex); });
@@ -913,6 +999,9 @@ function getOrCreateVertex(p, split = true) {
 function splitWall(f, w, id, at) {
   const w2 = { id: uid(), a: id, b: w.b, th: w.th, type: w.type };
   if (w.fin) w2.fin = Object.assign({}, w.fin);
+  if (w.finExt != null) w2.finExt = JSON.parse(JSON.stringify(w.finExt));
+  // o acabamento próprio da face passa também para o trecho novo
+  for (const r of f.rooms) if (r.finW && r.finW[w.id] != null) r.finW[w2.id] = JSON.parse(JSON.stringify(r.finW[w.id]));
   w.b = id; delete w.measured; delete w.note;
   f.walls.push(w2);
   for (const o of f.ops) if (o.wall === w.id && o.t >= at - 1e-6) { o.wall = w2.id; o.t -= at; }
@@ -1171,7 +1260,7 @@ const underFloor = () => doc.showUnder ? refFloor() : null;
 const LIGHT = { paper: '#FFFFFF', gridMinor: '#E3E8EE', gridMajor: '#B4C0CC', wall: '#17212B', dim: '#5B6673', measured: '#1F4FB8',
   note: '#9A3D06', roomFill: 'rgba(27,122,61,.05)', roomFillSel: 'rgba(27,122,61,.05)', roomStroke: '#1B7A3D', sel: '#1F4FB8', text: '#17212B',
   varanda: '#B54708', calcada: '#6B7280', permeavel: '#2E7D32', piscina: '#1A7FB5', piso: '#7A3FB8', ghost: '#8C99A6', ghostFill: '#CBD3DB',
-  esgoto: '#4F8A0B', dren: '#B4239E', imp: '#3F6E92' };
+  esgoto: '#4F8A0B', dren: '#B4239E', imp: '#3F6E92', ok: '#1B7A3D', roof: '#9A4A16', lot: '#6B4E16' };
 let PAL = LIGHT;
 function readPalette() {
   const cs = getComputedStyle(document.documentElement), g = n => cs.getPropertyValue(n).trim();
@@ -1179,7 +1268,7 @@ function readPalette() {
     measured: g('--blue'), note: g('--note'), roomFill: g('--room-fill'), roomFillSel: g('--room-fill-sel'),
     roomStroke: g('--room-stroke'), sel: g('--sel'), text: g('--fg'), varanda: g('--c-varanda'), calcada: g('--c-calcada'),
     permeavel: g('--c-permeavel'), piscina: g('--c-piscina'), piso: g('--c-piso'), ghost: g('--ghost'), ghostFill: g('--ghost-fill'),
-    esgoto: g('--esgoto'), dren: g('--dren'), imp: g('--imp') };
+    esgoto: g('--esgoto'), dren: g('--dren'), imp: g('--imp'), ok: g('--green'), roof: g('--roof'), lot: g('--lot') };
   render();
 }
 
@@ -1219,8 +1308,80 @@ const REG = {
   calcada: { fa: .07, dash: [], hatch: [45, -45], sp: .25, lw: 1.2 },
   permeavel: { fa: .10, dash: [], hatch: [60], sp: .2, lw: 1.2 },
   piscina: { fa: .16, dash: [], hatch: [0], sp: .3, lw: 2.2 },
-  piso: { fa: .05, dash: [4, 3], hatch: [-45], sp: .15, lw: 1.3 }
+  piso: { fa: .05, dash: [4, 3], hatch: [-45], sp: .15, lw: 1.3 },
+  cobertura: { fa: .08, dash: [], lw: 2 }
 };
+// Águas do telhado, desenhadas no retângulo que envolve a área (alinhado ao lado mais comprido do contorno):
+// cumeeira, espigões e setas do caimento. "Inverter cumeeira" troca a direção da cumeeira (ou do caimento, com 1 água).
+function roofSegs(f, r) {
+  const pts = roomPts(f, r); if (pts.length < 3) return null;
+  let best = 0, ux = 1, uy = 0;
+  for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], L = dist(a, b); if (L > best) { best = L; ux = (b.x - a.x) / L; uy = (b.y - a.y) / L; } }
+  const vx = -uy, vy = ux, us = pts.map(p => p.x * ux + p.y * uy), vs = pts.map(p => p.x * vx + p.y * vy);
+  const u0 = Math.min(...us), u1 = Math.max(...us), v0 = Math.min(...vs), v1 = Math.max(...vs), rf = r.roof || {}, n = rf.aguas || 2;
+  const W = (u, v) => ({ x: u * ux + v * vx, y: u * uy + v * vy });
+  let along = (u1 - u0) >= (v1 - v0); if (rf.cume && n > 1) along = !along;
+  const [a0, a1, b0, b1] = along ? [u0, u1, v0, v1] : [v0, v1, u0, u1], P = (a, b) => along ? W(a, b) : W(b, a);
+  const dA = along ? { x: ux, y: uy } : { x: vx, y: vy }, dB = along ? { x: vx, y: vy } : { x: ux, y: uy }, neg = d => ({ x: -d.x, y: -d.y });
+  const am = (a0 + a1) / 2, bm = (b0 + b1) / 2, h = (b1 - b0) / 2, out = { ridge: [], hips: [], arrows: [] };
+  if (n === 1) { const s = rf.cume ? -1 : 1; out.arrows.push({ p: P(am, bm - s * h * .4), d: s > 0 ? dB : neg(dB) }); return out; }
+  if (n === 2) { out.ridge.push([P(a0, bm), P(a1, bm)]); out.arrows.push({ p: P(am, bm - h / 2), d: neg(dB) }, { p: P(am, bm + h / 2), d: dB }); return out; }
+  if (n === 3 || n === 4) {
+    const e0 = Math.min(a0 + h, am), e1 = n === 4 ? Math.max(a1 - h, am) : a1, r0 = P(e0, bm), r1 = P(e1, bm);
+    if (dist(r0, r1) > 1e-3) out.ridge.push([r0, r1]);
+    out.hips.push([r0, P(a0, b0)], [r0, P(a0, b1)]);
+    if (n === 4) out.hips.push([r1, P(a1, b0)], [r1, P(a1, b1)]);
+    out.arrows.push({ p: P(am, bm - h / 2), d: neg(dB) }, { p: P(am, bm + h / 2), d: dB }, { p: P(a0 + h / 3, bm), d: neg(dA) });
+    if (n === 4) out.arrows.push({ p: P(a1 - h / 3, bm), d: dA });
+  }
+  return out;
+}
+function drawRoof(c, f, r, X, Y, fs, P, path) {
+  const g = roofSegs(f, r); if (!g) return;
+  c.save(); c.clip(path); c.strokeStyle = c.fillStyle = P.roof; c.lineCap = 'round';
+  const seg = ([a, b], w) => { c.lineWidth = w * fs; c.beginPath(); c.moveTo(X(a.x), Y(a.y)); c.lineTo(X(b.x), Y(b.y)); c.stroke(); };
+  g.ridge.forEach(s => seg(s, 2.6)); g.hips.forEach(s => seg(s, 1.4));
+  // setas do caimento (descida da água)
+  const L = 22 * fs, hd = 6 * fs;
+  for (const { p, d } of g.arrows) {
+    const x = X(p.x), y = Y(p.y), x1 = x + d.x * L / 2, y1 = y + d.y * L / 2;
+    c.lineWidth = 1.4 * fs; c.beginPath(); c.moveTo(x - d.x * L / 2, y - d.y * L / 2); c.lineTo(x1, y1); c.stroke();
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - d.x * hd - d.y * hd * .6, y1 - d.y * hd + d.x * hd * .6); c.lineTo(x1 - d.x * hd + d.y * hd * .6, y1 - d.y * hd - d.x * hd * .6); c.closePath(); c.fill();
+    if (r.roof && r.roof.inc) text(c, `${fmt(r.roof.inc, 0)}%`, x - d.y * 11 * fs, y + d.x * 11 * fs, { font: `600 ${9.5 * fs}px ${MONO}`, color: P.roof, halo: P.paper, haloW: 3 });
+  }
+  c.restore();
+}
+// terreno: contorno de referência (não editável no desenho), com as medidas dos lados e a fachada
+function drawLot(c, f, X, Y, fs, P, edit) {
+  const L = f.lot; if (!L || L.pts.length < 3) return;
+  const pts = L.pts, n = pts.length, cen = polyCentroid(pts);
+  c.save(); c.strokeStyle = c.fillStyle = P.lot; c.lineJoin = 'round';
+  c.lineWidth = (edit ? 2.6 : 2) * fs; c.setLineDash([14 * fs, 4 * fs, 2 * fs, 4 * fs]);
+  c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); c.closePath(); c.stroke(); c.setLineDash([]);
+  for (let i = 0; i < n; i++) {
+    const a = pts[i], b = pts[(i + 1) % n], Lq = dist(a, b) || 1, m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    let nx = -(b.y - a.y) / Lq, ny = (b.x - a.x) / Lq; if ((m.x - cen.x) * nx + (m.y - cen.y) * ny < 0) { nx = -nx; ny = -ny; }
+    const rot = readable(Math.atan2(b.y - a.y, b.x - a.x)), front = L.front === i;
+    if (front) { c.lineWidth = 5 * fs; c.beginPath(); c.moveTo(X(a.x), Y(a.y)); c.lineTo(X(b.x), Y(b.y)); c.stroke(); }
+    text(c, fmt(Lq), X(m.x) + nx * 13 * fs, Y(m.y) + ny * 13 * fs, { font: `600 ${11 * fs}px ${MONO}`, color: P.lot, halo: P.paper, rot });
+    if (front) text(c, 'FRENTE (fachada)', X(m.x) + nx * 30 * fs, Y(m.y) + ny * 30 * fs, { font: `700 ${11 * fs}px ${FONT}`, color: P.lot, halo: P.paper, rot });
+  }
+  if (edit) pts.forEach(q => { c.beginPath(); c.arc(X(q.x), Y(q.y), 5, 0, Math.PI * 2); c.fill(); });
+  c.restore();
+}
+// calhas, rufos e platibandas
+function drawRoofLines(c, f, X, Y, fs, P, isSel) {
+  for (const l of f.roofLines || []) {
+    const on = isSel && isSel('rline', l.id), col = on ? P.sel : P[ROOF_LINES[l.k].col] || P.dim;
+    const pth = () => { c.beginPath(); l.pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); };
+    c.lineJoin = 'round'; c.lineCap = 'butt'; c.strokeStyle = col;
+    if (l.k === 'platibanda') { c.lineWidth = 7 * fs; pth(); c.stroke(); c.strokeStyle = P.paper; c.lineWidth = 3 * fs; pth(); c.stroke(); }
+    else if (l.k === 'calha') { c.lineWidth = 4 * fs; c.setLineDash([10 * fs, 3 * fs]); pth(); c.stroke(); c.setLineDash([]); }
+    else { c.lineWidth = 2.4 * fs; c.setLineDash([3 * fs, 3 * fs]); pth(); c.stroke(); c.setLineDash([]); }
+    const [a, b] = l.pts.length > 1 ? [l.pts[0], l.pts[1]] : [l.pts[0], l.pts[0]];
+    if (dist(a, b) > .8) text(c, ROOF_LINES[l.k].n.toLowerCase(), X((a.x + b.x) / 2), Y((a.y + b.y) / 2) - 11 * fs, { font: `600 ${9.5 * fs}px ${FONT}`, color: col, halo: P.paper, haloW: 3, rot: readable(Math.atan2(b.y - a.y, b.x - a.x)) });
+  }
+}
 function regionPath(pts, X, Y) { const p = new Path2D(); pts.forEach((q, i) => i ? p.lineTo(X(q.x), Y(q.y)) : p.moveTo(X(q.x), Y(q.y))); p.closePath(); return p; }
 function hatch(c, path, pts, X, Y, z, fs, st, col) {
   c.save(); c.clip(path); c.strokeStyle = col; c.globalAlpha = .38 * GA; c.lineWidth = fs;
@@ -1239,6 +1400,7 @@ function drawRegion(c, f, r, X, Y, z, fs, P, on) {
   if (!r.cat || r.cat === 'interno') { c.fillStyle = on ? P.roomFillSel : P.roomFill; c.fill(path); }
   else { c.globalAlpha = (st.fa + (on ? .08 : 0)) * GA; c.fillStyle = col; c.fill(path); c.globalAlpha = GA; }
   if (st.hatch) hatch(c, path, p, X, Y, z, fs, st, col);
+  if (r.cat === 'cobertura') drawRoof(c, f, r, X, Y, fs, P, path);
   c.setLineDash(st.dash.map(v => v * fs)); c.lineWidth = (on ? 2.5 : st.lw || 1.5) * fs; c.strokeStyle = col; c.stroke(path); c.setLineDash([]);
 }
 function drawWalls(c, f, X, Y, P, o = {}) {
@@ -1254,7 +1416,7 @@ function drawWalls(c, f, X, Y, P, o = {}) {
       if (hollow) { c.fillStyle = P.paper; c.fill(); c.strokeStyle = cc; c.lineWidth = 1.3 * fs; c.stroke(); }
       else { c.fillStyle = c.strokeStyle = cc; c.lineWidth = .8; c.fill(); c.stroke(); }
     }
-    if (o.fin && sh.w.fin && sh.w.fin.parede) {
+    if (o.fin && wallHasOwnFin(f, sh.w)) {
       // acabamento próprio da parede: traço roxo sobre ela
       c.strokeStyle = P.piso; c.lineWidth = 3 * fs; c.setLineDash([6 * fs, 4 * fs]); c.beginPath();
       const pts = sh.arc ? arcPts(f.v[sh.w.a], f.v[sh.w.b], sh.w.s) : [f.v[sh.w.a], f.v[sh.w.b]];
@@ -1299,6 +1461,7 @@ function drawScene(c, V, P, M) {
   c.fillStyle = P.paper; c.fillRect(0, 0, V.W, V.H);
   if (!M.noBg) drawBg(c, f, X, Y, z);
   if (M.grid !== false) drawGrid(c, V, P);
+  drawLot(c, f, X, Y, fs, P, M.lotEdit);
   if (M.under) drawGhost(c, V, P, M.under);
   const cen = floorCenter(f);
   // no modo hidrossanitário a arquitetura fica mais fraca, para destacar os tubos
@@ -1313,6 +1476,7 @@ function drawScene(c, V, P, M) {
 
   // paredes com espessura, com vãos onde há portas/janelas
   drawWalls(c, f, X, Y, P, { sel: M.sel && M.sel.type === 'wall' ? M.sel.id : null, fs, fin: M.fin });
+  drawRoofLines(c, f, X, Y, fs, P, isSel);
 
   // pilares
   f.cols.forEach((cl, i) => {
@@ -1324,7 +1488,8 @@ function drawScene(c, V, P, M) {
     }
   });
 
-  // esquadrias: portas (de abrir, dupla, de correr, vão livre) e janelas
+  // esquadrias: portas (de abrir, dupla, de correr, vão livre) e janelas, com o código do tipo (P1, J1…)
+  const codes = opCodes();
   for (const o of f.ops) {
     const G = opGeom(f, o); if (!G) continue;
     const { g, p0, p1 } = G, col = isSel('op', o.id) ? P.sel : P.wall, hn = wth(G.w) * z / 2, ht = wth(G.w) / 2, k = opKind(o), sd = o.side || 1;
@@ -1367,7 +1532,7 @@ function drawScene(c, V, P, M) {
       // rótulo da abertura no lado oposto ao da cota da parede, para os dois não se sobreporem
       const m = mid, wm = { x: (g.A.x + g.B.x) / 2, y: (g.A.y + g.B.y) / 2 };
       const sd = ((wm.x - cen.x) * g.nx + (wm.y - cen.y) * g.ny) >= 0 ? -1 : 1, off = hn + 9 * fs;
-      const lbl = OPK[k].lb + ' ' + fmt(o.w);
+      const lbl = codes[o.id] || OPK[k].lb;
       text(c, lbl, X(m.x) + g.nx * sd * off, Y(m.y) + g.ny * sd * off,
         { font: `500 ${10 * fs}px ${MONO}`, color: isSel('op', o.id) ? P.sel : P.dim, halo: P.paper, haloW: 3, rot: readable(Math.atan2(g.uy, g.ux)) });
     }
@@ -1409,7 +1574,8 @@ function drawScene(c, V, P, M) {
       L.push([`${fmt(info.area)} m²`, `500 ${12 * fs}px ${MONO}`, base]);
       if (full && hasPD(r)) L.push([`PD ${fmt(r.pd)} m`, `${11 * fs}px ${MONO}`, P.dim]);
       if (full && r.cat === 'piscina') L.push([`Prof. ${fmt(r.prof ?? 1.4)} m`, `${11 * fs}px ${MONO}`, P.dim]);
-      if (M.fin) for (const k of finKeys(r)) if (finVal(r.fin, k)) L.push([`${FIN_LBL[k]}: ${finVal(r.fin, k)}`, `500 ${10.5 * fs}px ${FONT}`, P.piso]);
+      if (r.cat === 'cobertura') { const rf = r.roof || {}; L.push([`${rf.aguas || 2} água${(rf.aguas || 2) > 1 ? 's' : ''}${rf.tel ? ' · ' + rf.tel : ''}`, `500 ${10.5 * fs}px ${FONT}`, P.roof]); }
+      if (M.fin) for (const k of finKeys(r)) if (roomFinVal(f, r, k)) L.push([`${FIN_LBL[k]}: ${roomFinVal(f, r, k)}`, `500 ${10.5 * fs}px ${FONT}`, P.piso]);
       if (M.photos && M.photos[r.id]) L.push([M.photos[r.id], `600 ${10.5 * fs}px ${FONT}`, P.measured]);
       else if (M.cam && r.photos && r.photos.length) L.push([`${r.photos.length} foto${r.photos.length > 1 ? 's' : ''}`, `500 ${10.5 * fs}px ${FONT}`, P.measured]);
     }
@@ -1423,6 +1589,28 @@ function drawScene(c, V, P, M) {
     text(c, n.text, X(n.x), Y(n.y), { font: `italic 500 ${12.5 * fs}px ${FONT}`, color: isSel('note', n.id) ? P.sel : P.note, halo: P.paper });
   GA = 1; c.globalAlpha = 1;
   if (!M.noHid) drawHid(c, f, X, Y, z, fs, P, M, isSel);
+  // números das paredes do ambiente em foco (ou das faces da parede em conferência), do lado de dentro
+  if (M.numRoom || M.numWall) {
+    const tags = [];
+    for (const r of f.rooms.filter(hasPD)) {
+      if (M.numRoom && r.id !== M.numRoom) continue;
+      for (const s of roomWallList(f, r)) if (!M.numWall || s.w.id === M.numWall) tags.push({ r, s });
+    }
+    for (const { r, s } of tags) {
+      const w = s.w, pts = roomPts(f, r);
+      let m, n;
+      if (w.s) { const a = arcInfo(f.v[w.a], f.v[w.b], w.s); m = a.apex; n = { x: (a.C.x - m.x) / a.R, y: (a.C.y - m.y) / a.R }; }
+      else { const g = wallGeom(f, w), t = (s.t0 + s.t1) / 2; m = { x: g.A.x + g.ux * t, y: g.A.y + g.uy * t }; n = { x: g.nx, y: g.ny }; }
+      if (!pointInPoly({ x: m.x + n.x * 0.3, y: m.y + n.y * 0.3 }, pts)) n = { x: -n.x, y: -n.y };
+      const off = wth(w) * z / 2 + 15 * fs, x = X(m.x) + n.x * off, y = Y(m.y) + n.y * off, ok = wallOk(f, w), on = isSel('wall', w.id);
+      const lb = `${s.n}${ok ? ' ✓' : ''}`;
+      c.font = `700 ${11 * fs}px ${FONT}`; const tw2 = c.measureText(lb).width + 12 * fs;
+      c.fillStyle = on ? P.sel : ok ? P.ok : P.dim; c.beginPath();
+      if (c.roundRect) c.roundRect(x - tw2 / 2, y - 10 * fs, tw2, 20 * fs, 10 * fs); else c.rect(x - tw2 / 2, y - 10 * fs, tw2, 20 * fs);
+      c.fill();
+      text(c, lb, x, y + .5, { font: `700 ${11 * fs}px ${FONT}`, color: P.paper });
+    }
+  }
 }
 
 /* ---------- tubos, caixas e pontos de contribuição ---------- */
@@ -1531,6 +1719,11 @@ function drawOverlay(c) {
   };
   const line = (pts, col, w, dash) => { c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); c.stroke(); c.setLineDash([]); };
 
+  if (tool === 'lote' && lotDraw) {
+    if (lotDraw.pts.length > 1) line(lotDraw.pts, P.lot, 2.5, [8, 5]);
+    lotDraw.pts.forEach((q, i) => dot(q, i ? 5 : 10, i ? P.lot : null, P.lot, 2));
+    return;
+  }
   if (tool === 'calib' && calib) {
     if (calib.pts.length === 2) line(calib.pts, P.sel, 2.5, [8, 6]);
     calib.pts.forEach(q => { dot(q, 9, null, P.sel, 2.5); dot(q, 2.5, P.sel); });
@@ -1557,6 +1750,7 @@ function drawOverlay(c) {
     amb.pts.forEach((q, i) => dot(q, i === 0 ? 10 : 5, i === 0 ? null : col, col, 2));
   }
   if (chain) { dot(chain.pts[0], 11, null, P.sel, 2); dot(chain.pts[chain.pts.length - 1], 6, P.sel); }
+  if (rchain) { rchain.pts.forEach((q, i) => dot(q, i === rchain.pts.length - 1 ? 7 : 4, P.roof)); }
   if (hchain) { const col = P[hidSys]; hchain.pts.forEach((q, i) => dot(q, i === hchain.pts.length - 1 ? 7 : 4, col)); }
   if (pend) {
     // curva aguardando o lado: segue o dedo
@@ -1578,7 +1772,8 @@ let raf = 0;
 function render() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
 function draw() {
   if (!doc) return;
-  drawScene(ctx, { ox: cam.ox, oy: cam.oy, z: cam.z, W: VW, H: VH }, PAL, { floor: F(), sel, under: underFloor(), fin: tool === 'acab', cam: true, hidFocus: tool === 'hidro' ? hidSys : null });
+  drawScene(ctx, { ox: cam.ox, oy: cam.oy, z: cam.z, W: VW, H: VH }, PAL, { floor: F(), sel, under: underFloor(), fin: tool === 'acab', cam: true, hidFocus: tool === 'hidro' ? hidSys : null,
+    numRoom: S && S.kind === 'room' ? S.id : S && S.kind === 'fin' ? S.room : null, numWall: S && S.kind === 'wall' ? S.id : null, lotEdit: tool === 'lote' });
   drawOverlay(ctx);
   let m = 1; for (const s of [0.5, 1, 2, 5, 10, 20]) { m = s; if (s * cam.z >= 50) break; }
   $('#scaleBar').style.width = Math.round(m * cam.z) + 'px';
@@ -1617,6 +1812,7 @@ function snap(sp, o = {}) {
   if (U) for (const id in U.v) pool.push(U.v[id]);
   // cantos das linhas importadas também servem de encaixe (para passar paredes por cima delas)
   for (const l of f.lines || []) pool.push(...l.pts);
+  if (f.lot) pool.push(...f.lot.pts);
   if (!o.noVertex) {
     let best = null, bd = 22;
     for (const v of pool) { const d = dist(v, w) * z; if (d < bd) { bd = d; best = { x: v.x, y: v.y }; } }
@@ -1654,8 +1850,9 @@ function pendS(q) {
 /* ================= toque / mouse ================= */
 const ptrs = new Map(); let G = null;
 const loc = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
-const isDraw = () => tool === 'parede' || tool === 'ambiente' || (tool === 'acab' && acabMode === 'area') || (tool === 'hidro' && hidTool === 'tubo');
-const drawing = () => tool === 'parede' ? chain : tool === 'hidro' ? hchain : amb;
+const isDraw = () => tool === 'parede' || tool === 'ambiente' || tool === 'cobertura' || (tool === 'acab' && acabMode === 'area') || (tool === 'hidro' && hidTool === 'tubo');
+const roofLineMode = () => tool === 'cobertura' && roofMode !== 'area';
+const drawing = () => tool === 'parede' ? chain : tool === 'hidro' ? hchain : roofLineMode() ? rchain : amb;
 const lastPt = () => { const d = drawing(); return d && d.pts.length ? d.pts[d.pts.length - 1] : null; };
 cv.addEventListener('pointerdown', e => {
   e.preventDefault();
@@ -1672,6 +1869,12 @@ cv.addEventListener('pointerdown', e => {
   if (isDraw()) {
     hover = pend ? toWorld(p) : snap(p, { from: lastPt() });
     G = { type: 'draw', p0: p, start: lastPt() ? null : hover, moved: false }; render(); return;
+  }
+  if (tool === 'lote') {
+    // terreno: arrastar move o contorno inteiro; tocar num lado marca a fachada
+    const L = F().lot;
+    if (!lotDraw && L) { G = { type: 'lotDrag', p0: p, moved: false, orig: L.pts.map(pt) }; return; }
+    G = { type: 'tap', p0: p, ox0: cam.ox, oy0: cam.oy }; return;
   }
   if (tool === 'hidro') {
     // no modo hidrossanitário só os tubos e pontos do sistema escolhido respondem ao toque
@@ -1723,6 +1926,14 @@ cv.addEventListener('pointermove', e => {
       if (!G.moved && moved > 6) { G.moved = true; commit(); sel = { type: 'col', id: G.id }; }
       if (G.moved) { const s = snap(p, { noWall: true }), cl = F().cols.find(x => x.id === G.id); if (cl) { cl.x = s.x; cl.y = s.y; } render(); }
       break;
+    case 'lotDrag': {
+      if (!G.moved && moved > 6) { G.moved = true; commit(); }
+      if (G.moved) {
+        const a = toWorld(G.p0), b = toWorld(p), dx = Math.round((b.x - a.x) / 0.25) * 0.25, dy = Math.round((b.y - a.y) / 0.25) * 0.25;
+        F().lot.pts = G.orig.map(q => ({ x: q.x + dx, y: q.y + dy })); render();
+      }
+      break;
+    }
     case 'dragHNode':
       if (!G.moved && moved > 6) { G.moved = true; commit(); sel = { type: 'hnode', id: G.id }; }
       if (G.moved) { const s = hsnap(p, { exclude: G.id, noNode: true, noPipe: true }), nd = F().hid.n[G.id]; if (nd) { nd.x = s.x; nd.y = s.y; } render(); }
@@ -1743,6 +1954,7 @@ function pointerEnd(e) {
   else if (g.type === 'dragOp') { if (g.moved) save(); openOpSheet(g.id); }
   else if (g.type === 'dragCol') { if (g.moved) save(); openColSheet(g.id); }
   else if (g.type === 'dragHNode') { if (g.moved) save(); openHNodeSheet(g.id); }
+  else if (g.type === 'lotDrag') { if (g.moved) save(); else lotTap(g.p0); }
   if (e.pointerType !== 'mouse') hover = null;
   render(); updateUI();
 }
@@ -1766,6 +1978,7 @@ function hitTest(p, o = {}) {
   for (const r of [...f.rooms].reverse()) { const c = roomInfo(f, r).c; if (c && Math.abs(c.x - w.x) * z < 60 && Math.abs(c.y - w.y) * z < 26) return { type: 'room', id: r.id }; }
   const bw = nearestWall(f, w, Math.max(16, 8 + Math.max(0, ...f.walls.map(x => wth(x))) * z / 2));
   if (bw) return { type: 'wall', id: bw.id };
+  for (const l of f.roofLines || []) if (lineSegs(l).some(([a, b]) => projSeg(w, a, b).d * z < 14)) return { type: 'rline', id: l.id };
   for (const l of f.lines || []) if (lineSegs(l).some(([a, b]) => projSeg(w, a, b).d * z < 12)) return { type: 'line', id: l.id };
   const r = roomAt(f, w); if (r) return { type: 'room', id: r.id };
   return null;
@@ -1792,7 +2005,7 @@ function roomAt(f, w) {
 function drawUp(p, g) {
   hover = null;
   if (pend) { placeSeg(pend.to, pendS(toWorld(p))); pend = null; updateUI(); return; }
-  const regionTool = tool === 'ambiente' || tool === 'acab';
+  const regionTool = tool === 'ambiente' || tool === 'acab' || (tool === 'cobertura' && roofMode === 'area');
   // contorno pelas paredes: cada toque escolhe (ou tira) uma parede
   if (regionTool && amb && amb.mode === 'walls') {
     const wl = nearestWall(F(), toWorld(p), 28);
@@ -1805,7 +2018,7 @@ function drawUp(p, g) {
     if (regionTool && !g.moved) {
       const f = F(), w = toWorld(p), nearV = Object.values(f.v).some(v => dist(v, w) * cam.z < 16);
       const wl = !nearV && nearestWall(f, w, Math.max(14, 6 + Math.max(0, ...f.walls.map(x => wth(x))) * cam.z / 2));
-      if (wl) { amb = { mode: 'walls', sel: [], pts: [], bul: [], cat: tool === 'acab' ? 'piso' : regCat, cand: null }; ambToggleWall(wl, w); return; }
+      if (wl) { amb = { mode: 'walls', sel: [], pts: [], bul: [], cat: tool === 'acab' ? 'piso' : tool === 'cobertura' ? 'cobertura' : regCat, cand: null }; ambToggleWall(wl, w); return; }
     }
     startDraw(g.start);
     if (g.moved && !same(g.start, t)) segTo(t);
@@ -1833,11 +2046,12 @@ function finishAmbLoop(lp) {
 function startDraw(p) {
   if (tool === 'parede') chain = { pts: [pt(p)] };
   else if (tool === 'hidro') hchain = { pts: [Object.assign(pt(p), p.node ? { node: p.node } : {})] };
-  else amb = { pts: [pt(p)], bul: [], cat: tool === 'acab' ? 'piso' : regCat };
+  else if (roofLineMode()) rchain = { pts: [pt(p)], id: null };
+  else amb = { pts: [pt(p)], bul: [], cat: tool === 'acab' ? 'piso' : tool === 'cobertura' ? 'cobertura' : regCat };
 }
 function segTo(t) {
   const d = drawing(), closes = same(d.pts[0], t);
-  if (tool === 'hidro') { placeSeg(t, 0); return; }
+  if (tool === 'hidro' || roofLineMode()) { placeSeg(t, 0); return; }
   const n = d.pts.length, inh = tool !== 'parede' && n === 2 && closes && (d.bul[0] || arcWallS(F(), d.pts[0], d.pts[1]) || arcWallS(F(), d.pts[1], t));
   if (closes && n < (tool !== 'parede' && (curve || inh) ? 2 : 3)) return;
   if (curve) { pend = { from: pt(d.pts[d.pts.length - 1]), to: pt(t) }; return; }
@@ -1853,6 +2067,12 @@ function placeSeg(t, s) {
     last.node = a; d.pts.push(Object.assign(pt(t), { node: b }));
     return;
   }
+  if (roofLineMode()) {
+    // calha, rufo ou platibanda: uma linha só, ponto a ponto
+    commit(); const f = F(); let l = d.id && f.roofLines.find(x => x.id === d.id);
+    if (!l) { l = { id: uid(), k: roofMode, pts: [pt(last)], mat: '', obs: '' }; f.roofLines.push(l); d.id = l.id; }
+    l.pts.push(pt(t)); doc.example = false; save(); d.pts.push(pt(t)); return;
+  }
   if (tool === 'parede') {
     commit(); if (s) addArcWall(last, t, s); else addWall(last, t); doc.example = false; save();
     if (closes) { const pts = d.pts; chain = null; onLoopClosed(pts); return; }
@@ -1863,8 +2083,8 @@ function placeSeg(t, s) {
     d.pts.push(pt(t));
   }
 }
-const newRoom = (poly, cat, bul) => Object.assign({ id: uid(), poly, cat, name: '', pd: doc.pd || 2.6, obs: '', fin: {}, photos: [] },
-  cat === 'piscina' ? { prof: 1.4, rev: '' } : {}, bul && bul.some(Boolean) ? { bul } : {});
+const newRoom = (poly, cat, bul) => Object.assign({ id: uid(), poly, cat, name: '', pd: doc.pd || 2.6, obs: '', fin: {}, finW: {}, photos: [] },
+  cat === 'piscina' ? { prof: 1.4, rev: '' } : cat === 'cobertura' ? { roof: { tel: '', est: '', aguas: 2, cume: 0, inc: null } } : {}, bul && bul.some(Boolean) ? { bul } : {});
 function onLoopClosed(pts) {
   const f = F(), poly = pts.map(p => findVertex(f, p)).filter(Boolean);
   if (poly.length < 3) return;
@@ -1875,9 +2095,9 @@ function onLoopClosed(pts) {
   openRoomSheet(r.id, true);
 }
 function chainBack() {
-  const d = drawing(), hid = tool === 'hidro'; if (!d) return;
-  if (d.pts.length <= 1) { if (hid) hchain = null; else chain = null; }
-  else { undo(); if (hid) hchain = d; else chain = d; d.pts.pop(); }
+  const d = drawing(), hid = tool === 'hidro', rl = roofLineMode(); if (!d) return;
+  if (d.pts.length <= 1) { if (hid) hchain = null; else if (rl) rchain = null; else chain = null; }
+  else { undo(); if (hid) hchain = d; else if (rl) rchain = d; else chain = d; d.pts.pop(); if (rl && d.pts.length <= 1) d.id = null; }
   refresh();
 }
 function finishAmb() {
@@ -1903,7 +2123,9 @@ function onTap(p, hit) {
     else if (hit.type === 'note') openNoteSheet(hit.id);
     else if (hit.type === 'col') openColSheet(hit.id);
     else if (hit.type === 'line') openLineSheet(hit.id);
+    else if (hit.type === 'rline') openRoofLineSheet(hit.id);
   } else if (tool === 'calib') calibTap(w);
+  else if (tool === 'lote') lotTap(p);
   else if (tool === 'esquadria') insertOpNear(opSel, w);
   else if (tool === 'hidro') hidTap(p, hit);
   else if (tool === 'nota') openNoteSheet(null, w);
@@ -1919,7 +2141,9 @@ function onTap(p, hit) {
     if (acabMode === 'parede') {
       const bw = nearestWall(f, w, 32);
       if (!bw) { toast('Toque sobre uma parede.'); return; }
-      openFinSheet('wall', bw.id);
+      // a face tocada: o ambiente do lado do toque, ou a face externa
+      const r = faceAt(f, bw, w);
+      if (r) openFinSheet('face', r.id, false, bw.id); else openFinSheet('ext', bw.id);
     } else {
       const r = roomAt(f, w);
       if (!r) { toast('Toque dentro de um ambiente.'); return; }
@@ -1992,7 +2216,7 @@ function markChips(act, v, k) { sheetEl.querySelectorAll(`.chip[data-act="${act}
 function openSheet(spec) {
   S = Object.assign({ committed: false, fresh: true, fields: {}, on: {} }, spec);
   sheetEl.innerHTML = `<div class="sh-head"><div><div class="sh-title">${esc(S.title)}</div><div class="sh-sub" id="shSub">${esc(S.sub || '')}</div></div>${xBtn}</div>${S.body}`;
-  sheetEl.hidden = false; sheetEl.scrollTop = 0;
+  sheetEl.hidden = false; sheetEl.scrollTop = 0; sheetEl.classList.toggle('dock', !!S.dock);
   syncFields(); render(); updateUI();
 }
 // desloca o desenho para as pontas A e B não ficarem escondidas atrás do painel
@@ -2003,7 +2227,7 @@ function revealWall(g) {
   cam.ox -= hi - lo > right - 40 ? (lo + hi) / 2 - (right + 20) / 2 : hi - right;
   render();
 }
-function closeSheet() { stopCompass(); sheetEl.hidden = true; S = null; sel = null; render(); updateUI(); }
+function closeSheet() { stopCompass(); wallNav = null; sheetEl.hidden = true; S = null; sel = null; render(); updateUI(); }
 function touch() { if (S && !S.committed) { commit(); S.committed = true; doc.example = false; } }
 function syncFields() {
   if (!S) return;
@@ -2064,11 +2288,12 @@ function openWallSheet(id) {
     const L = wallGeom(F(), w).L;
     if (v >= L / 2 - 1e-6 && v <= 500) { touch(); w.rm = v; w.s = sFromR(L, v, Math.sign(w.s)); save(); render(); $('#shSub').textContent = arcSub(); }
   } };
-  const reopen = () => openWallSheet(id);
+  const reopen = () => openWallSheet(id), refs = wallRefs(f, w);
   openSheet({
     kind: 'wall', id, moveEnd: 'b', active: 'len',
-    title: arc ? 'Parede curva' : 'Parede', sub: arc ? arcSub() : `Desenho: ${fmt(g.L)} m · ${status}`, fields,
+    title: arc ? 'Parede curva' : 'Parede', sub: `${refs.length ? refs.join(' · ') + ' · ' : ''}${arc ? arcSub() : `desenho ${fmt(g.L)} m · ${status}`}`, fields,
     body: `
+      ${okLine(f, w)}
       <div class="field"><span class="lbl">${arc ? 'Corda (reta entre as pontas A e B)' : 'Medida real'}</span>
         <div class="row"><button class="num" data-field="len"></button><span class="unit">m</span><span class="small muted grow" id="dlt">${deltaText(init - g.L)}</span></div></div>
       ${arc ? `<div class="field"><span class="lbl">Raio</span>
@@ -2089,6 +2314,7 @@ function openWallSheet(id) {
         : '<button class="btn sm" data-act="addPorta">+ Porta</button><button class="btn sm" data-act="addJanela">+ Janela</button><button class="btn sm" data-act="bend">Curvar</button>'}
         <span class="grow"></span><button class="btn sm danger" data-act="del">Excluir parede</button></div>`,
     on: {
+      okw() { touch(); w.measured = wallGeom(F(), w).L; delete w.note; save(); reopen(); toast('Medida conferida.'); },
       end(el) { S.moveEnd = el.dataset.v; sheetEl.querySelectorAll('[data-act="end"]').forEach(b => b.classList.toggle('on', b === el)); render(); },
       apply() {
         const v = parseNum(S.fields.len.value);
@@ -2118,6 +2344,76 @@ function openWallSheet(id) {
   });
   revealWall(g);
 }
+// situação da medida: verde quando conferida (ou anotada), laranja quando ainda é a da grade
+function okLine(f, w) {
+  const g = wallGeom(f, w);
+  if (w.note != null) return `<div class="okline ok">✓ Medida anotada: ${fmt(w.note)} m (o desenho tem ${fmt(g.L)} m)</div>`;
+  if (wallOk(f, w)) return `<div class="okline ok">✓ Medida conferida: ${fmt(g.L)} m</div>`;
+  return `<div class="okline"><span class="grow">Medida ainda não conferida (${fmt(g.L)} m pela grade)</span><button class="btn sm" data-act="okw">✓ Confere</button></div>`;
+}
+
+/* ---------- conferir paredes uma a uma: a parede fica destacada e centralizada no desenho ---------- */
+let wallNav = null;
+function startWallCheck(rid) {
+  const f = F(), order = [];
+  for (const r of f.rooms.filter(hasPD)) { if (rid && r.id !== rid) continue; for (const s of roomWallList(f, r)) if (!order.includes(s.w.id)) order.push(s.w.id); }
+  if (!rid) for (const w of f.walls) if (!order.includes(w.id)) order.push(w.id);
+  if (!order.length) { toast('Nenhuma parede para conferir.'); return; }
+  const first = order.findIndex(id => !wallOk(f, f.walls.find(w => w.id === id)));
+  wallNav = { ids: order, i: first < 0 ? 0 : first, rid };
+  $('#drawer').hidden = true; closeModal(); setTool('editar'); openWallCheck();
+}
+function focusWall(g) {
+  const dock = sheetEl.classList.contains('dock'), aw = VW - (dock || sheetEl.hidden ? 0 : sheetEl.offsetWidth + 24), ah = VH - (dock ? sheetEl.offsetHeight + 24 : 0);
+  cam.z = clamp(Math.min(aw, ah) * .55 / Math.max(g.L, 1), 30, 150);
+  cam.ox = aw / 2 - (g.A.x + g.B.x) / 2 * cam.z; cam.oy = ah / 2 - (g.A.y + g.B.y) / 2 * cam.z;
+  render();
+}
+function openWallCheck() {
+  const f = F();
+  wallNav.ids = wallNav.ids.filter(id => f.walls.some(w => w.id === id));
+  if (!wallNav.ids.length) { wallNav = null; closeSheet(); return; }
+  wallNav.i = clamp(wallNav.i, 0, wallNav.ids.length - 1);
+  const id = wallNav.ids[wallNav.i], w = f.walls.find(x => x.id === id), g = wallGeom(f, w), refs = wallRefs(f, w);
+  const nOk = wallNav.ids.filter(x => wallOk(f, f.walls.find(y => y.id === x))).length;
+  const step = d => {
+    if (wallNav.i + d >= wallNav.ids.length) {
+      const ff = F(), tot = wallNav.ids.length, c = wallNav.ids.filter(x => { const y = ff.walls.find(q => q.id === x); return y && wallOk(ff, y); }).length;
+      wallNav = null; closeSheet(); toast(`Fim da conferência: ${c === tot ? 'todas as' : c + ' de ' + tot} paredes conferidas.`); return;
+    }
+    wallNav.i = Math.max(0, wallNav.i + d); openWallCheck();
+  };
+  sel = { type: 'wall', id };
+  openSheet({
+    kind: 'wall', id, check: true, dock: VW < 720, moveEnd: 'b', active: 'len',
+    title: `Conferir paredes · ${wallNav.i + 1} de ${wallNav.ids.length}`, sub: `${refs.join(' · ') || 'Parede sem ambiente'}${w.s ? ' · curva (medida da corda)' : ''} · ${nOk} conferida${nOk === 1 ? '' : 's'}`,
+    fields: { len: { value: fmt(w.note ?? g.L), live: v => { $('#dlt').textContent = deltaText(v - g.L); } } },
+    body: `
+      ${wallOk(f, w) ? okLine(f, w) : `<div class="okline"><span class="grow">Pela grade: <b>${fmt(g.L)} m</b></span></div>`}
+      <button class="btn primary" data-act="okw">✓ Confere${wallOk(f, w) ? ' e seguir' : ` · ${fmt(g.L)} m`}</button>
+      <div class="field"><span class="lbl">Medida real, se for diferente</span>
+        <div class="row"><button class="num" data-field="len"></button><span class="unit">m</span><span class="small muted grow" id="dlt">${deltaText((w.note ?? g.L) - g.L)}</span></div></div>
+      ${keypad()}
+      <div class="row"><span class="small muted">Mover a ponta</span><div class="seg"><button data-act="end" data-v="a">A</button><button data-act="end" data-v="b" class="on">B</button></div>
+        <button class="btn sm" data-act="apply">Ajustar</button><button class="btn sm" data-act="note">Só anotar</button></div>
+      <div class="row"><button class="btn" data-act="prev" ${wallNav.i ? '' : 'disabled'}>‹ Anterior</button><span class="grow"></span><button class="btn sm" data-act="full">Mais opções</button><span class="grow"></span><button class="btn" data-act="next">${wallNav.i === wallNav.ids.length - 1 ? 'Terminar' : 'Próxima ›'}</button></div>`,
+    on: {
+      okw() { touch(); if (!wallOk(F(), w)) { w.measured = wallGeom(F(), w).L; delete w.note; save(); } step(1); },
+      end(el) { S.moveEnd = el.dataset.v; sheetEl.querySelectorAll('[data-act="end"]').forEach(b => b.classList.toggle('on', b === el)); render(); },
+      apply() {
+        const v = parseNum(S.fields.len.value); if (!(v >= 0.1 && v <= 200)) { toast('Informe uma medida entre 0,10 e 200 m.'); return; }
+        touch(); stretchWall(w, v, S.moveEnd); save(); toast(`Ajustada para ${fmt(v)} m.`); step(1);
+      },
+      note() {
+        const v = parseNum(S.fields.len.value); if (!(v >= 0.1 && v <= 200)) { toast('Informe uma medida entre 0,10 e 200 m.'); return; }
+        touch(); w.note = v; delete w.measured; save(); step(1);
+      },
+      prev() { step(-1); }, next() { step(1); },
+      full() { wallNav = null; openWallSheet(id); }
+    }
+  });
+  focusWall(g);
+}
 
 function openOpSheet(id) {
   const f = F(), o = f.ops.find(x => x.id === id); if (!o) return;
@@ -2138,7 +2434,7 @@ function openOpSheet(id) {
   if (!isP) fields.sill = { get: () => o.sill ?? 1, live: v => { touch(); o.sill = v; after(); } };
   for (const k in fields) fields[k].value = fmt(fields[k].get());
   openSheet({
-    kind: 'op', id, active: 'w', title: K.n, sub: subTxt(), fields,
+    kind: 'op', id, active: 'w', title: `${opCodes()[o.id] || ''} · ${K.n}`, sub: subTxt(), fields,
     body: `
       <div class="field"><span class="lbl">Tipo</span>
         <div class="chips">${Object.keys(OPK).filter(x => OPK[x].t === o.type).map(x => `<button class="chip${x === k ? ' on' : ''}" data-act="kind" data-v="${x}">${esc(OPK[x].n)}</button>`).join('')}</div></div>
@@ -2183,7 +2479,7 @@ function openOpSheet(id) {
   upRest(); revealWall(opGeom(f, o).g);
 }
 
-const finSummary = r => { const ks = finKeys(r).filter(k => finVal(r.fin, k)); return ks.length ? ks.map(k => `<b>${FIN_LBL[k]}:</b> ${esc(finVal(r.fin, k))}`).join('<br>') : '<span class="muted">Nenhum acabamento informado.</span>'; };
+const finSummary = (f, r) => { const ks = finKeys(r).filter(k => roomFinVal(f, r, k)); return ks.length ? ks.map(k => `<b>${FIN_LBL[k]}:</b> ${esc(roomFinVal(f, r, k))}`).join('<br>') : '<span class="muted">Nenhum acabamento informado.</span>'; };
 function wallsLine(f, r) {
   const ws = roomWalls(f, r), ok = ws.filter(w => wallOk(f, w)).length;
   return ws.length ? `${ws.length} parede${ws.length > 1 ? 's' : ''} no contorno · ${ok} com medida real` : 'Nenhuma parede no contorno (área desenhada só pelos cantos)';
@@ -2191,6 +2487,7 @@ function wallsLine(f, r) {
 function openRoomSheet(id, isNew) {
   const f = F(), r = f.rooms.find(x => x.id === id); if (!r) return;
   if (r.cat === 'piso') { openFinSheet('room', id, isNew); return; }
+  if (r.cat === 'cobertura') { openRoofSheet(id, isNew); return; }
   sel = { type: 'room', id };
   const cat = catOf(r), pool = r.cat === 'piscina', pd = hasPD(r);
   const stats = () => {
@@ -2220,8 +2517,10 @@ function openRoomSheet(id, isNew) {
       ${pool ? `<div class="field"><span class="lbl">Revestimento / estrutura</span>${chipsPick('rev', POOL_REV, r.rev)}
         <input class="txt" id="rRev" data-input="revtxt" value="${esc(r.rev || '')}" placeholder="Outro: descreva" autocomplete="off"></div>` : ''}
       <div class="stats" id="rStats">${stats()}</div>
-      ${r.cat === 'interno' || r.cat === 'varanda' ? `<span class="small muted">${esc(wallsLine(f, r))}</span>` : ''}
-      ${finKeys(r).length ? `<div class="field"><span class="lbl">Acabamentos</span><div class="fin-sum">${finSummary(r)}</div>
+      ${hasPD(r) ? (() => { const ws = roomWallList(f, r); return `<div class="field"><span class="lbl">Paredes deste ambiente · ${esc(wallsLine(f, r))}</span>
+        ${ws.length ? `<div class="wlist">${ws.map(s => `<button data-act="wsel" data-v="${s.w.id}"><b>Parede ${s.n}</b>${wallOk(f, s.w) ? '<span class="ok">✓</span>' : ''}<span>${fmt(s.L)} m</span><span class="grow">${esc(wtype(s.w).c)} · ${esc(finText(faceFin(r, s.w)) || 'acabamento não informado')}${ownFace(r, s.w) ? ' (próprio)' : ''}</span></button>`).join('')}</div>
+          <div class="row"><button class="btn sm" data-act="wcheck">Conferir as paredes deste ambiente</button></div>` : '<span class="small muted">Este contorno não passa por paredes desenhadas.</span>'}</div>`; })() : ''}
+      ${finKeys(r).length ? `<div class="field"><span class="lbl">Acabamentos</span><div class="fin-sum">${finSummary(f, r)}</div>
         <div class="row"><button class="btn sm" data-act="fin">Definir acabamentos</button></div></div>` : ''}
       <div class="field"><span class="lbl">Fotos do local</span>
         <div class="photos" id="rPhotos"></div>
@@ -2237,6 +2536,8 @@ function openRoomSheet(id, isNew) {
       revtxt(el) { touch(); r.rev = el.value; markChips('rev', r.rev); save(); },
       obs(el) { touch(); r.obs = el.value; save(); },
       fin() { openFinSheet('room', id); },
+      wsel(el) { openWallSheet(el.dataset.v); },
+      wcheck() { startWallCheck(id); },
       cam() { photoTarget = id; $('#camIn').click(); },
       gal() { photoTarget = id; $('#galIn').click(); },
       ph(el) { openPhoto(id, el.dataset.id); },
@@ -2247,17 +2548,28 @@ function openRoomSheet(id, isNew) {
   renderPhotos(r);
 }
 
-function openFinSheet(kind, id, isNew) {
-  const f = F(), obj = kind === 'wall' ? f.walls.find(w => w.id === id) : f.rooms.find(r => r.id === id); if (!obj) return;
-  sel = { type: kind === 'wall' ? 'wall' : 'room', id };
-  const zone = kind !== 'wall' && obj.cat === 'piso', keys = kind === 'wall' ? ['parede'] : finKeys(obj);
-  const opts = k => kind === 'wall' ? FIN.parede : finOpts(obj, k);
-  const label = k => kind === 'wall' ? 'Revestimento desta parede' : zone ? 'Acabamento do piso nesta área' : obj.cat === 'calcada' ? 'Tipo de calçamento' : obj.cat === 'permeavel' ? 'Cobertura do solo' : FIN_LBL[k];
+// kind: 'room' (ambiente ou área de piso), 'face' (uma parede vista de um ambiente: id = ambiente, wid = parede)
+// ou 'ext' (face externa de uma parede: id = parede)
+function openFinSheet(kind, id, isNew, wid) {
+  const f = F(), room = kind !== 'ext' ? f.rooms.find(r => r.id === id) : null, wall = kind === 'ext' ? f.walls.find(w => w.id === id) : kind === 'face' ? f.walls.find(w => w.id === wid) : null;
+  if ((kind !== 'ext' && !room) || (kind !== 'room' && !wall)) return;
+  const obj = room || wall, one = kind !== 'room';
+  sel = one ? { type: 'wall', id: wall.id } : { type: 'room', id };
+  const zone = !one && obj.cat === 'piso', keys = one ? ['parede'] : finKeys(obj);
+  const opts = k => finOpts(obj, k);
+  const label = k => zone ? 'Acabamento do piso nesta área' : obj.cat === 'calcada' ? 'Tipo de calçamento' : obj.cat === 'permeavel' ? 'Cobertura do solo' : FIN_LBL[k];
   const cur = () => obj.fin || {};
+  // onde fica o acabamento de parede que este painel edita
+  const getP = () => kind === 'room' ? cur().parede : kind === 'face' ? (room.finW || {})[wall.id] : wall.finExt;
+  const setP = v => { if (kind === 'room') { obj.fin = obj.fin || {}; obj.fin.parede = v; } else if (kind === 'face') { room.finW = room.finW || {}; room.finW[wall.id] = v; } else wall.finExt = v; };
   // parede: uma ou mais faixas de acabamento, de baixo (piso = 0) para cima
-  const bands = keys.includes('parede') ? bandsOf(cur().parede) : [];
-  const writeBands = () => { obj.fin = obj.fin || {}; obj.fin.parede = bands.length > 1 ? bands.map(b => ({ ate: b.ate, v: b.v })) : bands[0].v; };
-  const pdRef = kind === 'wall' ? (f.rooms.find(r => hasPD(r) && roomWalls(f, r).includes(obj)) || {}).pd : obj.pd;
+  const bands = keys.includes('parede') ? bandsOf(getP()) : [];
+  const writeBands = () => setP(bands.length > 1 ? bands.map(b => ({ ate: b.ate, v: b.v })) : bands[0].v);
+  const pdRef = kind === 'ext' ? (f.rooms.find(r => hasPD(r) && roomWalls(f, r).includes(wall)) || {}).pd || doc.pd : room.pd;
+  const list = kind === 'room' ? roomWallList(f, room) : [], no = kind === 'face' ? (roomWallList(f, room).find(s => s.w === wall) || {}).n : null;
+  // outras faces da mesma parede (o ambiente do outro lado, ou o lado de fora)
+  const faces = one ? wallRefList(f, wall).filter(x => kind !== 'face' || x.r !== room) : [];
+  const extOk = one && kind !== 'ext' && wallRefList(f, wall).length < 2;
   const fields = {};
   bands.forEach((b, i) => { if (i < bands.length - 1) fields['b' + i] = { value: fmt(b.ate), live: v => {
     if (v > 0 && v < 30) { touch(); bands[i].ate = v; writeBands(); save(); render(); checkBands(); const el = $('#bandLo' + (i + 1)); if (el) el.textContent = `de ${fmt(v)} m até`; }
@@ -2275,23 +2587,29 @@ function openFinSheet(kind, id, isNew) {
       ${chipsPick('fin', FIN.parede, b.v, `data-k="${bk}"`)}
       <input class="txt" id="fin-parede-${i}" data-input="fintxt" data-k="${bk}" value="${esc(b.v)}" placeholder="Outro: descreva" autocomplete="off"></div>`;
   }).join('');
-  let sub;
-  if (kind === 'wall') { const g = wallGeom(f, obj), rs = wallRooms(f, obj); sub = `Parede de ${fmt(g.L)} m${rs.length ? ' · ' + rs.join(' / ') : ''}. Vale só para esta parede, no lugar do acabamento do ambiente.`; }
-  else sub = zone ? `${fmt(roomInfo(f, obj).area)} m² · parte do piso com acabamento diferente` : `${roomName(f, obj)} · ${fmt(roomInfo(f, obj).area)} m²`;
-  const reopen = () => { const c = S.committed; openFinSheet(kind, id, isNew); S.committed = c; };
+  let sub, title;
+  if (kind === 'face') { title = `Acabamento · ${roomName(f, room)}, parede ${no || '?'}`; sub = `Parede de ${fmt(wallGeom(f, wall).L)} m. Vale só para esta face; as outras paredes de ${roomName(f, room)} seguem o acabamento do ambiente.`; }
+  else if (kind === 'ext') { title = 'Acabamento · face externa'; sub = `Parede de ${fmt(wallGeom(f, wall).L)} m${faces.length ? ` (${faces.map(x => roomName(f, x.r) + ' parede ' + x.n).join(', ')} do outro lado)` : ''}. Fachada ou lado sem ambiente.`; }
+  else { title = zone ? (isNew ? 'Nova área de piso' : 'Área de piso') : 'Acabamentos'; sub = zone ? `${fmt(roomInfo(f, obj).area)} m² · parte do piso com acabamento diferente` : `${roomName(f, obj)} · ${fmt(roomInfo(f, obj).area)} m²`; }
+  const reopen = () => { const c = S.committed; openFinSheet(kind, id, isNew, wid); S.committed = c; };
+  const goFace = (k, a, b) => { const c = S.committed; openFinSheet(k, a, false, b); S.committed = c; };
   openSheet({
-    kind: 'fin', id, title: kind === 'wall' ? 'Acabamento da parede' : zone ? (isNew ? 'Nova área de piso' : 'Área de piso') : 'Acabamentos', sub, fields,
+    kind: 'fin', id, room: room && kind !== 'ext' ? room.id : null, title, sub, fields,
     active: bands.length > 1 ? 'b0' : null,
-    body: keys.map(k => k === 'parede' ? `<div class="field"><span class="lbl">${kind === 'wall' ? 'Revestimento desta parede' : 'Parede'} · de baixo para cima (piso = 0)</span>
+    body: keys.map(k => k === 'parede' ? `<div class="field"><span class="lbl">${kind === 'room' ? 'Parede (todas as paredes do ambiente)' : 'Revestimento desta face'} · de baixo para cima (piso = 0)</span>
         ${bandHTML()}
         <span class="small" id="bandMsg" style="color:var(--red)"></span>
         ${bands.length > 1 ? keypad() : ''}
-        <div class="row"><button class="btn sm" data-act="badd">+ Faixa acima</button><span class="small muted grow">Ex.: cerâmica até 1,50 m e pintura até o teto.</span></div></div>`
+        <div class="row"><button class="btn sm" data-act="badd">+ Faixa acima</button><span class="small muted grow">Ex.: cerâmica até 1,50 m e pintura até o teto.</span></div>
+        ${kind === 'room' && list.length ? `<span class="lbl" style="margin-top:6px">Parede com acabamento diferente</span>
+          <div class="chips">${list.map(s => `<button class="chip${ownFace(room, s.w) ? ' on' : ''}" data-act="face" data-v="${s.w.id}">Parede ${s.n}${ownFace(room, s.w) ? ' ✱' : ''}</button>`).join('')}</div>
+          <span class="small muted">Toque na parede (o número aparece no desenho) para dar a ela outro revestimento. As demais seguem o de cima.</span>` : ''}</div>`
       : `<div class="field"><label class="lbl" for="fin-${k}">${label(k)}</label>
         ${chipsPick('fin', opts(k), cur()[k], `data-k="${k}"`)}
         <input class="txt" id="fin-${k}" data-input="fintxt" data-k="${k}" value="${esc(cur()[k] || '')}" placeholder="Outro: descreva" autocomplete="off"></div>`).join('') +
+      (one && (faces.length || extOk) ? `<div class="field"><span class="lbl">Outra face desta parede</span><div class="chips">${faces.map(x => `<button class="chip" data-act="other" data-v="${x.r.id}">${esc(roomName(f, x.r))}, parede ${x.n}</button>`).join('')}${extOk ? '<button class="chip" data-act="other" data-v="">Face externa</button>' : ''}</div></div>` : '') +
       (zone ? `<div class="field"><label class="lbl" for="zObs">Observação</label><input class="txt" id="zObs" data-input="zobs" value="${esc(obj.obs || '')}" placeholder="Ex.: piso trincado junto à porta" autocomplete="off"></div>` : '') +
-      `<div class="row"><button class="btn primary grow" data-close>Pronto</button>${kind === 'wall' && cur().parede ? '<button class="btn" data-act="clr">Usar o do ambiente</button>' : ''}${zone ? '<button class="btn danger" data-act="del">Excluir área</button>' : ''}</div>`,
+      `<div class="row">${kind === 'face' ? '<button class="btn" data-act="back">Voltar ao ambiente</button>' : ''}<button class="btn primary grow" data-close>Pronto</button>${one && finText(getP()) ? `<button class="btn" data-act="clr">${kind === 'face' ? 'Usar o do ambiente' : 'Limpar'}</button>` : ''}${zone ? '<button class="btn danger" data-act="del">Excluir área</button>' : ''}</div>`,
     on: {
       fin(el) {
         touch(); obj.fin = obj.fin || {};
@@ -2306,6 +2624,9 @@ function openFinSheet(kind, id, isNew) {
         if (bi != null) { bands[+bi].v = el.value; writeBands(); } else obj.fin[k] = el.value;
         markChips('fin', el.value, el.dataset.k); save(); render();
       },
+      face(el) { goFace('face', room.id, el.dataset.v); },
+      other(el) { if (el.dataset.v) goFace('face', el.dataset.v, wall.id); else goFace('ext', wall.id); },
+      back() { goFace('room', room.id); },
       badd() {
         touch(); const last = bands[bands.length - 1], lo = bands.length > 1 ? bands[bands.length - 2].ate : 0;
         last.ate = Math.round(Math.min((lo || 0) + (bands.length === 1 ? 1.5 : 0.5), (pdRef || 3) - 0.1) * 100) / 100;
@@ -2316,7 +2637,7 @@ function openFinSheet(kind, id, isNew) {
         writeBands(); save(); render(); reopen();
       },
       zobs(el) { touch(); obj.obs = el.value; save(); },
-      clr() { touch(); delete obj.fin; save(); closeSheet(); },
+      clr() { touch(); if (kind === 'face') delete room.finW[wall.id]; else if (kind === 'ext') delete wall.finExt; save(); if (kind === 'face') goFace('room', room.id); else closeSheet(); },
       del() { touch(); const ff = F(); ff.rooms = ff.rooms.filter(x => x.id !== obj.id); cleanup(ff); save(); closeSheet(); }
     }
   });
@@ -2358,6 +2679,71 @@ function openColSheet(id, isNew) {
       mattxt(el) { touch(); cl.mat = el.value; markChips('mat', cl.mat); save(); render(); },
       cobs(el) { touch(); cl.obs = el.value; save(); },
       del() { touch(); const ff = F(); ff.cols = ff.cols.filter(x => x.id !== cl.id); save(); closeSheet(); }
+    }
+  });
+}
+
+/* ---------- cobertura: área de telhado e calha/rufo/platibanda ---------- */
+function openRoofSheet(id, isNew) {
+  const f = F(), r = f.rooms.find(x => x.id === id); if (!r) return;
+  sel = { type: 'room', id };
+  const rf = r.roof = Object.assign({ tel: '', est: '', aguas: 2, cume: 0, inc: null }, r.roof || {});
+  const stats = () => { const i = roomInfo(F(), r), k = rf.inc ? Math.sqrt(1 + (rf.inc / 100) ** 2) : 1;
+    return `<div class="stat"><b>${fmt(i.area)}</b><span>Em planta (m²)</span></div><div class="stat"><b>${fmt(i.area * k)}</b><span>${rf.inc ? 'Real, inclinada (m²)' : 'Real: falta a inclinação'}</span></div><div class="stat"><b>${rf.inc ? fmt(Math.atan(rf.inc / 100) * 180 / Math.PI, 1) + '°' : '—'}</b><span>Ângulo</span></div>`; };
+  const upStats = () => { const el = $('#rfStats'); if (el) el.innerHTML = stats(); };
+  const reopen = () => { const c = S.committed; openRoofSheet(id, isNew); S.committed = c; };
+  openSheet({
+    kind: 'roof', id, active: 'inc', title: isNew ? 'Nova área de telhado' : 'Área de telhado', sub: roomName(f, r),
+    fields: { inc: { value: rf.inc ? fmt(rf.inc, 0) : '', live: v => { if (v >= 0 && v <= 300) { touch(); rf.inc = v || null; save(); render(); upStats(); } } } },
+    body: `
+      <div class="field"><label class="lbl" for="rfName">Nome</label>
+        <input class="txt" id="rfName" data-input="nome" value="${esc(r.name)}" placeholder="Ex.: Telhado principal" autocomplete="off">${chipsPick('nm', CATS.cobertura.names, r.name)}</div>
+      <div class="field"><span class="lbl">Cobertura (telha)</span>${chipsPick('tel', ROOF_TEL, rf.tel)}
+        <input class="txt" id="rfTel" data-input="teltxt" value="${esc(rf.tel)}" placeholder="Outra: descreva" autocomplete="off"></div>
+      <div class="field"><span class="lbl">Estrutura</span>${chipsPick('est', ROOF_EST, rf.est)}</div>
+      <div class="field"><span class="lbl">Águas</span>
+        <div class="row"><div class="seg">${[1, 2, 3, 4].map(n => `<button data-act="ag" data-v="${n}" class="${rf.aguas === n ? 'on' : ''}">${n}</button>`).join('')}</div>
+          <button class="btn sm" data-act="cume">${rf.aguas === 1 ? 'Inverter caimento' : 'Inverter cumeeira'}</button></div>
+        <span class="small muted">${rf.aguas === 1 ? 'A seta mostra para onde a água desce.' : 'A linha grossa é a cumeeira; Inverter troca a direção dela (no comprimento ou na largura da área).'}</span></div>
+      <div class="field"><span class="lbl">Inclinação, se deu para medir</span>${chipsSet('inc', [10, 15, 20, 25, 30, 35, 45], 0)}
+        <div class="row"><button class="num sm" data-field="inc"></button><span class="unit">%</span><span class="small muted grow">Telha cerâmica costuma ter 30% a 35%; metálica e fibrocimento, 10% a 15%.</span></div></div>
+      ${keypad()}
+      <div class="stats" id="rfStats">${stats()}</div>
+      <div class="field"><label class="lbl" for="rfObs">Observação</label>
+        <textarea class="txt" id="rfObs" data-input="obs" placeholder="Ex.: telhas quebradas sobre a cozinha">${esc(r.obs || '')}</textarea></div>
+      <div class="row">${isNew ? '<button class="btn primary sm" data-close>Concluir</button>' : ''}<span class="grow"></span><button class="btn sm danger" data-act="del">Excluir área</button></div>`,
+    on: {
+      nome(el) { touch(); r.name = el.value; markChips('nm', r.name); save(); render(); },
+      nm(el) { touch(); r.name = el.dataset.v; $('#rfName').value = r.name; markChips('nm', r.name); save(); render(); },
+      tel(el) { touch(); rf.tel = rf.tel === el.dataset.v ? '' : el.dataset.v; $('#rfTel').value = rf.tel; markChips('tel', rf.tel); save(); render(); },
+      teltxt(el) { touch(); rf.tel = el.value; markChips('tel', rf.tel); save(); render(); },
+      est(el) { touch(); rf.est = rf.est === el.dataset.v ? '' : el.dataset.v; markChips('est', rf.est); save(); render(); },
+      ag(el) { touch(); rf.aguas = +el.dataset.v; save(); render(); reopen(); },
+      cume() { touch(); rf.cume = rf.cume ? 0 : 1; save(); render(); },
+      obs(el) { touch(); r.obs = el.value; save(); },
+      del() { touch(); const ff = F(); ff.rooms = ff.rooms.filter(x => x.id !== r.id); cleanup(ff); save(); closeSheet(); }
+    }
+  });
+}
+function openRoofLineSheet(id) {
+  const f = F(), l = (f.roofLines || []).find(x => x.id === id); if (!l) return;
+  sel = { type: 'rline', id };
+  const K = ROOF_LINES[l.k];
+  openSheet({
+    kind: 'rline', id, title: K.n, sub: `${fmt(lineLen(l))} m · ${lineSegs(l).length} trecho${lineSegs(l).length > 1 ? 's' : ''}`,
+    body: `
+      <div class="field"><span class="lbl">Tipo</span><div class="chips">${Object.keys(ROOF_LINES).map(k => `<button class="chip${k === l.k ? ' on' : ''}" data-act="kind" data-v="${k}">${ROOF_LINES[k].n}</button>`).join('')}</div></div>
+      <div class="field"><label class="lbl" for="rlMat">Material</label>${chipsPick('mat', RL_MAT, l.mat)}
+        <input class="txt" id="rlMat" data-input="mattxt" value="${esc(l.mat || '')}" placeholder="Outro: descreva" autocomplete="off"></div>
+      <div class="field"><label class="lbl" for="rlObs">Observação</label>
+        <input class="txt" id="rlObs" data-input="obs" value="${esc(l.obs || '')}" placeholder="Ex.: calha furada, transbordando" autocomplete="off"></div>
+      <div class="row"><span class="grow"></span><button class="btn sm danger" data-act="del">Excluir ${K.n.toLowerCase()}</button></div>`,
+    on: {
+      kind(el) { touch(); l.k = el.dataset.v; save(); render(); openRoofLineSheet(id); },
+      mat(el) { touch(); l.mat = l.mat === el.dataset.v ? '' : el.dataset.v; $('#rlMat').value = l.mat; markChips('mat', l.mat); save(); },
+      mattxt(el) { touch(); l.mat = el.value; markChips('mat', l.mat); save(); },
+      obs(el) { touch(); l.obs = el.value; save(); },
+      del() { touch(); const ff = F(); ff.roofLines = ff.roofLines.filter(x => x.id !== id); save(); closeSheet(); }
     }
   });
 }
@@ -2567,7 +2953,7 @@ function openFloorSheet(i) {
   openSheet({
     kind: 'floor', title: 'Pavimento', sub: 'Cada pavimento tem seu próprio desenho.',
     body: `<input class="txt" id="fName" type="text" value="${esc(fl.name)}" autocomplete="off">
-      <div class="chips">${['Térreo', 'Superior', 'Subsolo', 'Mezanino', 'Cobertura', 'Área externa'].map(n => `<button class="chip" data-act="pick" data-v="${n}">${n}</button>`).join('')}</div>
+      <div class="chips">${['Térreo', 'Superior', 'Subsolo', 'Mezanino', 'Cobertura', 'Área externa'].map(n => `<button class="chip" data-act="pick" data-v="${n}">${n}</button>`).join('')}<button class="chip" data-act="fund" style="opacity:.6">Fundação · em breve</button></div>
       ${others.length ? `<div class="field"><span class="lbl">Referência por baixo (congelada)</span>
         <div class="chips"><button class="chip${refOn('') ? ' on' : ''}" data-act="ref" data-v="">Pavimento anterior</button>
           ${others.map(o => `<button class="chip${refOn(o.id) ? ' on' : ''}" data-act="ref" data-v="${o.id}">${esc(o.name)}</button>`).join('')}
@@ -2579,13 +2965,99 @@ function openFloorSheet(i) {
     on: {
       ...bgActs(fl),
       imp() { pickImport('floor'); },
-      pick(el) { touch(); fl.name = el.dataset.v; $('#fName').value = fl.name; save(); renderFloors(); },
+      pick(el) { touch(); fl.name = el.dataset.v; $('#fName').value = fl.name; save(); refresh(); },
+      fund() { toast('Em breve: o pavimento Fundação (sapatas, baldrames, estacas e blocos) está em preparação.'); },
       ref(el) { touch(); if (el.dataset.v) fl.ref = el.dataset.v; else delete fl.ref; doc.showUnder = true; markChips('ref', el.dataset.v); save(); refresh(); },
       del() { touch(); doc.floors.splice(i, 1); doc.cur = 0; save(); closeSheet(); renderFloors(); fit(); }
     }
   });
   $('#fName').addEventListener('input', e => { touch(); fl.name = e.target.value || 'Pavimento'; save(); renderFloors(); });
 }
+
+/* ---------- novo pavimento (Fundação ainda não liberada) ---------- */
+function openNewFloor() {
+  const has = n => doc.floors.some(f => f.name === n);
+  const opts = [
+    ['Superior', has('Superior') ? `Pavimento ${doc.floors.length + 1}` : 'Superior', 'Pavimento acima', 'O pavimento de baixo aparece por baixo, congelado, para guiar as paredes.'],
+    ['Cobertura', 'Cobertura', 'Cobertura', 'Telhados (águas, cumeeira, inclinação), calhas, rufos e platibandas.'],
+    ['Mezanino', 'Mezanino', 'Mezanino', 'Nível intermediário.'],
+    ['Subsolo', 'Subsolo', 'Subsolo', 'Garagem ou depósito abaixo do térreo.']
+  ];
+  openModal(`<h2>Novo pavimento</h2>
+    <div class="ex-opts">${opts.map(([k, , n, s]) => `<button class="ex-opt" data-mact="nf" data-v="${k}"><b>${n}</b><span>${s}</span></button>`).join('')}
+      <button class="ex-opt" data-mact="fund" style="opacity:.6"><b>Fundação <span class="badge">em breve</span></b><span>Sapatas, baldrames, estacas e blocos.</span></button></div>
+    <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Cancelar</button></div>`, {
+    nf(b) {
+      const o = opts.find(x => x[0] === b.dataset.v); closeModal();
+      commit(); const fl = newFloor(o[1]); if (o[0] === 'Subsolo') fl.ref = 'none';
+      doc.floors.push(fl);
+      doc.cur = doc.floors.indexOf(fl); doc.showUnder = true; chain = amb = pend = null; save(); refresh(); fit();
+      if (o[0] === 'Cobertura') { tool = ''; setTool('cobertura'); roofMode = 'area'; refresh(); toast('Contorne cada área de telhado (os cantos encaixam no pavimento de baixo).'); }
+      else openFloorSheet(doc.cur);
+    },
+    fund() { toast('Em breve: o pavimento Fundação (sapatas, baldrames, estacas e blocos) está em preparação.'); }
+  });
+}
+
+/* ================= terreno: contorno de referência no Térreo ================= */
+// doc.floors[0].lot = { pts, front (índice do lado da fachada), desc }
+const LOT_SIZES = [[10, 20], [10, 25], [10, 30], [12, 25], [12, 30], [15, 30], [20, 40]];
+let lotDraw = null;
+function startLot() {
+  closeModal(); closeSheet();
+  if (doc.cur !== 0) doc.cur = 0;
+  tool = ''; setTool('lote'); fit();
+}
+// terreno retangular com a frente na largura, centralizado no que já está desenhado
+function setLotRect(w, d) {
+  const f = doc.floors[0], keep = f.lot; f.lot = null;
+  const b = bounds(f), c = b ? { x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2 } : { x: w / 2, y: d / 2 }; f.lot = keep;
+  const x0 = Math.round((c.x - w / 2) / GRID) * GRID, y0 = Math.round((c.y - d / 2) / GRID) * GRID;
+  commit(); f.lot = { pts: [{ x: x0, y: y0 }, { x: x0 + w, y: y0 }, { x: x0 + w, y: y0 + d }, { x: x0, y: y0 + d }], front: null, desc: `${fmt(w, w % 1 ? 2 : 0)} × ${fmt(d, d % 1 ? 2 : 0)} m` };
+  doc.example = false; save(); startLot();
+}
+function lotTap(p) {
+  const f = F(), w = toWorld(p);
+  if (lotDraw) {
+    const s = snap(p, { from: lotDraw.pts[lotDraw.pts.length - 1] });
+    if (lotDraw.pts.length >= 3 && (same(s, lotDraw.pts[0]) || dist(w, lotDraw.pts[0]) * cam.z < 22)) {
+      commit(); f.lot = { pts: lotDraw.pts.map(pt), front: null, desc: 'irregular' }; lotDraw = null; save(); refresh();
+      toast('Contorno do terreno fechado. Agora toque no lado da fachada.'); return;
+    }
+    lotDraw.pts.push(pt(s)); refresh(); return;
+  }
+  const L = f.lot; if (!L) return;
+  let bi = -1, bd = 24 / cam.z;
+  L.pts.forEach((a, i) => { const d = projSeg(w, a, L.pts[(i + 1) % L.pts.length]).d; if (d < bd) { bd = d; bi = i; } });
+  if (bi < 0) { toast('Toque sobre um lado do terreno para marcar a fachada.'); return; }
+  commit(); L.front = bi; save(); refresh(); toast('Fachada marcada.');
+}
+function lotRotate() {
+  const L = F().lot; if (!L) return;
+  commit(); const c = polyCentroid(L.pts);
+  L.pts = L.pts.map(q => ({ x: c.x - (q.y - c.y), y: c.y + (q.x - c.x) }));
+  const dx = Math.round(L.pts[0].x / 0.25) * 0.25 - L.pts[0].x, dy = Math.round(L.pts[0].y / 0.25) * 0.25 - L.pts[0].y;
+  L.pts = L.pts.map(q => ({ x: Math.round((q.x + dx) * 1000) / 1000, y: Math.round((q.y + dy) * 1000) / 1000 }));
+  save(); refresh();
+}
+const lotArea = L => L && L.pts.length > 2 ? Math.abs(polyArea(L.pts)) : 0;
+function lotForm() {
+  const L = doc.floors[0].lot;
+  return `<div class="field span2"><span class="lbl">Terreno</span>
+    <div class="chips">${LOT_SIZES.map(([w, d]) => `<button class="chip${L && L.desc === `${w} × ${d} m` ? ' on' : ''}" data-mact="lot" data-v="${w}x${d}">${w} × ${d}</button>`).join('')}</div>
+    <div class="row" style="flex-wrap:wrap"><input class="txt" id="lotW" inputmode="decimal" placeholder="Frente (m)" style="width:110px;flex:none" autocomplete="off"><span>×</span>
+      <input class="txt" id="lotD" inputmode="decimal" placeholder="Fundo (m)" style="width:110px;flex:none" autocomplete="off"><button class="btn sm" data-mact="lotc">Usar</button><button class="btn sm" data-mact="lotdraw">Irregular: desenhar</button></div>
+    ${L ? `<div class="row"><span class="small grow">Terreno ${esc(L.desc || '')} · ${fmt(lotArea(L))} m²${L.front == null ? ' · <b style="color:var(--orange)">falta indicar a fachada</b>' : ' · fachada marcada'}</span>
+      <button class="btn sm" data-mact="lotadj">Posicionar e fachada</button><button class="btn sm danger" data-mact="lotdel">Remover</button></div>`
+      : '<span class="small muted">Aparece no Térreo como contorno de referência, não editável, para guiar o desenho. Depois de escolher, indique o lado da fachada.</span>'}</div>`;
+}
+const lotActs = {
+  lot(b) { const [w, d] = b.dataset.v.split('x').map(Number); setLotRect(w, d); },
+  lotc() { const w = parseNum($('#lotW').value), d = parseNum($('#lotD').value); if (!(w >= 2 && w <= 500 && d >= 2 && d <= 500)) { toast('Informe a frente e o fundo do terreno em metros.'); return; } setLotRect(w, d); },
+  lotdraw() { startLot(); lotDraw = { pts: [] }; refresh(); },
+  lotadj() { startLot(); },
+  lotdel() { commit(); doc.floors[0].lot = null; save(); closeModal(); refresh(); toast('Terreno removido.'); }
+};
 
 /* ================= fotos (guardadas no aparelho, fora do desenho) ================= */
 // Banco do aparelho (IndexedDB). Se o navegador não deixar usar, cai no reserva (memória ou localStorage).
@@ -2704,13 +3176,15 @@ const ICONS = {
   elementos: '<path d="M12 2.5l6 3-6 3-6-3z" fill="currentColor" fill-opacity=".25"/><path d="M6 5.5v13l6 3 6-3v-13M12 8.5v13"/>',
   acab: '<rect x="3" y="3" width="14" height="5" rx="1"/><path d="M17 5.5h3v5h-8v3"/><rect x="10.5" y="13.5" width="3" height="7" rx="1"/>',
   nota: '<path d="M5 5h14v10h-8l-4 4v-4H5z"/>',
-  hidro: '<path d="M3 6h8a5 5 0 0 1 5 5v1" stroke-width="3"/><path d="M16 15.5c-1.6 2.1-2.4 3.2-2.4 4.1a2.4 2.4 0 0 0 4.8 0c0-.9-.8-2-2.4-4.1z" fill="currentColor" stroke-width="1.4"/>'
+  hidro: '<path d="M3 6h8a5 5 0 0 1 5 5v1" stroke-width="3"/><path d="M16 15.5c-1.6 2.1-2.4 3.2-2.4 4.1a2.4 2.4 0 0 0 4.8 0c0-.9-.8-2-2.4-4.1z" fill="currentColor" stroke-width="1.4"/>',
+  cobertura: '<path d="M2 12L12 4l10 8" stroke-width="2.4"/><path d="M5 10v10h14V10"/><path d="M12 4v16" stroke-dasharray="2 2"/>'
 };
-const TOOLS = [['editar', 'Editar'], ['parede', 'Parede'], ['esquadria', 'Esquadrias'], ['ambiente', 'Ambiente'], ['elementos', 'Elementos'], ['acab', 'Acabamentos'], ['nota', 'Nota'], ['hidro', 'Hidros&shy;sanitário']];
-$('#rail').innerHTML = TOOLS.map(([k, n], i) => (i === 3 || i === 7 ? '<div class="sep"></div>' : '') +
+// Nota fica num botão próprio, embaixo da bússola; Cobertura só aparece nos pavimentos acima do térreo
+const TOOLS = [['editar', 'Editar'], ['parede', 'Parede'], ['esquadria', 'Esquadrias'], ['ambiente', 'Ambiente'], ['elementos', 'Elementos'], ['acab', 'Acabamentos'], ['cobertura', 'Cobertura'], ['hidro', 'Hidros&shy;sanitário']];
+$('#rail').innerHTML = TOOLS.map(([k, n], i) => (i === 3 || i === 6 ? '<div class="sep"></div>' : '') +
   `<button class="tool${PICKERS_HAS(k) ? ' pk' : ''}" data-tool="${k}" aria-pressed="false"><svg class="i" viewBox="0 0 24 24">${ICONS[k]}</svg><span>${n}</span></button>`).join('') +
   '<div class="rail-end"><button class="tool danger" id="bClear"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Limpar tudo</button></div>';
-function PICKERS_HAS(k) { return ['parede', 'esquadria', 'ambiente', 'elementos', 'acab', 'hidro'].includes(k); }
+function PICKERS_HAS(k) { return ['parede', 'esquadria', 'ambiente', 'elementos', 'acab', 'cobertura', 'hidro'].includes(k); }
 $('#rail').addEventListener('click', e => {
   if (e.target.closest('#bClear')) { confirmClear(); return; }
   const b = e.target.closest('[data-tool]'); if (!b) return;
@@ -2725,6 +3199,9 @@ const PICKERS = {
     opts: () => WALL_TYPES.map(t => ({ k: t.k, n: t.n, s: t.s, ic: wallIcon(t.k) })) },
   esquadria: { title: 'Esquadrias', cur: () => opSel, set: k => { opSel = k; },
     opts: () => Object.keys(OPK).map(k => ({ k, n: OPK[k].n, s: OPK[k].s, ic: opIcon(k), grp: k === 'giro' ? 'Portas' : k === 'jcorrer' ? 'Janelas' : '' })) },
+  cobertura: { title: 'Cobertura', cur: () => roofMode, set: k => { roofMode = k; },
+    opts: () => [{ k: 'area', n: 'Área de telhado', s: 'Contorne a área; depois telha, estrutura, águas e inclinação', ic: `<svg class="i" viewBox="0 0 24 24">${ICONS.cobertura}</svg>` }]
+      .concat(Object.keys(ROOF_LINES).map(k => ({ k, n: ROOF_LINES[k].n, s: ROOF_LINES[k].s, ic: `<svg class="i" viewBox="0 0 24 24">${ROOF_LINES[k].ic}</svg>` }))) },
   hidro: { title: 'Hidrossanitário · o que vai desenhar', cur: () => hidSys, set: k => { hidSys = k; hidTool = 'tubo'; hidDev = null; },
     opts: () => Object.keys(SYS).map(k => ({ k, n: SYS[k].n, s: SYS[k].s, ic: `<svg class="wic" viewBox="0 0 40 28" aria-hidden="true"><path d="M4 9h14a6 6 0 0 1 6 6v9" fill="none" stroke="var(--${k})" stroke-width="4" stroke-linecap="round"/><rect x="27" y="4" width="10" height="10" rx="1.5" fill="none" stroke="var(--${k})" stroke-width="2"/></svg>` })) },
   hcaixa: { title: 'Caixas e conexões', cur: () => hidDev || '', set: k => { hidDev = k || null; hidTool = 'caixa'; }, noTool: true,
@@ -2789,9 +3266,10 @@ $('#hbar').addEventListener('click', e => {
 
 function setTool(t) {
   if (tool === t) return;
-  tool = t; chain = null; amb = null; pend = null; hchain = null; hover = null;
+  tool = t; chain = null; amb = null; pend = null; hchain = null; rchain = null; hover = null;
   if (t !== 'calib') calib = null;
-  if (S && !(t === 'editar' && ['wall', 'op', 'room', 'note', 'col', 'line'].includes(S.kind))) closeSheet();
+  if (t !== 'lote') lotDraw = null;
+  if (S && !(t === 'editar' && ['wall', 'op', 'room', 'note', 'col', 'line', 'roof', 'rline'].includes(S.kind))) closeSheet();
   refresh();
 }
 function hintHTML() {
@@ -2808,7 +3286,12 @@ function hintHTML() {
     case 'acab': return acabMode === 'parede' ? '<b>Toque numa parede</b> para dar a ela um acabamento próprio, em uma ou mais faixas de altura (fica com traço roxo).' + two
       : acabMode === 'area' ? '<b>Área de piso:</b> contorne a parte do piso com acabamento diferente (pelas paredes ou pelos cantos).' + two
       : '<b>Toque dentro de um ambiente</b> para definir piso, parede e teto.' + two;
-    case 'nota': return '<b>Toque onde quer escrever</b> uma observação.' + two;
+    case 'nota': return '<b>Toque onde quer escrever</b> uma observação. Toque no balão de novo para sair das notas.' + two;
+    case 'cobertura': return roofMode === 'area'
+      ? '<b>Área de telhado:</b> toque nos cantos (eles encaixam no pavimento de baixo) e feche no 1º ponto. Depois escolha telha, estrutura, águas e inclinação.' + two
+      : `<b>${esc(ROOF_LINES[roofMode].n)}:</b> toque ponto a ponto ao longo do telhado e em Concluir.` + two;
+    case 'lote': return lotDraw ? '<b>Terreno irregular:</b> toque nos cantos do terreno, um a um, e feche no 1º ponto.'
+      : (F().lot && F().lot.front == null ? '<b>Toque no lado da FACHADA</b> (frente do terreno). ' : '<b>Terreno:</b> toque em outro lado para mudar a fachada. ') + 'Arraste para posicionar; Girar 90° se o terreno estiver de lado.';
     case 'calib': return `<b>Calibrar o fundo:</b> toque no ${calib && calib.pts.length ? 'fim' : 'início'} de uma medida que você conhece (por exemplo, uma parede cotada). Aproxime com dois dedos para acertar o ponto.`;
     case 'hidro': {
       const s = `<b>${esc(SYS[hidSys].n)} ·</b> `;
@@ -2822,23 +3305,32 @@ function hintHTML() {
 }
 function updateUI() {
   if (!doc) return;
+  if (tool === 'cobertura' && !roofFloor()) { setTool('editar'); return; }
   document.querySelectorAll('.tool[data-tool]').forEach(b => { const on = b.dataset.tool === tool; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  document.querySelector('.tool[data-tool="cobertura"]').hidden = !roofFloor();
+  const nb2 = $('#bNote'); nb2.classList.toggle('on', tool === 'nota'); nb2.setAttribute('aria-pressed', tool === 'nota');
   renderHbar();
   $('#hint').innerHTML = hintHTML();
   $('#hint').hidden = !!S && VW < 820;
   const cb = $('#chainbar');
   if (isDraw()) {
-    const d = drawing(), walls = amb && amb.mode === 'walls', has = d && (walls ? amb.sel.length : d.pts.length), region = tool !== 'parede' && tool !== 'hidro';
+    const d = drawing(), walls = amb && amb.mode === 'walls', has = d && (walls ? amb.sel.length : d.pts.length), region = tool !== 'parede' && tool !== 'hidro' && !roofLineMode();
     const canClose = amb && (walls ? !!amb.cand : amb.pts.length >= 3 || (amb.pts.length === 2 && amb.pts.some((p, i) => amb.bul[i] || arcWallS(F(), p, amb.pts[(i + 1) % 2]))));
     cb.innerHTML = (tool === 'hidro'
       ? `<div class="seg" role="group" aria-label="Diâmetro do tubo">${DIAMS[hidSys].map(v => `<button data-c="diam" data-v="${v}" class="${hidDiam[hidSys] === v ? 'on' : ''}">Ø${v}</button>`).join('')}</div>`
-      : walls ? '' : `<div class="seg" role="group" aria-label="Tipo de traço"><button data-c="reta" class="${curve ? '' : 'on'}">Reta</button><button data-c="curva" class="${curve ? 'on' : ''}">Curva</button></div>`) +
+      : walls || roofLineMode() ? '' : `<div class="seg" role="group" aria-label="Tipo de traço"><button data-c="reta" class="${curve ? '' : 'on'}">Reta</button><button data-c="curva" class="${curve ? 'on' : ''}">Curva</button></div>`) +
       (pend || (has && !walls) ? `<button class="btn shadow" data-c="back">${pend ? 'Desfazer fim' : 'Voltar ponto'}</button>` : '') +
       (tool === 'parede' && chain ? '<button class="btn primary shadow" data-c="end">Concluir parede</button>' : '') +
       (tool === 'hidro' && hchain ? '<button class="btn primary shadow" data-c="end">Concluir tubo</button>' : '') +
+      (roofLineMode() && rchain ? `<button class="btn primary shadow" data-c="end">Concluir ${ROOF_LINES[roofMode].n.toLowerCase()}</button>` : '') +
       (region && has ? `<button class="btn primary shadow" data-c="afin" ${canClose ? '' : 'disabled'}>Fechar área</button><button class="btn shadow" data-c="acancel">Cancelar</button>` : '');
     cb.hidden = !cb.innerHTML;
   } else if (tool === 'calib') { cb.innerHTML = '<button class="btn shadow" data-c="ccancel">Cancelar calibração</button>'; cb.hidden = false; }
+  else if (tool === 'lote') {
+    cb.innerHTML = lotDraw ? '<button class="btn shadow" data-c="lback">Voltar ponto</button><button class="btn shadow" data-c="lcancel">Cancelar</button>'
+      : '<button class="btn shadow" data-c="lrot">Girar 90°</button><button class="btn primary shadow" data-c="ldone">Concluir terreno</button>';
+    cb.hidden = false;
+  }
   else cb.hidden = true;
   const bg = F().bg, bn = $('#bgNote');
   bn.hidden = !bg || tool === 'calib';
@@ -2868,13 +3360,17 @@ $('#chainbar').addEventListener('click', e => {
   if (k === 'reta' || k === 'curva') { curve = k === 'curva'; pend = null; refresh(); return; }
   if (k === 'diam') { hidDiam[hidSys] = +c.dataset.v; refresh(); return; }
   if (k === 'ccancel') { calib = null; setTool('editar'); return; }
+  if (k === 'lback') { lotDraw.pts.pop(); if (!lotDraw.pts.length) { lotDraw = null; setTool('editar'); } refresh(); return; }
+  if (k === 'lcancel') { lotDraw = null; setTool('editar'); return; }
+  if (k === 'lrot') { lotRotate(); return; }
+  if (k === 'ldone') { const L = F().lot; setTool('editar'); if (L && L.front == null) toast('Terreno sem fachada marcada. Abra Dados do croqui → Terreno para ajustar.'); return; }
   if (k === 'back') {
     if (pend) pend = null;
     else if (tool === 'parede' || tool === 'hidro') { chainBack(); return; }
     else if (amb) { amb.pts.pop(); amb.bul.length = Math.max(0, amb.pts.length - 1); if (!amb.pts.length) amb = null; }
     refresh(); return;
   }
-  if (k === 'end') { chain = null; hchain = null; pend = null; refresh(); }
+  if (k === 'end') { chain = null; hchain = null; rchain = null; pend = null; refresh(); }
   else if (k === 'afin') { pend = null; finishAmb(); }
   else if (k === 'acancel') { amb = null; pend = null; refresh(); }
 });
@@ -2884,10 +3380,7 @@ function renderFloors() {
 }
 $('#floors').addEventListener('click', e => {
   const b = e.target.closest('[data-f]'); if (!b) return;
-  if (b.dataset.f === 'add') {
-    commit(); doc.floors.push(newFloor(doc.floors.length === 1 ? 'Superior' : `Pavimento ${doc.floors.length + 1}`));
-    doc.cur = doc.floors.length - 1; doc.showUnder = true; chain = amb = pend = null; save(); refresh(); fit(); openFloorSheet(doc.cur); return;
-  }
+  if (b.dataset.f === 'add') { openNewFloor(); return; }
   const i = +b.dataset.f;
   if (i === doc.cur) { openFloorSheet(i); return; }
   doc.cur = i; chain = amb = pend = null; closeSheet(); save(); refresh(); fit();
@@ -2910,8 +3403,8 @@ function renderDrawer() {
     return `<div><span>${SYS[sys].n}</span><span>${fmt(len)} m · ${nd.length - pc} disp. · ${pc} PC</span></div>`;
   };
   const wl = r => r.cat === 'interno' || r.cat === 'varanda' ? `<small>${esc(wallsLine(f, r))}</small>` : '';
-  const groups = [['interno', 'Ambientes'], ['varanda', 'Varandas'], ['piscina', 'Piscinas'], ['calcada', 'Calçamento'], ['permeavel', 'Áreas permeáveis'], ['piso', 'Áreas de piso (acabamento)']];
-  const extra = r => hasPD(r) ? `PD ${fmt(r.pd)}` : r.cat === 'piscina' ? `Prof. ${fmt(r.prof ?? 1.4)}` : r.cat === 'piso' ? '' : (r.fin && r.fin.piso) || '';
+  const groups = [['interno', 'Ambientes'], ['varanda', 'Varandas'], ['piscina', 'Piscinas'], ['calcada', 'Calçamento'], ['permeavel', 'Áreas permeáveis'], ['piso', 'Áreas de piso (acabamento)'], ['cobertura', 'Cobertura (telhados)']];
+  const extra = r => hasPD(r) ? `PD ${fmt(r.pd)}` : r.cat === 'piscina' ? `Prof. ${fmt(r.prof ?? 1.4)}` : r.cat === 'cobertura' ? `${(r.roof || {}).aguas || 2} águas` : r.cat === 'piso' ? '' : (r.fin && r.fin.piso) || '';
   d.innerHTML = `<div class="dr-head"><div style="flex:1;min-width:0"><div class="sh-title">Ambientes e áreas</div><div class="sh-sub">${esc(f.name)}</div></div>
       <button class="x" data-dclose aria-label="Fechar"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="dr-body">
@@ -2924,6 +3417,7 @@ function renderDrawer() {
         ${sum(['calcada', 'permeavel', 'piscina']) ? `<div><span>Áreas externas (calçamento, permeável, piscina)</span><span>${fmt(sum(['calcada', 'permeavel', 'piscina']))} m²</span></div>` : ''}
         <div><span>Paredes com medida real</span><span>${nM} de ${nW}</span></div>
         <div class="bar"><i style="width:${nW ? Math.round(nM / nW * 100) : 0}%"></i></div>
+        ${nW ? `<button class="btn sm primary" data-dcheck style="align-self:flex-start">${nM < nW ? 'Conferir paredes, uma a uma' : 'Rever as paredes conferidas'}</button>` : ''}
         <div><span>Portas · janelas · pilares</span><span>${f.ops.filter(o => o.type === 'porta').length} · ${f.ops.filter(o => o.type === 'janela').length} · ${f.cols.length}</span></div>
         <div><span>Fotos</span><span>${nPh}</span></div>
         ${hidSum('esgoto')}${hidSum('dren')}
@@ -2934,6 +3428,7 @@ function renderDrawer() {
 $('#drawer').addEventListener('click', e => {
   if (e.target.closest('[data-dclose]')) { $('#drawer').hidden = true; return; }
   if (e.target.closest('[data-dquant]')) { openQuant(); return; }
+  if (e.target.closest('[data-dcheck]')) { startWallCheck(null); return; }
   const b = e.target.closest('[data-r]'); if (!b) return;
   const f = F(), r = f.rooms.find(x => x.id === b.dataset.r), c = roomInfo(f, r).c;
   $('#drawer').hidden = true; setTool('editar');
@@ -2946,7 +3441,7 @@ $('#bRooms').addEventListener('click', () => { const d = $('#drawer'); d.hidden 
 function openModal(html, on = {}) {
   // botões de arquivo (baixar de novo, compartilhar) valem em qualquer janela que gere arquivo
   on = Object.assign({ hoje() { setDado('data', isoToday()); $('#dData').value = doc.data; },
-    again() { if (lastFile) tryDownload(lastFile.name, lastFile); }, share() { shareLast(); }, sharetxt() { shareTxt(); } }, on);
+    again() { if (lastFile) tryDownload(lastFile.name, lastFile); }, share() { shareLast(); }, sharetxt() { shareTxt(); } }, lotActs, on);
   $('#modal').innerHTML = html; $('#scrim').hidden = false;
   $('#modal').onclick = e => { const b = e.target.closest('[data-mact]'); if (!b) return; if (b.dataset.mact === 'close') closeModal(); else on[b.dataset.mact] && on[b.dataset.mact](b); };
   $('#modal').oninput = e => { const k = e.target.dataset.d; if (k) setDado(k, e.target.value); };
@@ -2974,6 +3469,7 @@ const dadosForm = () => `<div class="form-grid">
       <div class="row"><span class="north${doc.north == null ? ' unset' : ''}" style="position:static;width:46px;height:46px;box-shadow:none">${northSVG(doc.north)}</span>
         <span class="small grow">${doc.north == null ? 'Ainda não indicado. Desenhe como for mais natural (da frente para os fundos) e indique para que lado fica o norte.' : 'Indicado. Na exportação, o desenho pode girar para o norte ficar para cima.'}</span>
         <button class="btn sm" data-mact="north">${doc.north == null ? 'Indicar o norte' : 'Mudar'}</button></div></div>
+    ${lotForm()}
   </div>`;
 function openDados(intro) {
   openModal(`<h2>Dados do croqui</h2>
@@ -2986,6 +3482,7 @@ function openDados(intro) {
 }
 $('#bDados').addEventListener('click', () => openDados());
 $('#bNorth').addEventListener('click', () => { if (S && S.kind === 'north') closeSheet(); else openNorthSheet(); });
+$('#bNote').addEventListener('click', () => { closePicker(); setTool(tool === 'nota' ? 'editar' : 'nota'); });
 
 function startFresh() {
   const keep = doc ? doc.desenhista : '';
@@ -3023,6 +3520,11 @@ function showHelp() {
       <li><b>Hidrossanitário:</b> escolha Esgoto (verde) ou Drenagem (roxo). Na barra de baixo: Tubulação (no sentido do fluxo, com o diâmetro), Caixas e conexões (toque num encontro de tubos para ver o que pode existir ali), Ponto de contribuição (banheiro, cozinha…) e Selecionar. Fechar volta ao desenho normal.</li>
       <li><b>Desenho pronto:</b> na lista de croquis, Importar desenho (ou no menu ⋮ do desenho). DXF: as linhas vêm editáveis (excluir ou transformar em parede) e os textos viram notas. PDF e imagem: ficam de fundo em escala; marque uma medida conhecida para calibrar e desenhe por cima. O JSON exportado pelo app volta completo.</li>
       <li><b>Quantitativos:</b> menu ⋮ → Quantitativos (ou em Ambientes). Pisos, revestimento de paredes por faixa, tetos, rodapé, paredes por tipo, esquadrias, pilares, piscina e instalações, descontando portas e janelas. A planilha CSV abre no Excel com colunas de preço unitário e total.</li>
+      <li><b>Conferir paredes:</b> em Ambientes → Conferir paredes, uma a uma: a parede fica destacada; toque em ✓ Confere ou digite a medida real. Cada ambiente numera as paredes dele (Parede 1, 2…; o número aparece no desenho) e as conferidas ficam com ✓ verde.</li>
+      <li><b>Acabamento de uma parede só:</b> em Acabamentos do ambiente, toque na parede (Parede 1, 2…); vale só para aquela face. Com a ferramenta Acabamentos → De uma parede, o lado tocado define a face.</li>
+      <li><b>Esquadrias:</b> recebem código pelo tipo e medida (P1, P2… portas; J1… janelas; V1… vãos). Iguais têm o mesmo código.</li>
+      <li><b>Cobertura:</b> nos pavimentos acima do térreo (use + → Cobertura). Contorne cada área de telhado e escolha telha, estrutura, águas (Inverter cumeeira troca a direção) e a inclinação, se medida. Calhas, rufos e platibandas ficam na mesma lista.</li>
+      <li><b>Terreno:</b> em Dados do croqui, escolha a medida (10 × 30…) ou desenhe um terreno irregular, e toque no lado da fachada.</li>
       <li><b>Fotos:</b> no painel do ambiente, Tirar foto ou Da galeria. Elas saem só no PDF.</li>
       <li><b>Exportar:</b> PNG para a ficha, PDF com croqui, tabela e fotos, DXF para o CAD e JSON com os dados.</li>
     </ol>
@@ -3052,8 +3554,9 @@ const fichaLine = (f = F()) => [`Ficha nº ${doc.ficha || '—'}`, doc.title, f.
 const autorLine = () => `Desenhista: ${doc.desenhista || '—'} · Data: ${brDate(doc.data) || '—'}`;
 const areaSum = (f, cats) => f.rooms.filter(r => cats.includes(r.cat)).reduce((s, r) => s + roomInfo(f, r).area, 0);
 function areaLine(f) {
-  const a = areaSum(f, ['interno']), v = areaSum(f, ['varanda']), x = areaSum(f, ['calcada', 'permeavel', 'piscina']);
-  return [`ambientes ${fmt(a)} m²`, v ? `varandas ${fmt(v)} m²` : '', x ? `externas ${fmt(x)} m²` : ''].filter(Boolean).join(' · ');
+  const a = areaSum(f, ['interno']), v = areaSum(f, ['varanda']), x = areaSum(f, ['calcada', 'permeavel', 'piscina']), c = areaSum(f, ['cobertura']), t = lotArea(f.lot);
+  if (c && !a) return [`telhados ${fmt(c)} m² em planta`, x ? `externas ${fmt(x)} m²` : ''].filter(Boolean).join(' · ');
+  return [`ambientes ${fmt(a)} m²`, v ? `varandas ${fmt(v)} m²` : '', x ? `externas ${fmt(x)} m²` : '', t ? `terreno ${fmt(t)} m²` : ''].filter(Boolean).join(' · ');
 }
 
 /* ---------- norte para cima: o desenho gira de 90° em 90° (os textos continuam na horizontal) ---------- */
@@ -3063,7 +3566,7 @@ const northAfter = k => doc.north == null ? null : doc.north - 90 * k;
 function rotFloor(f, k) {
   if (!k) return f;
   const g = JSON.parse(JSON.stringify(f)), R = p => { for (let i = 0; i < k; i++) { const x = p.x; p.x = p.y; p.y = -x; } };
-  Object.values(g.v).forEach(R); g.notes.forEach(R); Object.values(g.hid.n).forEach(R); (g.lines || []).forEach(l => l.pts.forEach(R));
+  Object.values(g.v).forEach(R); g.notes.forEach(R); Object.values(g.hid.n).forEach(R); (g.lines || []).forEach(l => l.pts.forEach(R)); (g.roofLines || []).forEach(l => l.pts.forEach(R)); if (g.lot) g.lot.pts.forEach(R);
   if (g.bg) { R(g.bg); g.bg.rot = (g.bg.rot || 0) - k * Math.PI / 2; }
   g.cols.forEach(c => { R(c); c.rot = (((c.rot || 0) - 90 * k) % 360 + 360) % 360; });
   // caixas retangulares (fossa, cisterna…) trocam de em pé para deitado a cada quarto de volta
@@ -3113,7 +3616,7 @@ function renderPNG(o) {
 }
 
 function buildDXF(o = { k: 0, hid: true }) {
-  const f = rotFloor(F(), o.k), out = [], n = v => (+v).toFixed(4), cen = floorCenter(f);
+  const f = rotFloor(F(), o.k), out = [], n = v => (+v).toFixed(4), cen = floorCenter(f), dxfCodes = opCodes();
   const add = (...a) => { for (let i = 0; i < a.length; i += 2) out.push(String(a[i]), String(a[i + 1])); };
   const line = (ly, col, a, b) => add(0, 'LINE', 8, ly, 62, col, 10, n(a.x), 20, n(-a.y), 30, 0, 11, n(b.x), 21, n(-b.y), 31, 0);
   const txt = (ly, col, p, h, s, rot = 0) => add(0, 'TEXT', 8, ly, 62, col, 10, n(p.x), 20, n(-p.y), 30, 0, 40, n(h), 1, s, 50, n(rot), 72, 4, 11, n(p.x), 21, n(-p.y), 31, 0);
@@ -3178,11 +3681,11 @@ function buildDXF(o = { k: 0, hid: true }) {
       else if (k === 'jgiro') { line(ly, col, p0, p1); swing(p0, mid, op.w / 2); swing(p1, mid, op.w / 2); }
       else line(ly, k === 'jbasc' ? 8 : col, p0, p1);
     }
-    const sdl = ((cen.x - mid.x) * g.nx + (cen.y - mid.y) * g.ny) >= 0 ? 1 : -1, lb = OPK[k].lb;
+    const sdl = ((cen.x - mid.x) * g.nx + (cen.y - mid.y) * g.ny) >= 0 ? 1 : -1, lb = dxfCodes[op.id] || OPK[k].lb;
     const label = op.type === 'porta' ? `${lb} ${fmt(op.w)}x${fmt(op.h)}` : `${lb} ${fmt(op.w)}x${fmt(op.h)} PEIT ${fmt(op.sill ?? 1)}`;
     txt(ly, col, { x: mid.x + g.nx * sdl * (h + 0.18), y: mid.y + g.ny * sdl * (h + 0.18) }, 0.08, `${label} ${OPK[k].n.toUpperCase()}`, dxfRot(g.ux, g.uy));
   }
-  const COL = { interno: 6, varanda: 30, calcada: 8, permeavel: 3, piscina: 5, piso: 200 };
+  const COL = { interno: 6, varanda: 30, calcada: 8, permeavel: 3, piscina: 5, piso: 200, cobertura: 30 };
   for (const r of f.rooms) {
     const i = roomInfo(f, r); if (!i.c) continue;
     const ly = catOf(r).ly, col = COL[r.cat] || 6;
@@ -3191,6 +3694,13 @@ function buildDXF(o = { k: 0, hid: true }) {
       const a = arcInfo(e.A, e.B, e.s); arc(ly, col, a.C, a.R, e.A, e.B, a.apex);
     }
     if (r.cat === 'piso') { txt(ly, col, { x: i.c.x, y: i.c.y - 0.1 }, 0.12, (r.fin && r.fin.piso || 'AREA DE PISO').toUpperCase()); txt(ly, col, { x: i.c.x, y: i.c.y + 0.12 }, 0.1, `A = ${fmt(i.area)} m²`); continue; }
+    if (r.cat === 'cobertura') {
+      const g = roofSegs(f, r), rf = r.roof || {};
+      if (g) { g.ridge.forEach(([a, b]) => line('COBERTURA-CUMEEIRA', 30, a, b)); g.hips.forEach(([a, b]) => line('COBERTURA-ESPIGAO', 30, a, b)); }
+      txt(ly, col, { x: i.c.x, y: i.c.y - 0.2 }, 0.16, roomName(f, r).toUpperCase());
+      txt(ly, col, { x: i.c.x, y: i.c.y + 0.05 }, 0.11, `${rf.aguas || 2} AGUAS ${(rf.tel || '').toUpperCase()}${rf.inc ? ' i=' + fmt(rf.inc, 0) + '%' : ''}`);
+      continue;
+    }
     txt(ly, col, { x: i.c.x, y: i.c.y - 0.28 }, 0.2, roomName(f, r).toUpperCase());
     txt(ly, col, { x: i.c.x, y: i.c.y }, 0.13, `A = ${fmt(i.area)} m²`);
     if (hasPD(r)) txt(ly, col, { x: i.c.x, y: i.c.y + 0.22 }, 0.13, `PD = ${fmt(r.pd)} m`);
@@ -3203,7 +3713,13 @@ function buildDXF(o = { k: 0, hid: true }) {
     txt('PILARES', 1, { x: cl.x + r + 0.25, y: cl.y - r - 0.1 }, 0.1, `${colLabel(cl, k)} ${colDims(cl)} ${(cl.mat || '').toUpperCase()}`);
   });
   for (const nt of f.notes) txt('TEXTOS', 1, nt, 0.12, nt.text);
+  // terreno (contorno de referência) e o lado da fachada
+  if (f.lot) f.lot.pts.forEach((a, i) => {
+    const b = f.lot.pts[(i + 1) % f.lot.pts.length]; line('TERRENO', 34, a, b);
+    if (f.lot.front === i) { const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; txt('TERRENO', 34, m, 0.2, 'FRENTE', dxfRot(b.x - a.x, b.y - a.y)); }
+  });
   // linhas trazidas de outro DXF voltam nas camadas de origem (com o prefixo IMPORT-)
+  for (const l of f.roofLines || []) for (const [a, b] of lineSegs(l)) line(ROOF_LINES[l.k].ly, l.k === 'calha' ? 5 : l.k === 'rufo' ? 30 : 8, a, b);
   for (const l of f.lines || []) for (const [a, b] of lineSegs(l)) line('IMPORT-' + String(l.ly || '0').replace(/[^\w$-]/g, '_'), 8, a, b);
   // instalações hidrossanitárias: tubos e dispositivos em camadas por sistema
   if (o.hid && hasHid(f)) {
@@ -3259,20 +3775,23 @@ function buildJSON() {
     formato: 'croqui-vistoria/0.5', gerado_em: new Date().toISOString(),
     ficha: doc.ficha || '', desenhista: doc.desenhista || '', usuario: me ? me.nome : '', data: doc.data || '', descricao: doc.title || '', pavimento: f.name,
     unidade: 'm', grade_m: GRID, norte_graus: doc.north,
+    terreno: doc.floors[0].lot ? { descricao: doc.floors[0].lot.desc, area_m2: +lotArea(doc.floors[0].lot).toFixed(2), vertices: doc.floors[0].lot.pts,
+      fachada: doc.floors[0].lot.front == null ? null : { lado: doc.floors[0].lot.front + 1, comprimento_m: +dist(doc.floors[0].lot.pts[doc.floors[0].lot.front], doc.floors[0].lot.pts[(doc.floors[0].lot.front + 1) % doc.floors[0].lot.pts.length]).toFixed(2) } } : null,
     ambientes: f.rooms.map(r => { const i = roomInfo(f, r); return {
       nome: r.cat === 'piso' ? (r.fin && r.fin.piso) || 'Área de piso' : roomName(f, r), tipo: catOf(r).n,
       area_m2: +i.area.toFixed(2), perimetro_m: +i.per.toFixed(2), pe_direito_m: hasPD(r) ? r.pd : null,
       profundidade_m: r.cat === 'piscina' ? r.prof ?? 1.4 : null, revestimento_piscina: r.cat === 'piscina' ? r.rev || '' : null,
       paredes: roomWalls(f, r).map(w => f.walls.indexOf(w) + 1),
-      acabamentos: Object.fromEntries(finKeys(r).map(k => [k, finVal(r.fin, k)])), faixas_parede: finFaixas(r.fin && r.fin.parede), observacao: r.obs || '',
+      acabamentos: Object.fromEntries(finKeys(r).map(k => [k, roomFinVal(f, r, k)])), faixas_parede: finFaixas(r.fin && r.fin.parede),
+      paredes_do_ambiente: roomWallList(f, r).map(s => ({ numero: s.n, parede: f.walls.indexOf(s.w) + 1, comprimento_m: +s.L.toFixed(2), acabamento: finText(faceFin(r, s.w)), proprio: ownFace(r, s.w), faixas: finFaixas(faceFin(r, s.w)), medida_conferida: wallOk(f, s.w) })), observacao: r.obs || '',
       fotos: (r.photos || []).map(p => ({ numero: nums.byId[p.id], legenda: p.cap || '' })) }; }),
     paredes: f.walls.map((w, i) => { const g = wallGeom(f, w), a = w.s ? arcInfo(g.A, g.B, w.s) : null; return {
       numero: i + 1, de: pt(g.A), para: pt(g.B), comprimento_m: +g.L.toFixed(3), tipo: wtype(w).n, espessura_m: wth(w),
       curva: a ? { raio_m: +a.R.toFixed(3), desenvolvimento_m: +(a.R * a.sweep).toFixed(3), flecha_m: w.s, raio_informado: !!w.rm } : null,
-      medida_real_m: w.measured ?? null, medida_anotada_m: w.note ?? null, acabamento: finVal(w.fin, 'parede') || null, faixas: finFaixas(w.fin && w.fin.parede),
+      medida_real_m: w.measured ?? null, medida_anotada_m: w.note ?? null, acabamento_face_externa: finText(w.finExt) || null, faixas_face_externa: finFaixas(w.finExt), faces: wallRefs(f, w),
       ambientes: wallRooms(f, w), observacao: w.obs || '' }; }),
-    aberturas: f.ops.map(o => ({ tipo: o.type, modelo: OPK[opKind(o)].n, largura_m: o.w, altura_m: o.h, peitoril_m: o.sill ?? null, distancia_ponta_a_m: +o.t.toFixed(2) })),
-    quantitativos: quantRows([f]).map(r => ({ grupo: r.grp, item: r.item, local: r.local, unidade: r.un, quantidade: r.q, observacao: r.obs })),
+    aberturas: f.ops.map(o => ({ codigo: opCodes()[o.id], tipo: o.type, modelo: OPK[opKind(o)].n, largura_m: o.w, altura_m: o.h, peitoril_m: o.sill ?? null, distancia_ponta_a_m: +o.t.toFixed(2) })),
+    quantitativos: quantRows([f]).map(r => ({ ambiente: r.amb, referencia: r.ref, grupo: r.grp, item: r.item, unidade: r.un, quantidade: r.q, observacao: r.obs })),
     hidrossanitario: Object.fromEntries(Object.keys(SYS).map(sys => { const H = f.hid, lbl = hidLabels(f), nodes = Object.entries(H.n).filter(([, nd]) => nd.sys === sys); return [sys, {
       tubos: H.p.filter(p => p.sys === sys).map(p => ({ de: lbl[p.a] || pt(H.n[p.a]), para: lbl[p.b] || pt(H.n[p.b]), diametro_mm: p.d, material: p.mat || '',
         comprimento_m: +dist(H.n[p.a], H.n[p.b]).toFixed(2), observacao: p.obs || '' })),
@@ -3292,7 +3811,6 @@ function buildJSON() {
 /* ================= quantitativos (base para orçamento de reparos) ================= */
 // Medidas tiradas do croqui: comprimentos pelo eixo das paredes, alturas pelo pé-direito de cada ambiente,
 // descontando portas e janelas. Cada linha: { pav, grp, item, local, un, q, obs }.
-const QGRP = ['Pisos', 'Revestimento de paredes', 'Tetos e forros', 'Paredes (vedação)', 'Esquadrias', 'Pilares', 'Piscina', 'Instalações — Esgoto', 'Instalações — Drenagem'];
 const ovl = (a0, a1, b0, b1) => Math.max(0, Math.min(a1, b1) - Math.max(a0, b0));
 const opV = o => o.type === 'janela' ? [o.sill ?? 1, (o.sill ?? 1) + o.h] : [0, o.h];
 // trechos de parede no contorno de um ambiente (t0..t1 ao longo da parede, a partir da ponta A)
@@ -3309,102 +3827,148 @@ function roomWallSpans(f, r) {
 }
 // portas e janelas dentro de um trecho, com a largura que cai nele
 const opsIn = (f, sp) => sp.w.s ? [] : f.ops.filter(o => o.wall === sp.w.id).map(o => ({ o, wi: ovl(sp.t0, sp.t1, o.t, o.t + o.w) })).filter(x => x.wi > 0.01);
+// Cada linha: { pav, amb (ambiente onde fica), ref (P2, PL1, CI 1…), grp, item, un, q, obs, rid (ambiente para definir o acabamento) }.
 function quantRows(floors) {
-  const rows = [], nf = v => v || 'não informado';
-  const add = (pav, grp, item, local, un, q, obs = '') => { if (q > 0.0049) rows.push({ pav, grp, item, local, un, q: Math.round(q * 100) / 100, obs }); };
+  const rows = [], nf = v => v || 'não informado', codes = opCodes();
+  const add = (pav, grp, item, amb, un, q, ex = {}) => { if (q > 0.0049) rows.push(Object.assign({ pav, grp, item, amb, un, q: Math.round(q * 100) / 100, ref: '', obs: '', rid: null }, ex)); };
   for (const f of floors) {
-    const pav = f.name, zones = f.rooms.filter(r => r.cat === 'piso');
-    for (const r of f.rooms.filter(x => x.cat !== 'piso')) {
+    const pav = f.name, zones = f.rooms.filter(r => r.cat === 'piso'), ext = 'Área externa';
+    const ambAt = p => { const r = roomAt(f, p); return r && r.cat !== 'piso' ? roomName(f, r) : ext; };
+    for (const r of f.rooms.filter(x => x.cat !== 'piso' && x.cat !== 'cobertura')) {
       const i = roomInfo(f, r), nm = roomName(f, r); if (!i.c) continue;
       if (r.cat === 'piscina') {
         const prof = r.prof ?? 1.4;
-        add(pav, 'Piscina', `Revestimento da piscina${r.rev ? ' — ' + r.rev : ''}`, nm, 'm²', i.area + i.per * prof, 'fundo + paredes');
-        add(pav, 'Piscina', 'Volume de água', nm, 'm³', i.area * prof); continue;
+        add(pav, 'Piscina', `Revestimento da piscina${r.rev ? ' — ' + r.rev : ''}`, nm, 'm²', i.area + i.per * prof, { obs: 'fundo + paredes', rid: r.id });
+        add(pav, 'Piscina', 'Volume de água', nm, 'm³', i.area * prof, { rid: r.id }); continue;
       }
       // áreas de piso com outro acabamento saem da área do ambiente
       let a = i.area;
       for (const z of zones) {
         const zi = roomInfo(f, z); if (!zi.c || !pointInPoly(zi.c, i.pts)) continue;
-        a -= zi.area; add(pav, 'Pisos', `Piso — ${nf(z.fin && z.fin.piso)}`, `${nm} (área de piso)`, 'm²', zi.area);
+        a -= zi.area; add(pav, 'Pisos', `Piso — ${nf(z.fin && z.fin.piso)}`, nm, 'm²', zi.area, { ref: 'área de piso', rid: z.id });
       }
-      add(pav, 'Pisos', `${r.cat === 'calcada' ? 'Calçamento' : r.cat === 'permeavel' ? 'Área permeável' : 'Piso'} — ${nf(r.fin && r.fin.piso)}`, nm, 'm²', a);
+      add(pav, 'Pisos', `${r.cat === 'calcada' ? 'Calçamento' : r.cat === 'permeavel' ? 'Área permeável' : 'Piso'} — ${nf(r.fin && r.fin.piso)}`, nm, 'm²', a, { rid: r.id });
       if (!hasPD(r)) continue;
-      add(pav, 'Tetos e forros', `Teto — ${nf(r.fin && r.fin.teto)}`, nm, 'm²', i.area);
-      // revestimento de parede por faixa de altura (piso = 0), descontando aberturas; rodapé = paredes − portas
-      const pd = r.pd || doc.pd || 2.6, acc = {}; let rod = 0;
-      for (const sp of roomWallSpans(f, r)) {
-        const ops = opsIn(f, sp); let lo = 0;
-        for (const b of bandsOf((sp.w.fin && sp.w.fin.parede) || (r.fin && r.fin.parede))) {
+      add(pav, 'Tetos e forros', `Teto — ${nf(r.fin && r.fin.teto)}`, nm, 'm²', i.area, { rid: r.id });
+      // revestimento de cada face de parede (parede 1, 2…) por faixa de altura, descontando aberturas; rodapé = paredes − portas
+      const pd = r.pd || doc.pd || 2.6; let rod = 0;
+      for (const s of roomWallList(f, r)) {
+        const ops = opsIn(f, s), bs = bandsOf(faceFin(r, s.w)); let lo = 0;
+        for (const b of bs) {
           const hi = Math.min(b.ate ?? pd, pd); if (hi <= lo) continue;
-          let A = sp.L * (hi - lo);
+          let A = s.L * (hi - lo);
           for (const { o, wi } of ops) { const [v0, v1] = opV(o); A -= wi * ovl(lo, hi, v0, v1); }
-          acc[nf(b.v)] = (acc[nf(b.v)] || 0) + A; lo = hi;
+          add(pav, 'Revestimento de paredes', `Parede — ${nf(b.v)}`, nm, 'm²', A, { ref: `parede ${s.n}`, rid: r.id, obs: bs.length > 1 ? `${fmt(lo)} a ${b.ate == null ? 'teto' : fmt(hi) + ' m'}` : '' });
+          lo = hi;
         }
-        if (r.cat === 'interno') rod += sp.L - ops.filter(x => x.o.type === 'porta').reduce((s, x) => s + x.wi, 0);
+        if (r.cat === 'interno') rod += s.L - ops.filter(x => x.o.type === 'porta').reduce((t, x) => t + x.wi, 0);
       }
-      for (const k in acc) add(pav, 'Revestimento de paredes', `Parede — ${k}`, nm, 'm²', acc[k]);
-      add(pav, 'Pisos', 'Rodapé', nm, 'm', rod);
+      add(pav, 'Pisos', 'Rodapé', nm, 'm', rod, { rid: r.id });
     }
     // vedação: cada parede uma vez, com a altura do ambiente mais alto que ela fecha
     for (const w of f.walls) {
-      const rs = f.rooms.filter(r => hasPD(r) && roomWalls(f, r).includes(w)), H = rs.length ? Math.max(...rs.map(r => r.pd || 2.6)) : doc.pd || 2.6;
+      const refs = wallRefList(f, w), H = refs.length ? Math.max(...refs.map(x => x.r.pd || 2.6)) : doc.pd || 2.6;
       const L = w.s ? arcLen(f.v[w.a], f.v[w.b], w.s) : wallGeom(f, w).L;
       const ab = w.s ? 0 : f.ops.filter(o => o.wall === w.id).reduce((s, o) => { const [v0, v1] = opV(o); return s + o.w * ovl(0, H, v0, v1); }, 0);
-      add(pav, 'Paredes (vedação)', `${wtype(w).c} — ${fmt(wth(w) * 100, 0)} cm`, rs.map(r => roomName(f, r)).join(' / ') || 'sem ambiente', 'm²', L * H - ab, rs.length ? '' : `altura estimada ${fmt(H)} m`);
+      add(pav, 'Paredes (vedação)', `${wtype(w).c} — ${fmt(wth(w) * 100, 0)} cm`, refs.map(x => roomName(f, x.r)).join(' / ') || ext, 'm²', L * H - ab,
+        { ref: refs.map(x => (refs.length > 1 ? roomName(f, x.r) + ' ' : '') + 'parede ' + x.n).join(' = '), obs: refs.length ? '' : `altura estimada ${fmt(H)} m` });
+      // face externa com acabamento informado (fachada)
+      if (w.finExt != null && finText(w.finExt)) {
+        let lo = 0; const bs = bandsOf(w.finExt);
+        for (const b of bs) {
+          const hi = Math.min(b.ate ?? H, H); if (hi <= lo) continue;
+          let A = L * (hi - lo); if (!w.s) for (const o of f.ops.filter(x => x.wall === w.id)) { const [v0, v1] = opV(o); A -= o.w * ovl(lo, hi, v0, v1); }
+          add(pav, 'Revestimento de paredes', `Face externa — ${nf(b.v)}`, ext, 'm²', A, { ref: refs.map(x => roomName(f, x.r) + ' parede ' + x.n).join(' / ') }); lo = hi;
+        }
+      }
     }
-    for (const o of f.ops) { const w = f.walls.find(x => x.id === o.wall); add(pav, 'Esquadrias', `${OPK[opKind(o)].n} ${fmt(o.w)} × ${fmt(o.h)} m`, w ? wallRooms(f, w).join(' / ') : '', 'un', 1); }
-    f.cols.forEach((c, k) => add(pav, 'Pilares', `${SECS[c.sec].n} ${colDims(c)} — ${c.mat || 'material não informado'}`, colLabel(c, k), 'un', 1));
+    for (const o of f.ops) { const w = f.walls.find(x => x.id === o.wall); add(pav, 'Esquadrias', `${codes[o.id]} — ${opDesc(o)}`, w ? wallRooms(f, w).join(' / ') || ext : ext, 'un', 1, { ref: codes[o.id] }); }
+    f.cols.forEach((c, k) => add(pav, 'Pilares', `${SECS[c.sec].n} ${colDims(c)} — ${c.mat || 'material não informado'}`, ambAt(c), 'un', 1, { ref: colLabel(c, k) }));
+    // cobertura: área em planta e área real pela inclinação; calhas, rufos e platibandas em metros
+    for (const r of f.rooms.filter(x => x.cat === 'cobertura')) {
+      const i = roomInfo(f, r), rf = r.roof || {}, k = rf.inc ? Math.sqrt(1 + (rf.inc / 100) ** 2) : 1, nm = roomName(f, r);
+      add(pav, 'Cobertura', `Telhado — ${nf(rf.tel)}${rf.est ? ', estrutura ' + rf.est.toLowerCase() : ''}`, nm, 'm²', i.area * k,
+        { rid: r.id, obs: `${rf.aguas || 2} água${(rf.aguas || 2) > 1 ? 's' : ''}${rf.inc ? `, inclinação ${fmt(rf.inc, 0)}% (em planta ${fmt(i.area)} m²)` : ', sem inclinação informada: área em planta'}` });
+    }
+    for (const l of f.roofLines || []) add(pav, 'Cobertura', `${ROOF_LINES[l.k].n}${l.mat ? ' — ' + l.mat : ''}`, ambAt(l.pts[0]), 'm', lineLen(l), { ref: l.mat ? '' : '' });
     const H = f.hid; if (!H) continue;
     const lbl = hidLabels(f);
-    for (const p of H.p) add(pav, `Instalações — ${SYS[p.sys].n}`, `Tubo Ø${p.d} mm ${p.mat || ''}`.trim(), '', 'm', dist(H.n[p.a], H.n[p.b]));
+    for (const p of H.p) { const A = H.n[p.a], B = H.n[p.b]; add(pav, `Instalações — ${SYS[p.sys].n}`, `Tubo Ø${p.d} mm ${p.mat || ''}`.trim(), ambAt({ x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }), 'm', dist(A, B)); }
     for (const id in H.n) {
-      const nd = H.n[id], g = `Instalações — ${SYS[nd.sys].n}`, it = nd.item, ps = hPipesAt(f, id);
-      if (it && it.k === 'pc') { for (const a of it.ap || []) add(pav, g, `Aparelho — ${(APAR[nd.sys].find(x => x[0] === a) || [a, a])[1]}`, it.nome || lbl[id], 'un', 1); continue; }
-      if (it) { const d = DEV[it.k], dim = !it.b || d.sh === 'out' ? '' : it.h ? ` ${fmt(it.b * 100, 0)}×${fmt(it.h * 100, 0)} cm` : ` ${fmt(it.b * 100, 0)} cm`; add(pav, g, d.n + dim, lbl[id], 'un', 1); continue; }
+      const nd = H.n[id], g = `Instalações — ${SYS[nd.sys].n}`, it = nd.item, ps = hPipesAt(f, id), amb = ambAt(nd);
+      if (it && it.k === 'pc') { for (const a of it.ap || []) add(pav, g, `Aparelho — ${(APAR[nd.sys].find(x => x[0] === a) || [a, a])[1]}`, amb, 'un', 1, { ref: lbl[id] + (it.nome ? ' ' + it.nome : '') }); continue; }
+      if (it) { const d = DEV[it.k], dim = !it.b || d.sh === 'out' ? '' : it.h ? ` ${fmt(it.b * 100, 0)}×${fmt(it.h * 100, 0)} cm` : ` ${fmt(it.b * 100, 0)} cm`; add(pav, g, d.n + dim, amb, 'un', 1, { ref: lbl[id] }); continue; }
       // conexão entre tubos (sem caixa); tubos em linha reta não contam como peça
       if (ps.length < 2) continue;
       const cls = hClass(f, id); if (cls.k === 'reta') continue;
-      add(pav, g, `${nd.con || FITS[cls.k][0]} Ø${Math.max(...ps.map(p => p.d))}`, '', 'un', 1);
+      add(pav, g, `${nd.con || FITS[cls.k][0]} Ø${Math.max(...ps.map(p => p.d))}`, amb, 'un', 1);
     }
   }
   return rows;
 }
-// soma por item; com vários pavimentos, o local leva o nome do pavimento
-function quantSum(rows, multi) {
+const QGRP = ['Pisos', 'Revestimento de paredes', 'Tetos e forros', 'Paredes (vedação)', 'Esquadrias', 'Pilares', 'Cobertura', 'Piscina', 'Instalações — Esgoto', 'Instalações — Drenagem'];
+// soma por item (dentro de um ambiente, ou no total); guarda as referências (parede 1, 2…) e o ambiente para definir acabamento
+function quantSum(rows, multi, byAmb) {
   const m = new Map();
   for (const r of rows) {
-    const k = [r.grp, r.item, r.un].join('|'), e = m.get(k) || { grp: r.grp, item: r.item, un: r.un, q: 0, locs: new Set(), obs: new Set() };
-    e.q += r.q; const loc = multi ? [r.pav, r.local].filter(Boolean).join(' · ') : r.local;
-    if (loc) e.locs.add(loc); if (r.obs) e.obs.add(r.obs); m.set(k, e);
+    const amb = multi ? `${r.pav} · ${r.amb}` : r.amb, k = [byAmb ? amb : '', r.grp, r.item, r.un].join('|');
+    const e = m.get(k) || { amb, grp: r.grp, item: r.item, un: r.un, q: 0, refs: new Set(), ambs: new Set(), obs: new Set(), rid: r.rid };
+    e.q += r.q; if (r.ref) e.refs.add(r.ref); e.ambs.add(amb); if (r.obs) e.obs.add(r.obs); if (!e.rid) e.rid = r.rid; m.set(k, e);
   }
   return [...m.values()].sort((a, b) => QGRP.indexOf(a.grp) - QGRP.indexOf(b.grp) || a.item.localeCompare(b.item, 'pt'));
 }
+// ordem dos ambientes: como estão no croqui, depois paredes compartilhadas, depois área externa
+function ambOrder(rows, multi) {
+  const names = [];
+  for (const f of doc.floors) for (const r of f.rooms) if (r.cat !== 'piso') { const n = multi ? `${f.name} · ${roomName(f, r)}` : roomName(f, r); if (!names.includes(n)) names.push(n); }
+  const all = [...new Set(rows.map(r => multi ? `${r.pav} · ${r.amb}` : r.amb))];
+  const rank = n => { const i = names.indexOf(n); return i >= 0 ? i : /Área externa$/.test(n) ? 1e6 : 1e5; };
+  return all.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'pt'));
+}
 const qFmt = (q, un) => fmt(q, un === 'un' ? 0 : 2);
-// planilha para o Excel (separador ; e vírgula decimal): basta preencher o preço unitário que o total sai na hora
+const notInf = x => /não informado/.test(x.item);
+// planilha para o Excel (separador ; e vírgula decimal): uma linha por item, ambiente e parede; o total sai ao preencher o preço
 function quantCSV(rows) {
   const s = v => `"${String(v ?? '').replace(/"/g, '""')}"`, num = v => String(v).replace('.', ',');
-  const head = ['Ficha', 'Pavimento', 'Grupo', 'Item', 'Local', 'Unidade', 'Quantidade', 'Observação', 'Preço unitário (R$)', 'Total (R$)'];
-  const lines = rows.map((r, i) => [s(doc.ficha), s(r.pav), s(r.grp), s(r.item), s(r.local), s(r.un), num(r.q), s(r.obs), '', `=G${i + 2}*I${i + 2}`]);
+  const order = ambOrder(rows, true), sorted = rows.slice().sort((a, b) => order.indexOf(`${a.pav} · ${a.amb}`) - order.indexOf(`${b.pav} · ${b.amb}`) || QGRP.indexOf(a.grp) - QGRP.indexOf(b.grp));
+  const head = ['Ficha', 'Pavimento', 'Ambiente', 'Referência', 'Grupo', 'Item', 'Unidade', 'Quantidade', 'Observação', 'Preço unitário (R$)', 'Total (R$)'];
+  const lines = sorted.map((r, i) => [s(doc.ficha), s(r.pav), s(r.amb), s(r.ref), s(r.grp), s(r.item), s(r.un), num(r.q), s(r.obs), '', `=H${i + 2}*J${i + 2}`]);
   return '﻿' + [head.map(s), ...lines].map(l => l.join(';')).join('\r\n') + '\r\n';
 }
-let quantAll = false;
+let quantAll = false, quantView = 'amb', quantOnlyInf = false;
 function openQuant() {
   closeMenu();
-  const multi = quantAll && doc.floors.length > 1, rows = quantRows(quantAll ? doc.floors : [F()]), sum = quantSum(rows, multi);
-  const groups = QGRP.concat([...new Set(sum.map(x => x.grp))].filter(g => !QGRP.includes(g))).filter(g => sum.some(x => x.grp === g));
-  const nInf = sum.filter(x => /não informado/.test(x.item)).length;
+  const multi = quantAll && doc.floors.length > 1, rows = quantRows(quantAll ? doc.floors : [F()]);
+  const byAmb = quantView === 'amb', sum = quantSum(rows, multi, byAmb).filter(x => !quantOnlyInf || notInf(x)), nInf = quantSum(rows, multi, true).filter(notInf).length;
+  const line = x => `<tr class="${notInf(x) ? 'inf' : ''}"><td>${esc(x.item)}${x.refs.size ? `<small>${esc([...x.refs].join(', '))}</small>` : ''}${!byAmb && x.ambs.size ? `<small>${esc([...x.ambs].join(', '))}</small>` : ''}${x.obs.size ? `<small>${esc([...x.obs].join('; '))}</small>` : ''}
+      ${notInf(x) && x.rid ? `<button class="btn sm" data-mact="def" data-v="${x.rid}">Definir acabamento</button>` : ''}</td><td class="q">${qFmt(x.q, x.un)}</td><td class="u">${esc(x.un)}</td></tr>`;
+  const sections = byAmb
+    ? ambOrder(sum.map(x => ({ pav: '', amb: x.amb })), false).map(a => { const xs = sum.filter(x => x.amb === a); const tot = xs.filter(x => x.grp === 'Pisos' && x.un === 'm²').reduce((s, x) => s + x.q, 0);
+        return `<div class="qamb"><b>${esc(a)}</b>${tot ? `<span>${fmt(tot)} m² de piso</span>` : ''}</div><table class="qt"><tbody>${xs.map(line).join('')}</tbody></table>`; }).join('')
+    : QGRP.concat([...new Set(sum.map(x => x.grp))].filter(g => !QGRP.includes(g))).filter(g => sum.some(x => x.grp === g))
+        .map(g => `<div class="lbl" style="margin-top:4px">${esc(g)}</div><table class="qt"><tbody>${sum.filter(x => x.grp === g).map(line).join('')}</tbody></table>`).join('');
   openModal(`<h2>Quantitativos</h2>
-    <p class="small muted" style="margin:0">Medidas tiradas do croqui: paredes pelo eixo, alturas pelo pé-direito de cada ambiente, descontando portas e janelas. São a base para o orçamento de reparos; confira em campo os itens mais caros.</p>
-    ${doc.floors.length > 1 ? `<div class="seg"><button data-mact="qscope" data-v="0" class="${quantAll ? '' : 'on'}">${esc(F().name)}</button><button data-mact="qscope" data-v="1" class="${quantAll ? 'on' : ''}">Todos os pavimentos</button></div>` : ''}
-    ${nInf ? `<p class="small" style="margin:0;color:var(--orange)">${nInf} ite${nInf > 1 ? 'ns' : 'm'} com acabamento “não informado”: defina em Acabamentos para separar por material.</p>` : ''}
-    ${groups.length ? groups.map(g => `<div class="lbl" style="margin-top:4px">${esc(g)}</div><table class="qt"><tbody>${sum.filter(x => x.grp === g).map(x => `<tr><td>${esc(x.item)}${x.locs.size ? `<small>${esc([...x.locs].join(', '))}</small>` : ''}${x.obs.size ? `<small>${esc([...x.obs].join('; '))}</small>` : ''}</td><td class="q">${qFmt(x.q, x.un)}</td><td class="u">${esc(x.un)}</td></tr>`).join('')}</tbody></table>`).join('')
-      : '<p class="muted">Nada para quantificar ainda neste pavimento.</p>'}
+    <p class="small muted" style="margin:0">Medidas tiradas do croqui: paredes pelo eixo, alturas pelo pé-direito de cada ambiente, descontando portas e janelas. Cada parede do ambiente aparece pelo número (parede 1, 2…), o mesmo do desenho.</p>
+    <div class="row">${doc.floors.length > 1 ? `<div class="seg"><button data-mact="qscope" data-v="0" class="${quantAll ? '' : 'on'}">${esc(F().name)}</button><button data-mact="qscope" data-v="1" class="${quantAll ? 'on' : ''}">Todos</button></div>` : ''}
+      <div class="seg"><button data-mact="qview" data-v="amb" class="${byAmb ? 'on' : ''}">Por ambiente</button><button data-mact="qview" data-v="item" class="${byAmb ? '' : 'on'}">Totais por item</button></div></div>
+    ${nInf ? `<div class="okline"><span class="grow">${nInf} ite${nInf > 1 ? 'ns' : 'm'} com acabamento “não informado” (em laranja).</span><button class="btn sm" data-mact="qinf">${quantOnlyInf ? 'Mostrar tudo' : 'Mostrar só esses'}</button></div>` : ''}
+    ${sum.length ? sections : '<p class="muted">Nada para quantificar ainda.</p>'}
     <div class="ex-out" id="qOut"></div>
     <div class="row"><button class="btn primary" data-mact="csv" ${rows.length ? '' : 'disabled'}>Planilha (CSV) para orçamento</button><span class="grow"></span><button class="btn" data-mact="close">Fechar</button></div>`, {
     qscope(b) { quantAll = b.dataset.v === '1'; openQuant(); },
+    qview(b) { quantView = b.dataset.v; openQuant(); },
+    qinf() { quantOnlyInf = !quantOnlyInf; openQuant(); },
+    // leva ao ambiente: fecha a lista, centraliza e abre os acabamentos dele
+    def(b) {
+      const fi = doc.floors.findIndex(f => f.rooms.some(r => r.id === b.dataset.v)); if (fi < 0) return;
+      closeModal(); if (fi !== doc.cur) { doc.cur = fi; refresh(); }
+      const f = F(), r = f.rooms.find(x => x.id === b.dataset.v), c = roomInfo(f, r).c;
+      setTool('editar'); if (c) { cam.ox = VW * .35 - c.x * cam.z; cam.oy = VH * .5 - c.y * cam.z; }
+      openFinSheet('room', r.id); toast('Defina o acabamento e abra os Quantitativos de novo para conferir.');
+    },
     csv() {
       deliver(fileBase(quantAll) + '_quantitativos.csv', new Blob([quantCSV(rows)], { type: 'text/csv' }));
-      $('#qOut').innerHTML = `<p class="small" style="margin:0">Planilha pronta: ${rows.length} linhas, uma por item e local. Abre no Excel; preencha a coluna Preço unitário e o Total é calculado.</p>${fileButtons()}`;
+      $('#qOut').innerHTML = `<p class="small" style="margin:0">Planilha pronta: ${rows.length} linhas, uma por item, ambiente e parede. Abre no Excel; preencha a coluna Preço unitário e o Total é calculado.</p>${fileButtons()}`;
     }
   });
 }
@@ -3516,7 +4080,7 @@ async function buildPDF(o) {
   };
   const drawHeader = () => row(curCols.map(c => c[0]), { bold: true, bg: '#EEF1F4' });
   const para = (s, size = 9, o = {}) => { for (const l of wrapText(s, 539, size, o.bold)) { need(size + 4); P.text(l, 28, y + size, size, o); y += size + 4; } };
-  const listed = doc.floors.filter(f => f.rooms.length || f.cols.length || f.walls.some(w => w.fin && w.fin.parede) || (o.hid && hasHid(f)));
+  const listed = doc.floors.filter(f => f.rooms.length || f.cols.length || f.walls.some(w => wallHasOwnFin(f, w)) || (o.hid && hasHid(f)));
   if (listed.length) newPage();
   for (const f of listed) {
     need(40); y += 6; P.text(f.name, 28, y + 12, 12, { bold: true }); y += 20;
@@ -3526,18 +4090,17 @@ async function buildPDF(o) {
       for (const r of f.rooms.slice().sort((a, b) => order.indexOf(a.cat) - order.indexOf(b.cat))) {
         const i = roomInfo(f, r), fin = r.fin || {}, name = r.cat === 'piso' ? (fin.piso || 'Área de piso') : roomName(f, r);
         row([name + (r.obs ? '\n' + r.obs : ''), catOf(r).short, fmt(i.area), hasPD(r) ? fmt(r.pd) : r.cat === 'piscina' ? fmt(r.prof ?? 1.4) : '—',
-          r.cat === 'piscina' ? (r.rev ? 'Revest.: ' + r.rev : '—') : (fin.piso || '—'), finKeys(r).includes('parede') ? finVal(fin, 'parede') || '—' : '—',
+          r.cat === 'piscina' ? (r.rev ? 'Revest.: ' + r.rev : '—') : (fin.piso || '—'), finKeys(r).includes('parede') ? roomFinVal(f, r, 'parede') || '—' : '—',
           finKeys(r).includes('teto') ? fin.teto || '—' : '—', nums.lbl[r.id] || '—']);
       }
       header = false;
       para(`Soma: ${areaLine(f)}.`, 8.5, { color: '#4A5562' }); y += 4;
     }
-    const wf = f.walls.filter(w => w.fin && w.fin.parede);
-    if (wf.length) {
-      para('Paredes com acabamento próprio', 10, { bold: true });
-      for (const w of wf) { const rs = wallRooms(f, w); para(`• Parede de ${fmt(wallGeom(f, w).L)} m${rs.length ? ' (' + rs.join(' / ') + ')' : ''}: ${finText(w.fin.parede)}`, 9); }
-      y += 4;
-    }
+    // faces de parede com acabamento diferente do ambiente, e faces externas
+    const wf = [];
+    for (const r of f.rooms.filter(hasPD)) for (const s of roomWallList(f, r)) if (ownFace(r, s.w)) wf.push(`• ${roomName(f, r)}, parede ${s.n} (${fmt(s.L)} m): ${finText(r.finW[s.w.id])}`);
+    for (const w of f.walls) if (w.finExt != null && finText(w.finExt)) { const rs = wallRefs(f, w); wf.push(`• Face externa da parede de ${fmt(wallGeom(f, w).L)} m${rs.length ? ' (' + rs.join(' / ') + ')' : ''}: ${finText(w.finExt)}`); }
+    if (wf.length) { para('Paredes com acabamento diferente do ambiente', 10, { bold: true }); wf.forEach(s => para(s, 9)); y += 4; }
     if (f.cols.length) {
       para('Pilares', 10, { bold: true });
       f.cols.forEach((c, k) => para(`• ${colLabel(c, k)} — ${SECS[c.sec].n}, ${colDims(c)}, ${c.mat || 'material não informado'}${c.obs ? '. ' + c.obs : ''}`, 9));
@@ -3565,17 +4128,17 @@ async function buildPDF(o) {
       }
     }
   }
-  // quantitativos de todos os pavimentos, somados por item
+  // quantitativos de todos os pavimentos, por ambiente e depois por item (com as paredes 1, 2…)
   if (o.quant) {
-    const multi = doc.floors.length > 1, sum = quantSum(quantRows(doc.floors), multi);
+    const multi = doc.floors.length > 1, rows = quantRows(doc.floors), sum = quantSum(rows, multi, true);
     if (sum.length) {
       pageTitle = 'Quantitativos'; header = false; newPage();
       para('Medidas tiradas do croqui: paredes pelo eixo, alturas pelo pé-direito de cada ambiente, descontando portas e janelas. Base para orçamento de reparos; conferir em campo os itens mais caros.', 8.5, { color: '#4A5562' }); y += 4;
-      curCols = [['Item', 215], ['Local', 224], ['Qtd.', 55], ['Un.', 45]];
-      for (const g of [...new Set(sum.map(x => x.grp))]) {
-        need(40); y += 4; P.text(g, 28, y + 11, 10.5, { bold: true }); y += 16;
+      curCols = [['Item', 230], ['Referência', 200], ['Qtd.', 64], ['Un.', 45]];
+      for (const a of ambOrder(sum.map(x => ({ pav: '', amb: x.amb })), false)) {
+        need(40); y += 4; P.text(a, 28, y + 11, 10.5, { bold: true }); y += 16;
         header = true; drawHeader();
-        for (const x of sum.filter(s => s.grp === g)) row([x.item, [...x.locs].join(', ') + (x.obs.size ? ` (${[...x.obs].join('; ')})` : ''), qFmt(x.q, x.un), x.un], { plain: true });
+        for (const x of sum.filter(s => s.amb === a)) row([x.item, [...x.refs].join(', ') + (x.obs.size ? ` (${[...x.obs].join('; ')})` : ''), qFmt(x.q, x.un), x.un], { plain: true });
         header = false;
       }
       curCols = cols;
@@ -3750,6 +4313,22 @@ function buildExample() {
   const bottomQ2 = wallAt(6.25, 7.5); bottomQ2.note = 4.47;
   f.notes.push({ id: uid(), x: 2, y: 6.6, text: 'Mancha de umidade — foto 14' });
   f.notes.push({ id: uid(), x: 12, y: -0.6, text: 'Deck sem calçamento' });
+  // a parede do banheiro voltada para a sala tem revestimento próprio só do lado do banheiro
+  const ban = f.rooms.find(r => r.name === 'Banheiro');
+  ban.fin = { piso: 'Cerâmica', parede: 'Pintura acrílica', teto: 'Forro de PVC' };
+  const bw = roomWallList(f, ban).find(s => Math.abs(f.v[s.w.a].x - 5) < 1e-6 && Math.abs(f.v[s.w.b].x - 5) < 1e-6);
+  if (bw) ban.finW[bw.w.id] = [{ ate: 1.5, v: 'Azulejo/cerâmica' }, { ate: null, v: 'Pintura acrílica' }];
+  // terreno 20 × 20 com a frente para o passeio
+  f.lot = { pts: [{ x: -2, y: -5 }, { x: 18, y: -5 }, { x: 18, y: 15 }, { x: -2, y: 15 }], front: 0, desc: '20 × 20 m' };
+  // cobertura: telhado da casa em 2 águas e da varanda em 1 água, com calhas e rufo
+  const c = newFloor('Cobertura'); doc.floors.push(c);
+  const V = (x, y) => { const id = uid(); c.v[id] = { x, y }; return id; };
+  const roof = (name, pts, rf) => c.rooms.push(Object.assign(newRoom(pts.map(([x, y]) => V(x, y)), 'cobertura'), { name, roof: Object.assign({ tel: '', est: '', aguas: 2, cume: 0, inc: null }, rf) }));
+  roof('Telhado principal', [[-0.5, -0.5], [9, -0.5], [9, 8], [-0.5, 8]], { tel: 'Telha cerâmica', est: 'Madeira', aguas: 2, inc: 30 });
+  roof('Telhado da varanda', [[-0.5, -2.8], [5.3, -2.8], [5.3, -0.5], [-0.5, -0.5]], { tel: 'Telha metálica', est: 'Metálica', aguas: 1, cume: 1, inc: 10 });
+  c.roofLines.push({ id: uid(), k: 'calha', pts: [{ x: -0.5, y: 8 }, { x: 9, y: 8 }], mat: 'Chapa galvanizada', obs: '' });
+  c.roofLines.push({ id: uid(), k: 'calha', pts: [{ x: -0.5, y: -2.8 }, { x: 5.3, y: -2.8 }], mat: 'Chapa galvanizada', obs: '' });
+  c.roofLines.push({ id: uid(), k: 'rufo', pts: [{ x: 5.3, y: -0.5 }, { x: 9, y: -0.5 }], mat: 'Alumínio', obs: '' });
   tool = 'editar';
 }
 
@@ -4445,7 +5024,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Escape') {
     if (!$('#picker').hidden) closePicker();
     else if (pend) { pend = null; refresh(); }
-    else if (chain || amb || hchain) { chain = amb = hchain = null; refresh(); }
+    else if (chain || amb || hchain || rchain) { chain = amb = hchain = rchain = null; refresh(); }
     else if (S) closeSheet();
   }
 });
