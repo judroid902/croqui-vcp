@@ -1,7 +1,7 @@
 ﻿// Guarda os arquivos do croqui no tablet para funcionar sem internet.
 // Ao publicar uma versão nova, altere VERSION para o tablet buscar os arquivos novos.
 
-const VERSION = 'croqui-v0.6.0';
+const VERSION = 'croqui-v0.7.0';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {

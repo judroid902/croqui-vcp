@@ -231,6 +231,15 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
 .sheet .pk-opt { min-height:48px; border:1px solid transparent; }
 .sheet .pk-opt.on { border-color:var(--blue); }
 .devs { display:flex; flex-direction:column; gap:2px; }
+/* opções com caixa de marcar: o texto longo quebra ao lado da caixa, não embaixo dela */
+label.row { flex-wrap:nowrap; align-items:flex-start; }
+label.row input[type="checkbox"] { flex:none; margin:2px 0 0; width:18px; height:18px; }
+/* tabela de quantitativos */
+.qt { width:100%; border-collapse:collapse; font-size:14px; }
+.qt td { padding:7px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+.qt td small { display:block; font-size:12px; color:var(--muted); margin-top:2px; }
+.qt td.q { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; width:1%; }
+.qt td.u { color:var(--muted); width:1%; white-space:nowrap; padding-left:6px; }
 /* círculo do norte */
 .dial { position:relative; width:220px; height:220px; margin:4px auto; border-radius:50%; border:1px dashed var(--line); }
 .dial button { position:absolute; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:23px; border:1px solid var(--line);
@@ -433,6 +442,7 @@ textarea.txt { height:76px; padding:10px 12px; resize:vertical; }
   <button data-m="dados">Dados do croqui</button>
   <button data-m="north">Norte do desenho</button>
   <button data-m="import">Importar desenho neste pavimento</button>
+  <button data-m="quant">Quantitativos</button>
   <button data-m="save">Salvar agora</button>
   <button data-m="help">Como usar</button>
   <button data-m="theme">Tema claro / escuro</button>
@@ -2917,11 +2927,13 @@ function renderDrawer() {
         <div><span>Portas · janelas · pilares</span><span>${f.ops.filter(o => o.type === 'porta').length} · ${f.ops.filter(o => o.type === 'janela').length} · ${f.cols.length}</span></div>
         <div><span>Fotos</span><span>${nPh}</span></div>
         ${hidSum('esgoto')}${hidSum('dren')}
+        <button class="btn sm" data-dquant style="align-self:flex-start;margin-top:4px">Ver quantitativos</button>
       </div>
     </div>`;
 }
 $('#drawer').addEventListener('click', e => {
   if (e.target.closest('[data-dclose]')) { $('#drawer').hidden = true; return; }
+  if (e.target.closest('[data-dquant]')) { openQuant(); return; }
   const b = e.target.closest('[data-r]'); if (!b) return;
   const f = F(), r = f.rooms.find(x => x.id === b.dataset.r), c = roomInfo(f, r).c;
   $('#drawer').hidden = true; setTool('editar');
@@ -2932,7 +2944,9 @@ $('#bRooms').addEventListener('click', () => { const d = $('#drawer'); d.hidden 
 
 /* ---------- janelas (modal) ---------- */
 function openModal(html, on = {}) {
-  on = Object.assign({ hoje() { setDado('data', isoToday()); $('#dData').value = doc.data; } }, on);
+  // botões de arquivo (baixar de novo, compartilhar) valem em qualquer janela que gere arquivo
+  on = Object.assign({ hoje() { setDado('data', isoToday()); $('#dData').value = doc.data; },
+    again() { if (lastFile) tryDownload(lastFile.name, lastFile); }, share() { shareLast(); }, sharetxt() { shareTxt(); } }, on);
   $('#modal').innerHTML = html; $('#scrim').hidden = false;
   $('#modal').onclick = e => { const b = e.target.closest('[data-mact]'); if (!b) return; if (b.dataset.mact === 'close') closeModal(); else on[b.dataset.mact] && on[b.dataset.mact](b); };
   $('#modal').oninput = e => { const k = e.target.dataset.d; if (k) setDado(k, e.target.value); };
@@ -3008,6 +3022,7 @@ function showHelp() {
       <li><b>Acabamentos:</b> piso, parede e teto do ambiente, de uma parede só ou de uma área de piso. Na parede, use + Faixa acima para, por exemplo, cerâmica até 1,50 m e pintura até o teto.</li>
       <li><b>Hidrossanitário:</b> escolha Esgoto (verde) ou Drenagem (roxo). Na barra de baixo: Tubulação (no sentido do fluxo, com o diâmetro), Caixas e conexões (toque num encontro de tubos para ver o que pode existir ali), Ponto de contribuição (banheiro, cozinha…) e Selecionar. Fechar volta ao desenho normal.</li>
       <li><b>Desenho pronto:</b> na lista de croquis, Importar desenho (ou no menu ⋮ do desenho). DXF: as linhas vêm editáveis (excluir ou transformar em parede) e os textos viram notas. PDF e imagem: ficam de fundo em escala; marque uma medida conhecida para calibrar e desenhe por cima. O JSON exportado pelo app volta completo.</li>
+      <li><b>Quantitativos:</b> menu ⋮ → Quantitativos (ou em Ambientes). Pisos, revestimento de paredes por faixa, tetos, rodapé, paredes por tipo, esquadrias, pilares, piscina e instalações, descontando portas e janelas. A planilha CSV abre no Excel com colunas de preço unitário e total.</li>
       <li><b>Fotos:</b> no painel do ambiente, Tirar foto ou Da galeria. Elas saem só no PDF.</li>
       <li><b>Exportar:</b> PNG para a ficha, PDF com croqui, tabela e fotos, DXF para o CAD e JSON com os dados.</li>
     </ol>
@@ -3021,7 +3036,7 @@ $('#bMenu').addEventListener('click', e => { e.stopPropagation(); $('#menu').hid
 $('#menu').addEventListener('click', e => {
   const m = e.target.closest('[data-m]'); if (!m) return; closeMenu();
   const k = m.dataset.m;
-  if (k === 'dados') openDados(); else if (k === 'north') openNorthSheet(); else if (k === 'save') saveCroqui(); else if (k === 'import') pickImport('floor');
+  if (k === 'dados') openDados(); else if (k === 'north') openNorthSheet(); else if (k === 'save') saveCroqui(); else if (k === 'import') pickImport('floor'); else if (k === 'quant') openQuant();
   else if (k === 'theme') $('#bTheme').click(); else if (k === 'home') leaveDrawing(showHome); else if (k === 'user') leaveDrawing(() => logout());
   else if (k === 'clear') confirmClear(); else showHelp();
 });
@@ -3065,7 +3080,7 @@ function drawNorthArrow(c, x, y, r, ang, col) {
   text(c, 'N', x + Math.sin(t) * (r + r * .45), y - Math.cos(t) * (r + r * .45), { font: `700 ${r * .6}px ${FONT}`, color: col });
 }
 function exOpts() {
-  return { grid: $('#exGrid').checked, k: $('#exNorth') && $('#exNorth').checked ? northTurns() : 0, hid: !$('#exHid') || $('#exHid').checked, bg: !!$('#exBg') && $('#exBg').checked };
+  return { grid: $('#exGrid').checked, k: $('#exNorth') && $('#exNorth').checked ? northTurns() : 0, hid: !$('#exHid') || $('#exHid').checked, bg: !!$('#exBg') && $('#exBg').checked, quant: !!$('#exQuant') && $('#exQuant').checked };
 }
 
 // desenho do pavimento num quadro de W×H px, sem carimbo
@@ -3257,6 +3272,7 @@ function buildJSON() {
       medida_real_m: w.measured ?? null, medida_anotada_m: w.note ?? null, acabamento: finVal(w.fin, 'parede') || null, faixas: finFaixas(w.fin && w.fin.parede),
       ambientes: wallRooms(f, w), observacao: w.obs || '' }; }),
     aberturas: f.ops.map(o => ({ tipo: o.type, modelo: OPK[opKind(o)].n, largura_m: o.w, altura_m: o.h, peitoril_m: o.sill ?? null, distancia_ponta_a_m: +o.t.toFixed(2) })),
+    quantitativos: quantRows([f]).map(r => ({ grupo: r.grp, item: r.item, local: r.local, unidade: r.un, quantidade: r.q, observacao: r.obs })),
     hidrossanitario: Object.fromEntries(Object.keys(SYS).map(sys => { const H = f.hid, lbl = hidLabels(f), nodes = Object.entries(H.n).filter(([, nd]) => nd.sys === sys); return [sys, {
       tubos: H.p.filter(p => p.sys === sys).map(p => ({ de: lbl[p.a] || pt(H.n[p.a]), para: lbl[p.b] || pt(H.n[p.b]), diametro_mm: p.d, material: p.mat || '',
         comprimento_m: +dist(H.n[p.a], H.n[p.b]).toFixed(2), observacao: p.obs || '' })),
@@ -3271,6 +3287,126 @@ function buildJSON() {
     notas: f.notes.map(nt => ({ texto: nt.text, x: nt.x, y: nt.y })),
     geometria: f
   }, null, 2);
+}
+
+/* ================= quantitativos (base para orçamento de reparos) ================= */
+// Medidas tiradas do croqui: comprimentos pelo eixo das paredes, alturas pelo pé-direito de cada ambiente,
+// descontando portas e janelas. Cada linha: { pav, grp, item, local, un, q, obs }.
+const QGRP = ['Pisos', 'Revestimento de paredes', 'Tetos e forros', 'Paredes (vedação)', 'Esquadrias', 'Pilares', 'Piscina', 'Instalações — Esgoto', 'Instalações — Drenagem'];
+const ovl = (a0, a1, b0, b1) => Math.max(0, Math.min(a1, b1) - Math.max(a0, b0));
+const opV = o => o.type === 'janela' ? [o.sill ?? 1, (o.sill ?? 1) + o.h] : [0, o.h];
+// trechos de parede no contorno de um ambiente (t0..t1 ao longo da parede, a partir da ponta A)
+function roomWallSpans(f, r) {
+  const out = [];
+  for (const e of roomEdges(f, r)) for (const w of f.walls) {
+    if (!edgeOnWall(f, e, w)) continue;
+    if (w.s) { out.push({ w, L: arcLen(f.v[w.a], f.v[w.b], w.s), t0: 0, t1: 0 }); continue; }
+    const g = wallGeom(f, w), pa = (e.A.x - g.A.x) * g.ux + (e.A.y - g.A.y) * g.uy, pb = (e.B.x - g.A.x) * g.ux + (e.B.y - g.A.y) * g.uy;
+    const t0 = Math.max(0, Math.min(pa, pb)), t1 = Math.min(g.L, Math.max(pa, pb));
+    if (t1 - t0 > 0.01) out.push({ w, L: t1 - t0, t0, t1 });
+  }
+  return out;
+}
+// portas e janelas dentro de um trecho, com a largura que cai nele
+const opsIn = (f, sp) => sp.w.s ? [] : f.ops.filter(o => o.wall === sp.w.id).map(o => ({ o, wi: ovl(sp.t0, sp.t1, o.t, o.t + o.w) })).filter(x => x.wi > 0.01);
+function quantRows(floors) {
+  const rows = [], nf = v => v || 'não informado';
+  const add = (pav, grp, item, local, un, q, obs = '') => { if (q > 0.0049) rows.push({ pav, grp, item, local, un, q: Math.round(q * 100) / 100, obs }); };
+  for (const f of floors) {
+    const pav = f.name, zones = f.rooms.filter(r => r.cat === 'piso');
+    for (const r of f.rooms.filter(x => x.cat !== 'piso')) {
+      const i = roomInfo(f, r), nm = roomName(f, r); if (!i.c) continue;
+      if (r.cat === 'piscina') {
+        const prof = r.prof ?? 1.4;
+        add(pav, 'Piscina', `Revestimento da piscina${r.rev ? ' — ' + r.rev : ''}`, nm, 'm²', i.area + i.per * prof, 'fundo + paredes');
+        add(pav, 'Piscina', 'Volume de água', nm, 'm³', i.area * prof); continue;
+      }
+      // áreas de piso com outro acabamento saem da área do ambiente
+      let a = i.area;
+      for (const z of zones) {
+        const zi = roomInfo(f, z); if (!zi.c || !pointInPoly(zi.c, i.pts)) continue;
+        a -= zi.area; add(pav, 'Pisos', `Piso — ${nf(z.fin && z.fin.piso)}`, `${nm} (área de piso)`, 'm²', zi.area);
+      }
+      add(pav, 'Pisos', `${r.cat === 'calcada' ? 'Calçamento' : r.cat === 'permeavel' ? 'Área permeável' : 'Piso'} — ${nf(r.fin && r.fin.piso)}`, nm, 'm²', a);
+      if (!hasPD(r)) continue;
+      add(pav, 'Tetos e forros', `Teto — ${nf(r.fin && r.fin.teto)}`, nm, 'm²', i.area);
+      // revestimento de parede por faixa de altura (piso = 0), descontando aberturas; rodapé = paredes − portas
+      const pd = r.pd || doc.pd || 2.6, acc = {}; let rod = 0;
+      for (const sp of roomWallSpans(f, r)) {
+        const ops = opsIn(f, sp); let lo = 0;
+        for (const b of bandsOf((sp.w.fin && sp.w.fin.parede) || (r.fin && r.fin.parede))) {
+          const hi = Math.min(b.ate ?? pd, pd); if (hi <= lo) continue;
+          let A = sp.L * (hi - lo);
+          for (const { o, wi } of ops) { const [v0, v1] = opV(o); A -= wi * ovl(lo, hi, v0, v1); }
+          acc[nf(b.v)] = (acc[nf(b.v)] || 0) + A; lo = hi;
+        }
+        if (r.cat === 'interno') rod += sp.L - ops.filter(x => x.o.type === 'porta').reduce((s, x) => s + x.wi, 0);
+      }
+      for (const k in acc) add(pav, 'Revestimento de paredes', `Parede — ${k}`, nm, 'm²', acc[k]);
+      add(pav, 'Pisos', 'Rodapé', nm, 'm', rod);
+    }
+    // vedação: cada parede uma vez, com a altura do ambiente mais alto que ela fecha
+    for (const w of f.walls) {
+      const rs = f.rooms.filter(r => hasPD(r) && roomWalls(f, r).includes(w)), H = rs.length ? Math.max(...rs.map(r => r.pd || 2.6)) : doc.pd || 2.6;
+      const L = w.s ? arcLen(f.v[w.a], f.v[w.b], w.s) : wallGeom(f, w).L;
+      const ab = w.s ? 0 : f.ops.filter(o => o.wall === w.id).reduce((s, o) => { const [v0, v1] = opV(o); return s + o.w * ovl(0, H, v0, v1); }, 0);
+      add(pav, 'Paredes (vedação)', `${wtype(w).c} — ${fmt(wth(w) * 100, 0)} cm`, rs.map(r => roomName(f, r)).join(' / ') || 'sem ambiente', 'm²', L * H - ab, rs.length ? '' : `altura estimada ${fmt(H)} m`);
+    }
+    for (const o of f.ops) { const w = f.walls.find(x => x.id === o.wall); add(pav, 'Esquadrias', `${OPK[opKind(o)].n} ${fmt(o.w)} × ${fmt(o.h)} m`, w ? wallRooms(f, w).join(' / ') : '', 'un', 1); }
+    f.cols.forEach((c, k) => add(pav, 'Pilares', `${SECS[c.sec].n} ${colDims(c)} — ${c.mat || 'material não informado'}`, colLabel(c, k), 'un', 1));
+    const H = f.hid; if (!H) continue;
+    const lbl = hidLabels(f);
+    for (const p of H.p) add(pav, `Instalações — ${SYS[p.sys].n}`, `Tubo Ø${p.d} mm ${p.mat || ''}`.trim(), '', 'm', dist(H.n[p.a], H.n[p.b]));
+    for (const id in H.n) {
+      const nd = H.n[id], g = `Instalações — ${SYS[nd.sys].n}`, it = nd.item, ps = hPipesAt(f, id);
+      if (it && it.k === 'pc') { for (const a of it.ap || []) add(pav, g, `Aparelho — ${(APAR[nd.sys].find(x => x[0] === a) || [a, a])[1]}`, it.nome || lbl[id], 'un', 1); continue; }
+      if (it) { const d = DEV[it.k], dim = !it.b || d.sh === 'out' ? '' : it.h ? ` ${fmt(it.b * 100, 0)}×${fmt(it.h * 100, 0)} cm` : ` ${fmt(it.b * 100, 0)} cm`; add(pav, g, d.n + dim, lbl[id], 'un', 1); continue; }
+      // conexão entre tubos (sem caixa); tubos em linha reta não contam como peça
+      if (ps.length < 2) continue;
+      const cls = hClass(f, id); if (cls.k === 'reta') continue;
+      add(pav, g, `${nd.con || FITS[cls.k][0]} Ø${Math.max(...ps.map(p => p.d))}`, '', 'un', 1);
+    }
+  }
+  return rows;
+}
+// soma por item; com vários pavimentos, o local leva o nome do pavimento
+function quantSum(rows, multi) {
+  const m = new Map();
+  for (const r of rows) {
+    const k = [r.grp, r.item, r.un].join('|'), e = m.get(k) || { grp: r.grp, item: r.item, un: r.un, q: 0, locs: new Set(), obs: new Set() };
+    e.q += r.q; const loc = multi ? [r.pav, r.local].filter(Boolean).join(' · ') : r.local;
+    if (loc) e.locs.add(loc); if (r.obs) e.obs.add(r.obs); m.set(k, e);
+  }
+  return [...m.values()].sort((a, b) => QGRP.indexOf(a.grp) - QGRP.indexOf(b.grp) || a.item.localeCompare(b.item, 'pt'));
+}
+const qFmt = (q, un) => fmt(q, un === 'un' ? 0 : 2);
+// planilha para o Excel (separador ; e vírgula decimal): basta preencher o preço unitário que o total sai na hora
+function quantCSV(rows) {
+  const s = v => `"${String(v ?? '').replace(/"/g, '""')}"`, num = v => String(v).replace('.', ',');
+  const head = ['Ficha', 'Pavimento', 'Grupo', 'Item', 'Local', 'Unidade', 'Quantidade', 'Observação', 'Preço unitário (R$)', 'Total (R$)'];
+  const lines = rows.map((r, i) => [s(doc.ficha), s(r.pav), s(r.grp), s(r.item), s(r.local), s(r.un), num(r.q), s(r.obs), '', `=G${i + 2}*I${i + 2}`]);
+  return '﻿' + [head.map(s), ...lines].map(l => l.join(';')).join('\r\n') + '\r\n';
+}
+let quantAll = false;
+function openQuant() {
+  closeMenu();
+  const multi = quantAll && doc.floors.length > 1, rows = quantRows(quantAll ? doc.floors : [F()]), sum = quantSum(rows, multi);
+  const groups = QGRP.concat([...new Set(sum.map(x => x.grp))].filter(g => !QGRP.includes(g))).filter(g => sum.some(x => x.grp === g));
+  const nInf = sum.filter(x => /não informado/.test(x.item)).length;
+  openModal(`<h2>Quantitativos</h2>
+    <p class="small muted" style="margin:0">Medidas tiradas do croqui: paredes pelo eixo, alturas pelo pé-direito de cada ambiente, descontando portas e janelas. São a base para o orçamento de reparos; confira em campo os itens mais caros.</p>
+    ${doc.floors.length > 1 ? `<div class="seg"><button data-mact="qscope" data-v="0" class="${quantAll ? '' : 'on'}">${esc(F().name)}</button><button data-mact="qscope" data-v="1" class="${quantAll ? 'on' : ''}">Todos os pavimentos</button></div>` : ''}
+    ${nInf ? `<p class="small" style="margin:0;color:var(--orange)">${nInf} ite${nInf > 1 ? 'ns' : 'm'} com acabamento “não informado”: defina em Acabamentos para separar por material.</p>` : ''}
+    ${groups.length ? groups.map(g => `<div class="lbl" style="margin-top:4px">${esc(g)}</div><table class="qt"><tbody>${sum.filter(x => x.grp === g).map(x => `<tr><td>${esc(x.item)}${x.locs.size ? `<small>${esc([...x.locs].join(', '))}</small>` : ''}${x.obs.size ? `<small>${esc([...x.obs].join('; '))}</small>` : ''}</td><td class="q">${qFmt(x.q, x.un)}</td><td class="u">${esc(x.un)}</td></tr>`).join('')}</tbody></table>`).join('')
+      : '<p class="muted">Nada para quantificar ainda neste pavimento.</p>'}
+    <div class="ex-out" id="qOut"></div>
+    <div class="row"><button class="btn primary" data-mact="csv" ${rows.length ? '' : 'disabled'}>Planilha (CSV) para orçamento</button><span class="grow"></span><button class="btn" data-mact="close">Fechar</button></div>`, {
+    qscope(b) { quantAll = b.dataset.v === '1'; openQuant(); },
+    csv() {
+      deliver(fileBase(quantAll) + '_quantitativos.csv', new Blob([quantCSV(rows)], { type: 'text/csv' }));
+      $('#qOut').innerHTML = `<p class="small" style="margin:0">Planilha pronta: ${rows.length} linhas, uma por item e local. Abre no Excel; preencha a coluna Preço unitário e o Total é calculado.</p>${fileButtons()}`;
+    }
+  });
 }
 
 /* ---------- PDF (escrito à mão: croqui, tabela e fotos) ---------- */
@@ -3369,16 +3505,16 @@ async function buildPDF(o) {
   }
   // 2) tabela de ambientes, acabamentos, pilares e paredes com acabamento próprio
   const cols = [['Ambiente / área', 120], ['Tipo', 62], ['Área m²', 40], ['PD / prof.', 40], ['Piso', 76], ['Parede', 76], ['Teto', 76], ['Fotos', 49]];
-  let P = null, y = 0, header = false;
-  const newPage = () => { P = pdfPage(595.28, 841.89); head(P, 'Ambientes e acabamentos'); y = 72; pages.push(P); if (header) drawHeader(); };
+  let P = null, y = 0, header = false, curCols = cols, pageTitle = 'Ambientes e acabamentos';
+  const newPage = () => { P = pdfPage(595.28, 841.89); head(P, pageTitle); y = 72; pages.push(P); if (header) drawHeader(); };
   const need = hgt => { if (y + hgt > P.h - 52) newPage(); };
   const row = (cells, o = {}) => {
-    const lines = cells.map((s, i) => wrapText(s, cols[i][1] - 6, 8, o.bold)), hgt = Math.max(...lines.map(l => l.length)) * 10 + 6;
+    const lines = cells.map((s, i) => wrapText(s, curCols[i][1] - 6, 8, o.bold)), hgt = Math.max(...lines.map(l => l.length)) * 10 + 6;
     need(hgt); if (o.bg) P.rect(28, y, 539, hgt, o.bg);
-    let x = 28; lines.forEach((ls, i) => { ls.forEach((t, j) => P.text(t, x + 3, y + 11 + j * 10, 8, { bold: o.bold || (i === 0 && j === 0 && !o.plain) })); x += cols[i][1]; });
+    let x = 28; lines.forEach((ls, i) => { ls.forEach((t, j) => P.text(t, x + 3, y + 11 + j * 10, 8, { bold: o.bold || (i === 0 && j === 0 && !o.plain) })); x += curCols[i][1]; });
     y += hgt; P.line(28, y, 567, y, .3, '#C9CED6');
   };
-  const drawHeader = () => row(cols.map(c => c[0]), { bold: true, bg: '#EEF1F4' });
+  const drawHeader = () => row(curCols.map(c => c[0]), { bold: true, bg: '#EEF1F4' });
   const para = (s, size = 9, o = {}) => { for (const l of wrapText(s, 539, size, o.bold)) { need(size + 4); P.text(l, 28, y + size, size, o); y += size + 4; } };
   const listed = doc.floors.filter(f => f.rooms.length || f.cols.length || f.walls.some(w => w.fin && w.fin.parede) || (o.hid && hasHid(f)));
   if (listed.length) newPage();
@@ -3429,6 +3565,22 @@ async function buildPDF(o) {
       }
     }
   }
+  // quantitativos de todos os pavimentos, somados por item
+  if (o.quant) {
+    const multi = doc.floors.length > 1, sum = quantSum(quantRows(doc.floors), multi);
+    if (sum.length) {
+      pageTitle = 'Quantitativos'; header = false; newPage();
+      para('Medidas tiradas do croqui: paredes pelo eixo, alturas pelo pé-direito de cada ambiente, descontando portas e janelas. Base para orçamento de reparos; conferir em campo os itens mais caros.', 8.5, { color: '#4A5562' }); y += 4;
+      curCols = [['Item', 215], ['Local', 224], ['Qtd.', 55], ['Un.', 45]];
+      for (const g of [...new Set(sum.map(x => x.grp))]) {
+        need(40); y += 4; P.text(g, 28, y + 11, 10.5, { bold: true }); y += 16;
+        header = true; drawHeader();
+        for (const x of sum.filter(s => s.grp === g)) row([x.item, [...x.locs].join(', ') + (x.obs.size ? ` (${[...x.obs].join('; ')})` : ''), qFmt(x.q, x.un), x.un], { plain: true });
+        header = false;
+      }
+      curCols = cols;
+    }
+  }
   // 3) fotos, duas por página, identificadas pelo local
   for (let i = 0; i < nums.list.length; i += 2) {
     const Pp = pdfPage(595.28, 841.89); head(Pp, 'Fotos'); pages.push(Pp);
@@ -3460,8 +3612,32 @@ function tryDownload(name, blob) {
 }
 let lastFile = null;
 const canShare = file => { try { return !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { return false; } };
+// O Chrome do Android só deixa compartilhar imagem, PDF, áudio, vídeo e texto (.txt, .csv). DXF e JSON são recusados
+// pelo navegador; nesse caso o app explica e oferece mandar uma cópia .txt com o mesmo conteúdo.
+const SHARE_OK = /\.(pdf|png|jpe?g|webp|gif|csv|txt)$/i;
 function fileButtons() {
-  return `<div class="row"><button class="btn sm" data-mact="again">Baixar de novo</button>${lastFile && canShare(lastFile) ? '<button class="btn sm primary" data-mact="share">Compartilhar</button>' : ''}</div>`;
+  if (!lastFile) return '';
+  return `<div class="row"><button class="btn sm" data-mact="again">Baixar de novo</button>${navigator.share ? '<button class="btn sm primary" data-mact="share">Compartilhar</button>' : ''}</div><div id="shMsg"></div>`;
+}
+async function shareLast() {
+  if (!lastFile) return;
+  if (!SHARE_OK.test(lastFile.name) || !canShare(lastFile)) { shareFallback(); return; }
+  try { await navigator.share({ files: [lastFile], title: lastFile.name }); }
+  catch (e) { if (!e || e.name !== 'AbortError') shareFallback(); }
+}
+function shareFallback() {
+  const ext = (lastFile.name.split('.').pop() || '').toLowerCase(), el = $('#shMsg');
+  const html = `<div class="notice" style="flex-direction:column;align-items:flex-start;gap:8px">
+    <span>O Android não deixa o navegador enviar arquivos <b>.${esc(ext)}</b> pelo Compartilhar. Dá para enviar de dois jeitos:</span>
+    <span class="small"><b>1.</b> Mandar uma cópia com final <b>.txt</b> (o conteúdo é o mesmo). No computador, renomeie apagando o “.txt” do final e abra no ${ext === 'dxf' ? 'CAD' : 'app'}.</span>
+    <button class="btn sm primary" data-mact="sharetxt">Enviar cópia .txt</button>
+    <span class="small"><b>2.</b> O arquivo .${esc(ext)} original já foi baixado: abra o app <b>Meus Arquivos</b> → Downloads, toque e segure no arquivo e escolha Compartilhar.</span></div>`;
+  if (el) el.innerHTML = html; else toast(`O Android não deixa enviar .${ext} pelo navegador. Compartilhe pelo app Meus Arquivos → Downloads.`);
+}
+function shareTxt() {
+  if (!lastFile) return;
+  const f = new File([lastFile], lastFile.name + '.txt', { type: 'text/plain' });
+  navigator.share({ files: [f], title: lastFile.name }).catch(e => { if (!e || e.name !== 'AbortError') toast('Não foi possível compartilhar. Use o arquivo baixado em Downloads.'); });
 }
 function deliver(name, blob) { lastFile = new File([blob], name, { type: blob.type }); tryDownload(name, blob); }
 function openExport() {
@@ -3470,6 +3646,7 @@ function openExport() {
   openModal(`<h2>Exportar croqui</h2>
     ${dadosForm()}
     <label class="row small"><input type="checkbox" id="exGrid" checked> Incluir a grade no desenho</label>
+    <label class="row small"><input type="checkbox" id="exQuant" checked> Incluir os quantitativos no PDF</label>
     ${doc.north == null ? '<p class="small muted" style="margin:0">Norte não indicado: o desenho sai na mesma posição da tela. Toque em Indicar o norte (acima) para poder girá-lo.</p>'
       : `<label class="row small"><input type="checkbox" id="exNorth" checked> Norte para cima${k ? ` (o desenho gira ${k * 90}° no sentido anti-horário)` : ' (o desenho já está nessa posição)'}. Desmarcado: sai como está na tela.</label>`}
     ${anyHid ? '<label class="row small"><input type="checkbox" id="exHid" checked> Incluir as instalações hidrossanitárias (esgoto e drenagem)</label>' : ''}
@@ -3479,10 +3656,12 @@ function openExport() {
       <button class="ex-opt" data-mact="pdf"><b>PDF</b><span>Todos os pavimentos, tabela de ambientes e acabamentos${nPh ? ` e as ${nPh} fotos identificadas` : ''}.</span></button>
       <button class="ex-opt" data-mact="dxf"><b>DXF</b><span>Abre no AutoCAD. Paredes na espessura, por tipo de parede, em camadas.</span></button>
       <button class="ex-opt" data-mact="json"><b>JSON</b><span>Dados estruturados para o app de vistoria.</span></button>
+      <button class="ex-opt" data-mact="quant"><b>Quantitativos</b><span>Planilha (CSV) de pisos, paredes, tetos, esquadrias e instalações para orçamento.</span></button>
     </div>
     <div class="ex-out" id="exOut"></div>
     <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Fechar</button></div>`, {
     north() { closeModal(); openNorthSheet(); },
+    quant() { quantAll = true; openQuant(); },
     async png() {
       const o = exOpts(); if (o.bg) await bgReady(F());
       const c = renderPNG(o), url = c.toDataURL('image/png');
@@ -3500,8 +3679,6 @@ function openExport() {
     },
     dxf() { const s = buildDXF(exOpts()); deliver(fileBase() + '.dxf', new Blob([latin1(s)], { type: 'application/dxf' })); showText(s, 'DXF'); },
     json() { const s = buildJSON(); deliver(fileBase() + '.json', new Blob([s], { type: 'application/json' })); showText(s, 'JSON'); },
-    again() { if (lastFile) tryDownload(lastFile.name, lastFile); },
-    share() { if (lastFile) navigator.share({ files: [lastFile], title: lastFile.name }).catch(() => {}); },
     copy() {
       const ta = $('#exTxt');
       (navigator.clipboard ? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(() => toast('Copiado.'))
