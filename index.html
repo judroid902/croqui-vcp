@@ -354,6 +354,50 @@ label.row input[type="checkbox"] { flex:none; margin:2px 0 0; width:18px; height
 .ms .bar i { background:var(--blue); }
 .ms.done .bar i { background:var(--green); }
 .ms small { font-size:12px; color:var(--muted); }
+/* conquistas: medalha com o ícone (bronze, prata, ouro) ou cadeado enquanto trancada */
+.cq { width:42px; height:42px; border-radius:21px; flex:none; display:flex; align-items:center; justify-content:center; border:2px solid; }
+.cq svg.i { width:24px; height:24px; }
+.cq.lock { color:var(--muted); border-color:var(--line); background:var(--soft); }
+.cq.lv1 { color:#9A5B22; border-color:#C9874B; background:#F6E6D6; }
+.cq.lv2 { color:#4E5D6C; border-color:#9AA8B6; background:#E8EDF2; }
+.cq.lv3 { color:#8A6400; border-color:#D9A900; background:#FFF3C4; }
+.cq-t { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+.cq-t b { font-weight:700; }
+.ms.done .cq-t b { color:var(--fg); }
+/* boas-vindas na lista de croquis */
+.hello { margin:0; font-size:15px; color:var(--muted); }
+.hello b { color:var(--fg); }
+/* lixeira e outros ícones dentro dos botões de texto */
+.btn svg.i { width:18px; height:18px; }
+.btn.sm svg.i { width:16px; height:16px; }
+/* croqui finalizado em destaque (Exportar e Dados do croqui) */
+.finbox { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; border:2px solid var(--line); background:var(--soft); cursor:pointer; }
+.finbox input { width:24px; height:24px; flex:none; accent-color:var(--green); }
+.finbox b { display:block; font-size:15px; }
+.finbox span { font-size:12.5px; color:var(--muted); }
+.finbox.on { border-color:var(--green); background:var(--green-bg); }
+.finbox.on b { color:var(--green); }
+/* situação de norte e terreno na exportação */
+.stline { display:flex; gap:8px; flex-wrap:wrap; }
+.st { display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 14px 0 10px; border-radius:20px; border:1px solid var(--line); background:var(--surface); color:var(--fg); font-size:13.5px; }
+.st i { width:10px; height:10px; border-radius:5px; background:var(--green); flex:none; }
+.st.pend { border-color:var(--orange); background:var(--orange-bg); }
+.st.pend i { background:var(--orange); }
+.st em { font-style:normal; color:var(--muted); }
+.st.pend em { color:var(--orange); font-weight:600; }
+/* imóveis: seletor na barra de cima */
+.tb-imv { height:40px; max-width:220px; padding:0 10px 0 8px; border-radius:20px; border:none; background:var(--top-pill); color:var(--top-fg);
+  display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:600; flex:0 1 auto; min-width:0; }
+.tb-imv span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tb-imv small { font-size:11.5px; font-weight:500; color:var(--top-muted); white-space:nowrap; }
+.imv-list { display:flex; flex-direction:column; gap:6px; }
+.imv-row { display:flex; align-items:center; gap:8px; padding:6px 8px 6px 12px; border:1px solid var(--line); border-radius:14px; }
+.imv-row.on { border:2px solid var(--blue); background:var(--blue-bg); }
+.imv-row > button.go { flex:1; min-width:0; text-align:left; border:none; background:none; color:var(--fg); padding:6px 0; display:flex; flex-direction:column; gap:2px; }
+.imv-row b { font-size:15px; }
+.imv-row span { font-size:12.5px; color:var(--muted); }
+.ex-opt b svg.i { width:18px; height:18px; vertical-align:-3px; margin-right:6px; }
+.ex-opt.danger b { color:var(--red); }
 .chg { margin:0; padding-left:18px; display:flex; flex-direction:column; gap:5px; font-size:14px; line-height:1.4; }
 details.old summary { cursor:pointer; font-size:14px; font-weight:600; padding:4px 0; }
 .toast { position:fixed; left:50%; bottom:calc(96px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%); z-index:70;
@@ -444,6 +488,7 @@ details.old summary { cursor:pointer; font-size:14px; font-weight:600; padding:4
   <header class="topbar">
     <button class="tb-btn ghost" id="bBack" aria-label="Voltar para os croquis" title="Voltar para os croquis"><svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
     <button class="tb-title" id="bDados" aria-label="Dados do croqui"><b>Croqui</b><span id="subTitle">Vistoria · beta</span></button>
+    <button class="tb-imv" id="bImv" aria-label="Imóveis desta vistoria" title="Imóveis desta vistoria: trocar, criar ou renomear"><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M3 11l6-5 6 5"/><path d="M5 9.5V19h8V9.5"/><path d="M15 19h6v-7l-3-2.5-3 2.5"/></svg><span id="imvName">Imóvel 1</span><small id="imvCount"></small><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg></button>
     <span class="tb-sp"></span>
     <button class="tb-btn" id="bUndo" aria-label="Desfazer" title="Desfazer"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
     <button class="tb-btn" id="bRedo" aria-label="Refazer" title="Refazer"><svg class="i" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
@@ -493,6 +538,7 @@ details.old summary { cursor:pointer; font-size:14px; font-weight:600; padding:4
     <button class="tb-pill accent" id="hOut"><svg class="i" viewBox="0 0 24 24"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></svg><span class="lbl-t">Sair</span></button>
   </header>
   <div class="home-body"><div class="home-wrap">
+    <p class="hello" id="hHello"></p>
     <div class="home-head"><h1 id="hTitle">Meus croquis</h1>
       <button class="btn" id="hExample">Criar exemplo</button>
       <button class="btn" id="hImport"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v11M8 10l4 4 4-4"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>Importar desenho</button>
@@ -516,8 +562,19 @@ details.old summary { cursor:pointer; font-size:14px; font-weight:600; padding:4
 'use strict';
 const GRID = 0.5, TH = 0.15, ZMIN = 12, ZMAX = 400, KEY = 'croqui-beta-v1';
 // versão do app (a mesma do sw.js) e o que mudou em cada uma: aparece em Configurações → Versão do app
-const APP_VER = '0.9.0';
+const APP_VER = '0.9.1';
 const CHANGES = [
+  { v: '0.9.1', d: '03/11/2026', itens: [
+    'Terreno em Ambiente → Terreno: modelos prontos ou contorno desenhado como as paredes, com a medida de cada lado; cada lado guarda muro (tipo, altura), frente e o que há do outro lado. Depois de definido fica travado (Editar, Ajustar ou Remover).',
+    'Portões e portas nos muros do terreno.',
+    'Imóveis: uma vistoria pode ter vários (imóvel 1, imóvel 2…), pelo botão na barra de cima; a exportação leva todos, com opção de desmarcar.',
+    'Pavimentos em ordem de altura: cobertura e superiores em cima, subsolo e fundação embaixo.',
+    'Exportar: "Croqui finalizado" em destaque e norte/terreno resumidos em definido ou pendente (tocar leva à ferramenta).',
+    'Meu perfil: Marcos viraram Conquistas, com nomes e ícones próprios (trancadas até desbloquear).',
+    'Lixeira nos botões de excluir; trena em Ajustar desenho e lápis em Só anotar.',
+    'Boas-vindas com o nome de quem entrou na lista de croquis.',
+    'Correção: Quantitativos mostrava "Nada para quantificar" quando o filtro de itens não informados ficava ligado sem itens, ou no pavimento vazio.'
+  ] },
   { v: '0.9.0', d: '03/11/2026', itens: [
     'Barra de cima com ícones: salvar, ambientes, quantitativos, exportar e a engrenagem de configurações (no lugar dos três pontos), cada opção com o seu ícone.',
     'Pavimentos em coluna no canto superior esquerdo, com um ícone para cada tipo (térreo, superior, mezanino, subsolo, cobertura, área externa).',
@@ -611,9 +668,10 @@ const opType = o => [opKind(o), fmt(o.w), fmt(o.h), o.type === 'janela' ? fmt(o.
 const opPrefix = o => opKind(o) === 'vao' ? 'V' : isGate(opKind(o)) ? 'PT' : o.type === 'porta' ? 'P' : 'J';
 function opCodes() {
   const types = {}, cnt = {}, code = {};
+  // na exportação de vários imóveis juntos, cada imóvel mantém a sua numeração (a mesma da tela)
   if (doc) for (const f of doc.floors) for (const o of f.ops) {
-    const t = opType(o), p = opPrefix(o);
-    if (!types[t]) { cnt[p] = (cnt[p] || 0) + 1; types[t] = p + cnt[p]; }
+    const im = f._imv ?? '', t = im + '|' + opType(o), p = opPrefix(o), pk = im + '|' + p;
+    if (!types[t]) { cnt[pk] = (cnt[pk] || 0) + 1; types[t] = p + cnt[pk]; }
     code[o.id] = types[t];
   }
   return code;
@@ -816,15 +874,37 @@ const newFloor = (name, tipo) => ({ id: uid(), name, tipo: tipo || guessFloorTyp
 const pad2 = n => String(n).padStart(2, '0');
 const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
 const brDate = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : ''; };
-const blankDoc = () => ({ ficha: '', desenhista: me ? me.nome : '', tecnico: '', final: false, data: isoToday(), title: '', pd: 2.6, cur: 0, example: false, showUnder: true, north: null, floors: [newFloor('Térreo', 'terreo')] });
+const newProp = (name, floors) => ({ id: uid(), name, floors, cur: 0 });
+const blankDoc = () => ({ ficha: '', desenhista: me ? me.nome : '', tecnico: '', final: false, data: isoToday(), title: '', pd: 2.6, cur: 0, example: false, showUnder: true, north: null,
+  floors: [newFloor('Térreo', 'terreo')], props: [newProp('Imóvel 1', null)], prop: 0 });
+/* ---------- imóveis: uma vistoria pode ter vários (imóvel 1, imóvel 2…), cada um com os seus pavimentos ---------- */
+// O imóvel aberto fica em doc.floors/doc.cur (o resto do app só enxerga ele); os outros guardam os pavimentos em doc.props[i].floors.
+const allFloors = d => d && d.floors ? d.floors.concat(...(d.props || []).map(p => p.floors || [])) : [];
+const propName = (i, d = doc) => (d.props && d.props[i] && d.props[i].name) || `Imóvel ${i + 1}`;
+const propFloors = i => i === doc.prop ? doc.floors : doc.props[i].floors;
+let exporting = 0;
+// monta o doc provisoriamente com outros pavimentos (exportar vários imóveis) e volta ao normal no fim
+async function withFloors(floors, cur, fn) {
+  const kf = doc.floors, kc = doc.cur; exporting++; doc.floors = floors; doc.cur = cur;
+  try { return await fn(); } finally { doc.floors = kf; doc.cur = kc; exporting--; }
+}
+// pavimentos dos imóveis marcados; com mais de um imóvel na vistoria, o nome do pavimento leva o do imóvel
+function exportFloors(sel) {
+  const multi = doc.props.length > 1;
+  return sel.flatMap(i => propFloors(i).map(f => multi ? Object.assign({}, f, { name: `${propName(i)} · ${f.name}`, _imv: i }) : f));
+}
 // desenhos salvos pelas versões anteriores ganham os campos novos com os valores padrão
 function migrate(d) {
   d.ficha = d.ficha || ''; d.desenhista = d.desenhista ?? ''; d.data = d.data || isoToday();
   d.tecnico = d.tecnico || ''; d.final = !!d.final;
   if (d.showUnder == null) d.showUnder = true;
   if (d.north === undefined) d.north = null;
-  d.floors.forEach((f, i) => { if (!FLOOR_T[f.tipo]) f.tipo = guessFloorType(f.name, i); });
-  for (const f of d.floors) {
+  if (!Array.isArray(d.props) || !d.props.length) { d.props = [newProp('Imóvel 1', null)]; d.prop = 0; }
+  d.prop = clamp(d.prop || 0, 0, d.props.length - 1); d.props[d.prop].floors = null;
+  d.props.forEach((p, k) => { if (k !== d.prop && !(p.floors && p.floors.length)) p.floors = [newFloor('Térreo', 'terreo')]; });
+  for (const fl of [d.floors, ...d.props.map(p => p.floors).filter(Boolean)]) fl.forEach((f, i) => { if (!FLOOR_T[f.tipo]) f.tipo = guessFloorType(f.name, i); });
+  for (const f of allFloors(d)) {
+    if (f.lot) { f.lot.faces = f.lot.faces || []; if (f.lot.lock == null) f.lot.lock = true; }
     f.cols = f.cols || []; f.notes = f.notes || []; f.ops = f.ops || []; f.hid = f.hid || { n: {}, p: [] }; f.lines = f.lines || []; if (f.bg === undefined) f.bg = null;
     f.stairs = f.stairs || []; f.guides = f.guides || [];
     for (const w of f.walls) { if (!w.th) w.th = TH; if (!w.type) w.type = 'ceramico'; }
@@ -856,8 +936,9 @@ function save() {
 }
 
 /* ================= geometria ================= */
+// (o muro de um lado do terreno entra como parede "virtual", com as pontas A e B no próprio objeto)
 function wallGeom(f, w) {
-  const A = f.v[w.a], B = f.v[w.b], dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1e-9;
+  const A = w.A || f.v[w.a], B = w.B || f.v[w.b], dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1e-9;
   return { A, B, L, ux: dx / L, uy: dy / L, nx: -dy / L, ny: dx / L };
 }
 function projSeg(p, A, B) {
@@ -1059,8 +1140,16 @@ function bestFace(f, selW) {
   const key = p => [...p].sort().join(), taken = new Set(f.rooms.map(r => key(r.poly)));
   return cands.find(c => !taken.has(key(c.poly))) || cands[0] || null;
 }
+// muros do terreno: cada lado com muro vira uma parede virtual 'lot:<lado>' (portões e portas podem ficar nela)
+function lotWall(f, i) {
+  const L = f.lot; if (!L || L.pts.length < 3 || !L.pts[i]) return null;
+  const fc = (L.faces || [])[i]; if (!fc || !fc.muro) return null;
+  return { id: 'lot:' + i, lot: i, A: L.pts[i], B: L.pts[(i + 1) % L.pts.length], th: fc.th || 0.15, type: 'muro' };
+}
+const isLotId = id => typeof id === 'string' && id.startsWith('lot:');
+const wallById = (f, id) => isLotId(id) ? lotWall(f, +id.slice(4)) : f.walls.find(x => x.id === id);
 function opGeom(f, o) {
-  const w = f.walls.find(x => x.id === o.wall); if (!w) return null;
+  const w = wallById(f, o.wall); if (!w) return null;
   const g = wallGeom(f, w);
   return { g, w, p0: { x: g.A.x + g.ux * o.t, y: g.A.y + g.uy * o.t }, p1: { x: g.A.x + g.ux * (o.t + o.w), y: g.A.y + g.uy * (o.t + o.w) } };
 }
@@ -1135,7 +1224,7 @@ function addArcWall(p1, p2, s) {
   f.walls.push(Object.assign(newWall(a, b), { s }));
 }
 function cleanup(f) {
-  f.ops = f.ops.filter(o => f.walls.some(w => w.id === o.wall && !w.s));
+  f.ops = f.ops.filter(o => { const w = wallById(f, o.wall); return w && !w.s; });
   f.rooms = f.rooms.filter(r => r.poly.every(id => f.v[id]));
   const used = new Set([...f.walls.flatMap(w => [w.a, w.b]), ...f.rooms.flatMap(r => r.poly)]);
   for (const id in f.v) if (!used.has(id)) delete f.v[id];
@@ -1459,22 +1548,46 @@ function drawRoof(c, f, r, X, Y, fs, P, path) {
   }
   c.restore();
 }
-// terreno: contorno de referência (não editável no desenho), com as medidas dos lados e a fachada
+// trechos do muro de um lado do terreno, entre os portões e portas (t ao longo do lado, a partir do ponto i)
+function muroPieces(f, i) {
+  const lw = lotWall(f, i); if (!lw) return [];
+  const L = dist(lw.A, lw.B), os = f.ops.filter(o => o.wall === lw.id).sort((a, b) => a.t - b.t), out = [];
+  let t = 0; for (const o of os) { if (o.t > t + 1e-3) out.push([t, o.t]); t = Math.max(t, o.t + o.w); }
+  if (L > t + 1e-3) out.push([t, L]);
+  return out;
+}
+// terreno: contorno tracejado; lados com muro em faixa cheia (aberta nos portões); medidas (azul = conferida, * = anotada),
+// a fachada e o que há do outro lado de cada divisa
 function drawLot(c, f, X, Y, fs, P, edit) {
   const L = f.lot; if (!L || L.pts.length < 3) return;
-  const pts = L.pts, n = pts.length, cen = polyCentroid(pts);
+  const pts = L.pts, n = pts.length, cen = polyCentroid(pts), faces = L.faces || [], z = X(1) - X(0);
   c.save(); c.strokeStyle = c.fillStyle = P.lot; c.lineJoin = 'round';
   c.lineWidth = (edit ? 2.6 : 2) * fs; c.setLineDash([14 * fs, 4 * fs, 2 * fs, 4 * fs]);
   c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); c.closePath(); c.stroke(); c.setLineDash([]);
   for (let i = 0; i < n; i++) {
-    const a = pts[i], b = pts[(i + 1) % n], Lq = dist(a, b) || 1, m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-    let nx = -(b.y - a.y) / Lq, ny = (b.x - a.x) / Lq; if ((m.x - cen.x) * nx + (m.y - cen.y) * ny < 0) { nx = -nx; ny = -ny; }
-    const rot = readable(Math.atan2(b.y - a.y, b.x - a.x)), front = L.front === i;
-    if (front) { c.lineWidth = 5 * fs; c.beginPath(); c.moveTo(X(a.x), Y(a.y)); c.lineTo(X(b.x), Y(b.y)); c.stroke(); }
-    text(c, fmt(Lq), X(m.x) + nx * 13 * fs, Y(m.y) + ny * 13 * fs, { font: `600 ${11 * fs}px ${MONO}`, color: P.lot, halo: P.paper, rot });
-    if (front) text(c, 'FRENTE (fachada)', X(m.x) + nx * 30 * fs, Y(m.y) + ny * 30 * fs, { font: `700 ${11 * fs}px ${FONT}`, color: P.lot, halo: P.paper, rot });
+    const a = pts[i], b = pts[(i + 1) % n], Lq = dist(a, b) || 1, m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, fc = faces[i] || {};
+    const ux = (b.x - a.x) / Lq, uy = (b.y - a.y) / Lq;
+    let nx = -uy, ny = ux; if ((m.x - cen.x) * nx + (m.y - cen.y) * ny < 0) { nx = -nx; ny = -ny; }
+    const rot = readable(Math.atan2(b.y - a.y, b.x - a.x)), front = L.front === i, sel = edit && S && S.kind === 'lotface' && S.i === i;
+    if (fc.muro) {
+      // muro: faixa na espessura, centrada na divisa, com as aberturas dos portões
+      const h = (fc.th || 0.15) / 2;
+      c.globalAlpha = .85;
+      for (const [t0, t1] of muroPieces(f, i)) {
+        const q = [[t0, h], [t1, h], [t1, -h], [t0, -h]].map(([t, k]) => ({ x: a.x + ux * t + nx * k, y: a.y + uy * t + ny * k }));
+        c.beginPath(); q.forEach((p, j) => j ? c.lineTo(X(p.x), Y(p.y)) : c.moveTo(X(p.x), Y(p.y))); c.closePath(); c.fill();
+        if (h * 2 * z < 3) { c.lineWidth = 3 * fs; c.beginPath(); c.moveTo(X(q[0].x - nx * h), Y(q[0].y - ny * h)); c.lineTo(X(q[1].x - nx * h), Y(q[1].y - ny * h)); c.stroke(); }
+      }
+      c.globalAlpha = 1;
+    }
+    if (front || sel) { c.lineWidth = (sel ? 7 : 5) * fs; c.globalAlpha = sel ? .45 : 1; c.strokeStyle = sel ? P.sel : P.lot; c.beginPath(); c.moveTo(X(a.x), Y(a.y)); c.lineTo(X(b.x), Y(b.y)); c.stroke(); c.globalAlpha = 1; c.strokeStyle = P.lot; }
+    // medida do lado: azul quando conferida, com * quando só anotada
+    const ok = fc.m != null && Math.abs(fc.m - Lq) < 0.005, lbl = fc.note != null ? fmt(fc.note) + '*' : fmt(Lq);
+    text(c, lbl, X(m.x) + nx * 13 * fs, Y(m.y) + ny * 13 * fs, { font: `${ok || fc.note != null ? 700 : 600} ${11 * fs}px ${MONO}`, color: ok ? P.measured : fc.note != null ? P.note : P.lot, halo: P.paper, rot });
+    const info = [front ? 'FRENTE (fachada)' : '', fc.muro ? `muro${fc.tipo ? ' ' + fc.tipo.toLowerCase() : ''} h ${fmt(fc.h || 2)}` : '', fc.viz ? (front ? '' : '↔ ') + fc.viz.toLowerCase() : ''].filter(Boolean);
+    if (info.length && Lq * z > 60 * fs) text(c, info.join(' · '), X(m.x) + nx * 29 * fs, Y(m.y) + ny * 29 * fs, { font: `${front ? 700 : 500} ${10.5 * fs}px ${FONT}`, color: P.lot, halo: P.paper, rot });
   }
-  if (edit) pts.forEach(q => { c.beginPath(); c.arc(X(q.x), Y(q.y), 5, 0, Math.PI * 2); c.fill(); });
+  if (edit) pts.forEach(q => { c.beginPath(); c.arc(X(q.x), Y(q.y), 6, 0, Math.PI * 2); c.fill(); });
   c.restore();
 }
 // Afastamentos: de cada lado do terreno até a face de parede mais próxima, medido na perpendicular ao lado.
@@ -1782,8 +1895,9 @@ function drawScene(c, V, P, M) {
     }
     if (z >= 55) {
       // rótulo da abertura no lado oposto ao da cota da parede, para os dois não se sobreporem
-      const m = mid, wm = { x: (g.A.x + g.B.x) / 2, y: (g.A.y + g.B.y) / 2 };
-      const sd = ((wm.x - cen.x) * g.nx + (wm.y - cen.y) * g.ny) >= 0 ? -1 : 1, off = hn + 9 * fs;
+      // no muro do terreno a medida do lado fica do lado de fora: o código vai para dentro do terreno
+      const m = mid, wm = { x: (g.A.x + g.B.x) / 2, y: (g.A.y + g.B.y) / 2 }, cc = G.w.lot != null && f.lot ? polyCentroid(f.lot.pts) : cen;
+      const sd = ((wm.x - cc.x) * g.nx + (wm.y - cc.y) * g.ny) >= 0 ? -1 : 1, off = hn + 9 * fs;
       const lbl = codes[o.id] || OPK[k].lb;
       text(c, lbl, X(m.x) + g.nx * sd * off, Y(m.y) + g.ny * sd * off,
         { font: `500 ${10 * fs}px ${MONO}`, color: isSel('op', o.id) ? P.sel : P.dim, halo: P.paper, haloW: 3, rot: readable(Math.atan2(g.uy, g.ux)) });
@@ -1972,10 +2086,18 @@ function drawOverlay(c) {
   const line = (pts, col, w, dash) => { c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.x), Y(q.y)) : c.moveTo(X(q.x), Y(q.y))); c.stroke(); c.setLineDash([]); };
 
   if (tool === 'lote' && lotDraw) {
-    if (lotDraw.pts.length > 1) line(lotDraw.pts, P.lot, 2.5, [8, 5]);
-    lotDraw.pts.forEach((q, i) => dot(q, i ? 5 : 10, i ? P.lot : null, P.lot, 2));
+    // terreno em desenho: como as paredes, com a medida de cada lado já marcado e a do trecho em andamento
+    const ps = lotDraw.pts;
+    if (ps.length > 1) line(ps, P.lot, 2.5, [8, 5]);
+    ps.forEach((q, i) => {
+      dot(q, i ? 5 : 10, i ? P.lot : null, P.lot, 2);
+      if (i) { const a = ps[i - 1], L = dist(a, q), nx = -(q.y - a.y) / L, ny = (q.x - a.x) / L; if (L * z > 40) text(c, fmt(L), X((a.x + q.x) / 2) - nx * 13, Y((a.y + q.y) / 2) - ny * 13, { font: `600 12px ${MONO}`, color: P.lot, halo: P.paper, haloW: 3, rot: readable(Math.atan2(q.y - a.y, q.x - a.x)) }); }
+    });
+    if (hover) { guides(hover); if (ps.length) live(ps[ps.length - 1], hover); dot(hover, 8, null, P.sel, 2.5); }
     return;
   }
+  // lado do terreno em edição: pontas A e B (a escolhida anda ao ajustar a medida)
+  if (S && S.kind === 'lotface' && f.lot && lotMode === 'adj') { const L = f.lot; ends({ A: L.pts[S.i], B: L.pts[(S.i + 1) % L.pts.length] }, S.moveEnd); }
   if (tool === 'calib' && calib) {
     if (calib.pts.length === 2) line(calib.pts, P.sel, 2.5, [8, 6]);
     calib.pts.forEach(q => { dot(q, 9, null, P.sel, 2.5); dot(q, 2.5, P.sel); });
@@ -2088,7 +2210,9 @@ function snap(sp, o = {}) {
   if (U) for (const id in U.v) pool.push(U.v[id]);
   // cantos das linhas importadas também servem de encaixe (para passar paredes por cima delas)
   for (const l of f.lines || []) pool.push(...l.pts);
-  if (f.lot) pool.push(...f.lot.pts);
+  // cantos do terreno (menos o que está sendo arrastado) e os do contorno em desenho
+  if (f.lot) pool.push(...f.lot.pts.filter((_, k) => k !== o.exLot));
+  if (tool === 'lote' && lotDraw) pool.push(...lotDraw.pts);
   // pontos marcados pelo afastamento; na origem do afastamento, o centro dos pilares também serve
   pool.push(...(f.guides || []));
   if (tool === 'afast') pool.push(...f.cols);
@@ -2150,9 +2274,15 @@ cv.addEventListener('pointerdown', e => {
     G = { type: 'draw', p0: p, start: lastPt() ? null : hover, moved: false }; render(); return;
   }
   if (tool === 'lote') {
-    // terreno: arrastar move o contorno inteiro; tocar num lado marca a fachada
+    // terreno: desenho ponto a ponto (como as paredes); em Ajustar, arrastar um canto muda o canto e arrastar o resto move tudo;
+    // tocar num lado abre o painel dele
     const L = F().lot;
-    if (!lotDraw && L) { G = { type: 'lotDrag', p0: p, moved: false, orig: L.pts.map(pt) }; return; }
+    if (lotMode === 'draw') { hover = snap(p, { from: lotLast() }); G = { type: 'lotPt', p0: p, ox0: cam.ox, oy0: cam.oy }; render(); return; }
+    if (lotMode === 'adj' && L) {
+      const w = toWorld(p), vi = L.pts.findIndex(q => dist(q, w) * cam.z < 18);
+      if (vi >= 0) { G = { type: 'lotVert', i: vi, p0: p, moved: false }; return; }
+      if (pointInPoly(w, L.pts) || lotSideAt(L, w) >= 0) { G = { type: 'lotDrag', p0: p, moved: false, orig: L.pts.map(pt) }; return; }
+    }
     G = { type: 'tap', p0: p, ox0: cam.ox, oy0: cam.oy }; return;
   }
   if (tool === 'hidro') {
@@ -2179,6 +2309,7 @@ cv.addEventListener('pointermove', e => {
     if (e.pointerType === 'mouse' && isDraw()) { hover = pend ? toWorld(p) : snap(p, { from: lastPt() }); render(); }
     else if (e.pointerType === 'mouse' && tool === 'elementos') { hover = snap(p, { noWall: true, from: sdraw && sdraw.pts.length ? sdraw.pts[sdraw.pts.length - 1] : null }); render(); }
     else if (e.pointerType === 'mouse' && tool === 'afast' && !offOrig) { hover = snap(p); render(); }
+    else if (e.pointerType === 'mouse' && tool === 'lote' && lotMode === 'draw') { hover = snap(p, { from: lotLast() }); render(); }
     return;
   }
   const moved = Math.hypot(p.x - (G.p0 ? G.p0.x : 0), p.y - (G.p0 ? G.p0.y : 0));
@@ -2216,6 +2347,12 @@ cv.addEventListener('pointermove', e => {
       }
       break;
     }
+    case 'lotPt': hover = snap(p, { from: lotLast() }); render(); break;
+    case 'lotVert': {
+      if (!G.moved && moved > 6) { G.moved = true; commit(); }
+      if (G.moved) { const s = snap(p, { exLot: G.i, noWall: true }); F().lot.pts[G.i] = pt(s); fixOps(); render(); }
+      break;
+    }
     case 'lotDrag': {
       if (!G.moved && moved > 6) { G.moved = true; commit(); }
       if (G.moved) {
@@ -2245,7 +2382,8 @@ function pointerEnd(e) {
   else if (g.type === 'dragCol') { if (g.moved) save(); openColSheet(g.id); }
   else if (g.type === 'dragStair') { if (g.moved) save(); openStairSheet(g.id); }
   else if (g.type === 'dragHNode') { if (g.moved) save(); openHNodeSheet(g.id); }
-  else if (g.type === 'lotDrag') { if (g.moved) save(); else lotTap(g.p0); }
+  else if (g.type === 'lotDrag' || g.type === 'lotVert') { if (g.moved) { save(); if (S && S.kind === 'lotface') openLotFaceSheet(S.i); } else lotTap(g.p0); }
+  else if (g.type === 'lotPt') lotAddPt(snap(p, { from: lotLast() }));
   if (e.pointerType !== 'mouse') hover = null;
   render(); updateUI();
 }
@@ -2454,13 +2592,19 @@ function onTap(p, hit) {
 }
 
 function insertOpNear(kind, w) {
-  const f = F(), bw = nearestWall(f, w, 32);
-  if (!bw) { toast('Toque sobre uma parede para inserir.'); return; }
+  const f = F(); let bw = nearestWall(f, w, 32), bd = bw ? wallDist(f, bw, w) : 32 / cam.z;
+  // muros do terreno também recebem esquadrias (portão no muro de frente, por exemplo)
+  let semMuro = false;
+  if (f.lot) f.lot.pts.forEach((A, i) => {
+    const d = projSeg(w, A, f.lot.pts[(i + 1) % f.lot.pts.length]).d; if (d >= bd) return;
+    const lw = lotWall(f, i); if (lw) { bd = d; bw = lw; semMuro = false; } else if (!bw) semMuro = true;
+  });
+  if (!bw) { toast(semMuro ? 'Esse lado do terreno não tem muro. Marque o muro em Ambiente → Terreno → Editar.' : 'Toque sobre uma parede ou muro para inserir.'); return; }
   if (bw.s) { toast('Portas e janelas só podem ser colocadas em paredes retas.'); return; }
   insertOpOnWall(kind, bw.id, w);
 }
 function insertOpOnWall(kind, wallId, at) {
-  const f = F(), wl = f.walls.find(x => x.id === wallId), g = wallGeom(f, wl), K = OPK[kind], type = K.t;
+  const f = F(), wl = wallById(f, wallId), g = wallGeom(f, wl), K = OPK[kind], type = K.t;
   const pos = at ? (at.x - g.A.x) * g.ux + (at.y - g.A.y) * g.uy : g.L / 2;
   let width = K.w; if (width > g.L - 0.1) width = Math.max(0.3, g.L - 0.1);
   const cen = floorCenter(f), side = at ? ((at.x - g.A.x) * g.nx + (at.y - g.A.y) * g.ny) : ((cen.x - g.A.x) * g.nx + (cen.y - g.A.y) * g.ny);
@@ -2515,9 +2659,23 @@ const chipsSet = (field, vals, dec = 2) => `<div class="chips">${vals.map(v => `
 const chipsPick = (act, vals, cur, attrs = '') => `<div class="chips">${vals.map(v => `<button class="chip${v === cur ? ' on' : ''}" data-act="${act}" data-v="${esc(v)}" ${attrs}>${esc(v)}</button>`).join('')}</div>`;
 function markChips(act, v, k) { sheetEl.querySelectorAll(`.chip[data-act="${act}"]${k ? `[data-k="${k}"]` : ''}`).forEach(b => b.classList.toggle('on', b.dataset.v === v)); }
 
+// botões de excluir/remover ganham a lixeira ao lado do texto; Ajustar desenho, a trena; Só anotar, o lápis
+const TRASH = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
+const TAPE = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="12" height="12" rx="3"/><circle cx="8.5" cy="12" r="2.2"/><path d="M14.5 15H22v-3h-7.5M17.5 15v-1.6M20 15v-1.6"/></svg>';
+const PENCIL = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5l4 4L8 20H4v-4z"/><path d="M13 7l4 4"/></svg>';
+function decorate(root) {
+  root.querySelectorAll('button').forEach(b => {
+    if (b.querySelector('svg')) return;
+    const t = b.textContent.trim();
+    if (/^(Excluir|Remover)\b/.test(t)) b.insertAdjacentHTML('afterbegin', TRASH);
+    else if (/^Ajustar( desenho| corda)?$/.test(t)) b.insertAdjacentHTML('afterbegin', TAPE);
+    else if (t === 'Só anotar') b.insertAdjacentHTML('afterbegin', PENCIL);
+  });
+}
 function openSheet(spec) {
   S = Object.assign({ committed: false, fresh: true, fields: {}, on: {} }, spec);
   sheetEl.innerHTML = `<div class="sh-head"><div><div class="sh-title">${esc(S.title)}</div><div class="sh-sub" id="shSub">${esc(S.sub || '')}</div></div>${xBtn}</div>${S.body}`;
+  decorate(sheetEl);
   sheetEl.hidden = false; sheetEl.scrollTop = 0; sheetEl.classList.toggle('dock', !!S.dock);
   syncFields(); render(); updateUI();
 }
@@ -2727,7 +2885,7 @@ function openOpSheet(id) {
     for (const k in S.fields) if (k !== S.active) S.fields[k].value = fmt(S.fields[k].get());
     $('#shSub').textContent = subTxt(); $('#tB').textContent = `Até a ponta B: ${fmt(Math.max(0, wallL() - o.t - o.w))} m. As pontas A e B aparecem no desenho.`; syncFields();
   };
-  const subTxt = () => `${fmt(o.w)} × ${fmt(o.h)} m${isP ? '' : ` · peitoril ${fmt(o.sill ?? 1)} m`} · parede de ${fmt(wallL())} m`;
+  const subTxt = () => `${fmt(o.w)} × ${fmt(o.h)} m${isP ? '' : ` · peitoril ${fmt(o.sill ?? 1)} m`} · ${isLotId(o.wall) ? `muro do lado ${+o.wall.slice(4) + 1} do terreno` : 'parede'} de ${fmt(wallL())} m`;
   const fields = {
     w: { get: () => o.w, live: v => { if (v >= 0.2) { touch(); o.w = Math.min(v, wallL()); after(); } } },
     t: { get: () => o.t, live: v => { touch(); o.t = v; after(); } },
@@ -3448,38 +3606,64 @@ function openNewFloor() {
   });
 }
 
-/* ================= terreno: contorno de referência no Térreo ================= */
-// doc.floors[0].lot = { pts, front (índice do lado da fachada), desc }
+/* ================= terreno: contorno do lote no Térreo, desenhado como as paredes ================= */
+// doc.floors[0].lot = { pts, front (índice do lado da fachada), desc, lock (travado: só muda por Ambiente → Terreno),
+//   faces: [{ muro, tipo, h, th, viz, obs, m (medida conferida), note (medida anotada) }] — uma por lado, na ordem dos pontos }
 const LOT_SIZES = [[10, 20], [10, 25], [10, 30], [12, 25], [12, 30], [15, 30], [20, 40]];
-let lotDraw = null;
-function startLot() {
-  closeModal(); closeSheet();
-  if (doc.cur !== 0) doc.cur = 0;
-  tool = ''; setTool('lote'); fit();
+const MURO_T = ['Alvenaria', 'Alvenaria com gradil', 'Gradil / grade', 'Concreto pré-moldado', 'Tela / alambrado', 'Madeira', 'Cerca viva'];
+const VIZ = ['Rua / calçada', 'Outro imóvel', 'Terreno vazio', 'Área pública', 'Córrego / rio', 'Outro'];
+// lotMode: 'draw' (contorno ponto a ponto), 'adj' (posição, cantos, medidas e frente) ou 'faces' (muros e vizinhos, sem mexer no limite)
+let lotDraw = null, lotMode = 'adj';
+const lotFloor = () => doc.floors[0];
+const lotFace = (L, i) => { L.faces = L.faces || []; return (L.faces[i] = L.faces[i] || { muro: false, tipo: '', h: 2, th: 0.15, viz: '', obs: '' }); };
+const lotArea = L => L && L.pts.length > 2 ? Math.abs(polyArea(L.pts)) : 0;
+const lotLast = () => lotDraw && lotDraw.pts.length ? lotDraw.pts[lotDraw.pts.length - 1] : null;
+function startLot(mode) {
+  closeModal(); closeSheet(); closePicker();
+  if (doc.cur !== 0) { doc.cur = 0; chain = amb = pend = null; }
+  lotMode = mode; tool = ''; setTool('lote');
+  if (mode === 'draw') lotDraw = { pts: [] };
+  refresh(); fit();
 }
 // terreno retangular com a frente na largura, centralizado no que já está desenhado
 function setLotRect(w, d) {
-  const f = doc.floors[0], keep = f.lot; f.lot = null;
+  const f = lotFloor(), keep = f.lot; f.lot = null;
   const b = bounds(f), c = b ? { x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2 } : { x: w / 2, y: d / 2 }; f.lot = keep;
   const x0 = Math.round((c.x - w / 2) / GRID) * GRID, y0 = Math.round((c.y - d / 2) / GRID) * GRID;
-  commit(); f.lot = { pts: [{ x: x0, y: y0 }, { x: x0 + w, y: y0 }, { x: x0 + w, y: y0 + d }, { x: x0, y: y0 + d }], front: null, desc: `${fmt(w, w % 1 ? 2 : 0)} × ${fmt(d, d % 1 ? 2 : 0)} m` };
-  doc.example = false; save(); startLot();
+  commit(); f.lot = { pts: [{ x: x0, y: y0 }, { x: x0 + w, y: y0 }, { x: x0 + w, y: y0 + d }, { x: x0, y: y0 + d }], front: null, desc: `${fmt(w, w % 1 ? 2 : 0)} × ${fmt(d, d % 1 ? 2 : 0)} m`, faces: [], lock: false };
+  cleanup(f); doc.example = false; save(); startLot('adj');
+  toast('Terreno colocado. Arraste para posicionar e toque no lado da frente.');
+}
+// desenho ponto a ponto: fecha ao tocar no 1º ponto
+function lotAddPt(s) {
+  const d = lotDraw; if (!d || !s) return;
+  if (d.pts.length >= 3 && (same(s, d.pts[0]) || dist(s, d.pts[0]) * cam.z < 22)) {
+    const f = lotFloor(); commit();
+    f.lot = { pts: d.pts.map(pt), front: null, desc: 'irregular', faces: [], lock: false };
+    lotDraw = null; lotMode = 'adj'; cleanup(f); doc.example = false; save(); refresh();
+    toast('Contorno fechado. Toque em cada lado para conferir a medida, marcar a frente e o muro.'); return;
+  }
+  if (lotLast() && same(s, lotLast())) return;
+  d.pts.push(pt(s)); refresh();
+}
+// lado do terreno mais perto do toque (−1 se nenhum)
+function lotSideAt(L, w, px = 24) {
+  let bi = -1, bd = px / cam.z;
+  L.pts.forEach((a, i) => { const d = projSeg(w, a, L.pts[(i + 1) % L.pts.length]).d; if (d < bd) { bd = d; bi = i; } });
+  return bi;
 }
 function lotTap(p) {
-  const f = F(), w = toWorld(p);
-  if (lotDraw) {
-    const s = snap(p, { from: lotDraw.pts[lotDraw.pts.length - 1] });
-    if (lotDraw.pts.length >= 3 && (same(s, lotDraw.pts[0]) || dist(w, lotDraw.pts[0]) * cam.z < 22)) {
-      commit(); f.lot = { pts: lotDraw.pts.map(pt), front: null, desc: 'irregular' }; lotDraw = null; save(); refresh();
-      toast('Contorno do terreno fechado. Agora toque no lado da fachada.'); return;
-    }
-    lotDraw.pts.push(pt(s)); refresh(); return;
-  }
-  const L = f.lot; if (!L) return;
-  let bi = -1, bd = 24 / cam.z;
-  L.pts.forEach((a, i) => { const d = projSeg(w, a, L.pts[(i + 1) % L.pts.length]).d; if (d < bd) { bd = d; bi = i; } });
-  if (bi < 0) { toast('Toque sobre um lado do terreno para marcar a fachada.'); return; }
-  commit(); L.front = bi; save(); refresh(); toast('Fachada marcada.');
+  const L = lotFloor().lot; if (!L || lotMode === 'draw') return;
+  const i = lotSideAt(L, toWorld(p));
+  if (i < 0) { closeSheet(); toast('Toque sobre um lado do terreno.'); return; }
+  openLotFaceSheet(i);
+}
+// ajuste da medida de um lado: só a ponta escolhida anda, na direção do lado (os lados vizinhos acompanham)
+function lotStretch(L, i, len, end) {
+  const a = L.pts[i], b = L.pts[(i + 1) % L.pts.length], cur = dist(a, b) || 1e-9, ux = (b.x - a.x) / cur, uy = (b.y - a.y) / cur, d = len - cur;
+  const q = end === 'b' ? b : a, k = end === 'b' ? d : -d;
+  q.x = Math.round((q.x + ux * k) * 1000) / 1000; q.y = Math.round((q.y + uy * k) * 1000) / 1000;
+  fixOps(lotFloor());
 }
 function lotRotate() {
   const L = F().lot; if (!L) return;
@@ -3489,24 +3673,104 @@ function lotRotate() {
   L.pts = L.pts.map(q => ({ x: Math.round((q.x + dx) * 1000) / 1000, y: Math.round((q.y + dy) * 1000) / 1000 }));
   save(); refresh();
 }
-const lotArea = L => L && L.pts.length > 2 ? Math.abs(polyArea(L.pts)) : 0;
-function lotForm() {
-  const L = doc.floors[0].lot;
-  return `<div class="field span2"><span class="lbl">Terreno</span>
-    <div class="chips">${LOT_SIZES.map(([w, d]) => `<button class="chip${L && L.desc === `${w} × ${d} m` ? ' on' : ''}" data-mact="lot" data-v="${w}x${d}">${w} × ${d}</button>`).join('')}</div>
-    <div class="row" style="flex-wrap:wrap"><input class="txt" id="lotW" inputmode="decimal" placeholder="Frente (m)" style="width:110px;flex:none" autocomplete="off"><span>×</span>
-      <input class="txt" id="lotD" inputmode="decimal" placeholder="Fundo (m)" style="width:110px;flex:none" autocomplete="off"><button class="btn sm" data-mact="lotc">Usar</button><button class="btn sm" data-mact="lotdraw">Irregular: desenhar</button></div>
-    ${L ? `<div class="row"><span class="small grow">Terreno ${esc(L.desc || '')} · ${fmt(lotArea(L))} m²${L.front == null ? ' · <b style="color:var(--orange)">falta indicar a fachada</b>' : ' · fachada marcada'}</span>
-      <button class="btn sm" data-mact="lotadj">Posicionar e fachada</button><button class="btn sm danger" data-mact="lotdel">Remover</button></div>`
-      : '<span class="small muted">Aparece no Térreo como contorno de referência, não editável, para guiar o desenho. Depois de escolher, indique o lado da fachada.</span>'}</div>`;
+// trava: ao sair da ferramenta do terreno, o limite volta a ficar protegido
+function lotLock(msg) {
+  const L = lotFloor().lot; if (!L) return;
+  if (!L.lock) { L.lock = true; save(); }
+  if (msg) toast(L.front == null ? 'Terreno travado, mas falta indicar a frente. Para mexer: Ambiente → Terreno.' : 'Terreno travado. Para mexer: Ambiente → Terreno.');
 }
-const lotActs = {
-  lot(b) { const [w, d] = b.dataset.v.split('x').map(Number); setLotRect(w, d); },
-  lotc() { const w = parseNum($('#lotW').value), d = parseNum($('#lotD').value); if (!(w >= 2 && w <= 500 && d >= 2 && d <= 500)) { toast('Informe a frente e o fundo do terreno em metros.'); return; } setLotRect(w, d); },
-  lotdraw() { startLot(); lotDraw = { pts: [] }; refresh(); },
-  lotadj() { startLot(); },
-  lotdel() { commit(); doc.floors[0].lot = null; save(); closeModal(); refresh(); toast('Terreno removido.'); }
-};
+
+/* painel do terreno (Ambiente → Terreno): modelos prontos, desenhar, e com terreno: editar, ajustar ou remover */
+function openLotPanel() {
+  closePicker(); closeModal();
+  if (tool === 'lote') { lotDraw = null; setTool('editar'); }
+  if (doc.cur !== 0) { doc.cur = 0; chain = amb = pend = null; refresh(); fit(); }
+  const f = lotFloor(), L = f.lot, n = L ? L.pts.length : 0, fs = L ? L.pts.map((_, i) => (L.faces || [])[i] || {}) : [];
+  const nMuro = fs.filter(x => x.muro).length, nOk = L ? fs.filter((x, i) => x.m != null && Math.abs(x.m - dist(L.pts[i], L.pts[(i + 1) % n])) < 0.005 || x.note != null).length : 0;
+  openSheet({
+    kind: 'lotp', title: 'Terreno', sub: L ? `${L.desc || ''} · ${fmt(lotArea(L))} m² · ${n} lados · ${L.lock ? 'travado' : 'destravado'}` : 'Ainda não definido',
+    body: `
+      <div class="field"><span class="lbl">Modelos prontos (frente × fundo)</span>
+        <div class="chips">${LOT_SIZES.map(([w, d]) => `<button class="chip${L && L.desc === `${w} × ${d} m` ? ' on' : ''}" data-act="rect" data-v="${w}x${d}">${w} × ${d}</button>`).join('')}</div>
+        <div class="row" style="flex-wrap:wrap"><input class="txt" id="lotW" inputmode="decimal" placeholder="Frente (m)" style="width:110px;flex:none" autocomplete="off"><span>×</span>
+          <input class="txt" id="lotD" inputmode="decimal" placeholder="Fundo (m)" style="width:110px;flex:none" autocomplete="off"><button class="btn sm" data-act="rectc">Usar</button></div></div>
+      <button class="btn" data-act="draw">${PENCIL}${L ? 'Desenhar de novo, ponto a ponto' : 'Desenhar o contorno, ponto a ponto'}</button>
+      <span class="small muted">Como as paredes: toque nos cantos do terreno e feche no 1º ponto; a medida de cada lado aparece enquanto desenha.</span>
+      ${L ? `<div class="divider"></div>
+        <div class="okline${L.front != null ? ' ok' : ''}"><span class="grow">${L.front != null ? `✓ Frente: lado ${L.front + 1}` : 'Falta indicar a frente (fachada)'} · ${nMuro} de ${n} lados com muro · ${nOk} de ${n} medidas conferidas</span></div>
+        <div class="ex-opts">
+          <button class="ex-opt" data-act="faces"><b>${PENCIL}Editar</b><span>Muro, tipo, altura e o que há do outro lado de cada lado. O limite continua travado.</span></button>
+          <button class="ex-opt" data-act="adj"><b>${TAPE}Ajustar</b><span>Destrava o limite: mover, arrastar cantos, conferir medidas, marcar a frente e girar.</span></button>
+          <button class="ex-opt danger" data-act="del"><b>${TRASH}Remover</b><span>Apaga o terreno, os muros e os portões dos muros (dá para desfazer).</span></button>
+        </div>` : '<span class="small muted">O terreno aparece no Térreo como referência. Depois de definido, fica travado para não mudar sem querer.</span>'}`,
+    on: {
+      rect(el) { const [w, d] = el.dataset.v.split('x').map(Number); setLotRect(w, d); },
+      rectc() { const w = parseNum($('#lotW').value), d = parseNum($('#lotD').value); if (!(w >= 2 && w <= 500 && d >= 2 && d <= 500)) { toast('Informe a frente e o fundo do terreno em metros.'); return; } setLotRect(w, d); },
+      draw() { startLot('draw'); },
+      faces() { startLot('faces'); },
+      adj() { commit(); L.lock = false; save(); startLot('adj'); },
+      del() { commit(); f.lot = null; cleanup(f); save(); closeSheet(); refresh(); toast('Terreno removido.'); }
+    }
+  });
+}
+// um lado do terreno: medida (só em Ajustar), frente, muro (tipo, altura, espessura) e o que há do outro lado
+function openLotFaceSheet(i) {
+  const f = lotFloor(), L = f.lot; if (!L) return;
+  const n = L.pts.length, A = () => L.pts[i], B = () => L.pts[(i + 1) % n], len = () => dist(A(), B()), fc = lotFace(L, i), geo = lotMode === 'adj';
+  const init = fc.note ?? fc.m ?? len(), reopen = () => { const c = S && S.committed; openLotFaceSheet(i); if (S) S.committed = c; };
+  const st = fc.note != null ? `medida anotada ${fmt(fc.note)} m` : fc.m != null && Math.abs(fc.m - len()) < 0.005 ? 'medida conferida' : 'medida pela grade';
+  const fields = { h: { value: fmt(fc.h || 2), live: v => { if (v > 0 && v <= 10) { touch(); fc.h = v; save(); render(); } } } };
+  if (geo) fields.len = { value: fmt(init), live: v => { $('#dlt').textContent = deltaText(v - len()); } };
+  const nOps = f.ops.filter(o => o.wall === 'lot:' + i).length;
+  openSheet({
+    kind: 'lotface', i, active: geo ? 'len' : 'h', moveEnd: 'b', dock: VW < 720,
+    title: `Terreno · lado ${i + 1} de ${n}${L.front === i ? ' (frente)' : ''}`, sub: `desenho ${fmt(len())} m · ${st}`, fields,
+    body: `
+      ${geo ? `<div class="field"><span class="lbl">Medida real do lado</span>
+        <div class="row"><button class="num" data-field="len"></button><span class="unit">m</span><span class="small muted grow" id="dlt">${deltaText(init - len())}</span></div>
+        <div class="row"><span class="small muted">Mover a ponta</span><div class="seg"><button data-act="end" data-v="a">A</button><button data-act="end" data-v="b" class="on">B</button></div>
+          <button class="btn sm primary" data-act="apply">Ajustar desenho</button><button class="btn sm" data-act="note">Só anotar</button></div></div>` : ''}
+      <div class="field"><span class="lbl">Frente do terreno</span>
+        <div class="seg"><button data-act="front" data-v="1" class="${L.front === i ? 'on' : ''}">É a frente (fachada)</button><button data-act="front" data-v="0" class="${L.front === i ? '' : 'on'}">Não</button></div></div>
+      <div class="field"><span class="lbl">Muro neste lado</span>
+        <div class="seg"><button data-act="muro" data-v="0" class="${fc.muro ? '' : 'on'}">Sem muro</button><button data-act="muro" data-v="1" class="${fc.muro ? 'on' : ''}">Com muro</button></div></div>
+      ${fc.muro ? `<div class="field"><span class="lbl">Tipo de muro</span>${chipsPick('mtipo', MURO_T, fc.tipo)}</div>
+        <div class="field"><span class="lbl">Altura do muro</span><div class="row"><button class="num sm" data-field="h"></button><span class="unit">m</span>${chipsSet('h', [1.5, 1.8, 2, 2.2, 2.5, 3])}</div></div>
+        <div class="field"><span class="lbl">Espessura</span><div class="chips">${[10, 15, 20, 25].map(v => `<button class="chip${Math.abs((fc.th || 0.15) * 100 - v) < 0.5 ? ' on' : ''}" data-act="mth" data-v="${v}">${v} cm</button>`).join('')}</div></div>` : ''}
+      ${geo || fc.muro ? keypad() : ''}
+      <div class="field"><span class="lbl">O que há do outro lado</span>${chipsPick('viz', VIZ, fc.viz)}
+        <input class="txt" data-input="lobs" value="${esc(fc.obs || '')}" placeholder="Observação deste lado (opcional)" autocomplete="off"></div>
+      ${fc.muro ? `<div class="row" style="flex-wrap:wrap"><button class="btn sm" data-act="gate">+ Portão</button><button class="btn sm" data-act="door">+ Portão de pedestres</button>
+        <span class="small muted grow">${nOps ? `${nOps} no muro. ` : ''}Também dá para usar Esquadrias e tocar no muro.</span></div>` : ''}
+      <div class="row"><button class="btn sm" data-act="prev">‹ Lado anterior</button><span class="grow"></span><button class="btn sm" data-act="next">Próximo lado ›</button></div>
+      <div class="row"><button class="btn primary grow" data-close>Pronto</button></div>`,
+    on: {
+      end(el) { S.moveEnd = el.dataset.v; sheetEl.querySelectorAll('[data-act="end"]').forEach(b => b.classList.toggle('on', b === el)); render(); },
+      apply() {
+        const v = parseNum(S.fields.len.value); if (!(v >= 0.5 && v <= 500)) { toast('Informe uma medida entre 0,50 e 500 m.'); return; }
+        touch(); lotStretch(L, i, v, S.moveEnd); fc.m = v; delete fc.note; save(); reopen(); toast(`Lado ajustado para ${fmt(v)} m.`);
+      },
+      note() {
+        const v = parseNum(S.fields.len.value); if (!(v >= 0.5 && v <= 500)) { toast('Informe uma medida entre 0,50 e 500 m.'); return; }
+        touch(); fc.note = v; delete fc.m; save(); reopen();
+      },
+      front(el) { touch(); L.front = el.dataset.v === '1' ? i : L.front === i ? null : L.front; save(); reopen(); },
+      muro(el) {
+        touch(); fc.muro = el.dataset.v === '1'; if (fc.muro && !fc.tipo) fc.tipo = 'Alvenaria';
+        if (!fc.muro) { const k = f.ops.length; cleanup(f); if (f.ops.length < k) toast('Os portões deste muro foram retirados.'); }
+        save(); reopen();
+      },
+      mtipo(el) { touch(); fc.tipo = el.dataset.v; markChips('mtipo', fc.tipo); save(); render(); },
+      mth(el) { touch(); fc.th = +el.dataset.v / 100; save(); reopen(); },
+      viz(el) { touch(); fc.viz = fc.viz === el.dataset.v ? '' : el.dataset.v; markChips('viz', fc.viz); save(); render(); },
+      lobs(el) { touch(); fc.obs = el.value; save(); },
+      gate() { insertOpOnWall('pelev', 'lot:' + i); },
+      door() { insertOpOnWall('pped', 'lot:' + i); },
+      prev() { openLotFaceSheet((i - 1 + n) % n); },
+      next() { openLotFaceSheet((i + 1) % n); }
+    }
+  });
+}
 
 /* ================= fotos (guardadas no aparelho, fora do desenho) ================= */
 // Banco do aparelho (IndexedDB). Se o navegador não deixar usar, cai no reserva (memória ou localStorage).
@@ -3609,7 +3873,7 @@ function photoNumbers() {
 async function photoGC() {
   try {
     // as imagens de fundo importadas também ficam nesse banco
-    const used = new Set(), scan = d => d && d.floors && d.floors.forEach(f => { if (f.bg) used.add(f.bg.id); f.rooms.forEach(r => (r.photos || []).forEach(p => used.add(p.id))); });
+    const used = new Set(), scan = d => d && d.floors && allFloors(d).forEach(f => { if (f.bg) used.add(f.bg.id); f.rooms.forEach(r => (r.photos || []).forEach(p => used.add(p.id))); });
     (await CRO.all() || []).forEach(r => scan(r && r.doc)); scan(doc);
     for (const k of (await idb.keys()) || []) if (!used.has(k)) idb.del(k);
   } catch (e) {}
@@ -3655,7 +3919,9 @@ const PICKERS = {
     opts: () => [{ k: '', n: 'Escolher no local', s: 'Toque num encontro de tubos para ver o que pode existir ali', ic: '<svg class="dev-ic" viewBox="0 0 38 26" aria-hidden="true"><path d="M3 13h32M19 3v20" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="19" cy="13" r="3.5" fill="currentColor"/></svg>' }]
       .concat(devOf(hidSys).map(k => ({ k, n: DEV[k].n, s: DEV[k].sg, ic: devIcon(k, hidSys) }))) },
   ambiente: { title: 'O que vai desenhar', cur: () => regCat, set: k => { regCat = k; },
-    opts: () => REGION_CATS.map(k => ({ k, n: CATS[k].n, s: CATS[k].s, ic: `<span class="sw reg" style="color:var(${k === 'interno' ? '--room-stroke' : '--c-' + k})"></span>` })) },
+    opts: () => REGION_CATS.map(k => ({ k, n: CATS[k].n, s: CATS[k].s, ic: `<span class="sw reg" style="color:var(${k === 'interno' ? '--room-stroke' : '--c-' + k})"></span>` }))
+      .concat([{ k: 'lote', grp: 'Lote', n: 'Terreno', s: doc && doc.floors[0].lot ? 'Definido e travado: editar muros, ajustar ou remover' : 'Modelos prontos ou desenhar o contorno, como as paredes',
+        ic: '<svg class="i" viewBox="0 0 24 24" style="color:var(--lot)"><path d="M3 5h18v15H3z" stroke-dasharray="4 2 1 2"/><path d="M3 20h18" stroke-width="3.2"/><path d="M8 9h8v7H8z"/></svg>' }]) },
   // Elementos muda com o pavimento: Estrutura (pilares) e Escadas no térreo e acima; na Fundação, os elementos dela (a definir)
   elementos: { title: 'Elementos', cur: () => elemSel, set: k => { elemSel = k; if (SECS[k]) colSec = k; sdraw = null; },
     opts: () => {
@@ -3692,6 +3958,7 @@ $('#picker').addEventListener('click', e => {
   const b = e.target.closest('[data-k]'); if (!b) return;
   if (b.dataset.dis) { toast('Em breve: os elementos da fundação ainda estão sendo definidos.'); return; }
   const t = $('#picker').dataset.t, cfg = PICKERS[t];
+  if (t === 'ambiente' && b.dataset.k === 'lote') { closePicker(); openLotPanel(); return; }
   cfg.set(b.dataset.k); closePicker();
   if (cfg.noTool) { hchain = null; closeSheet(); refresh(); return; }
   tool = ''; setTool(t);
@@ -3724,10 +3991,12 @@ $('#hbar').addEventListener('click', e => {
 
 function setTool(t) {
   if (tool === t) return;
+  // saindo da ferramenta do terreno, o limite volta a ficar travado
+  if (tool === 'lote' && t !== 'lote' && doc) lotLock(false);
   tool = t; chain = null; amb = null; pend = null; hchain = null; rchain = null; hover = null; sdraw = null; offOrig = null;
   if (t !== 'calib') calib = null;
   if (t !== 'lote') lotDraw = null;
-  if (S && !(t === 'editar' && ['wall', 'op', 'room', 'note', 'col', 'line', 'roof', 'rline', 'stair'].includes(S.kind))) closeSheet();
+  if (S && !(t === 'editar' && ['wall', 'op', 'room', 'note', 'col', 'line', 'roof', 'rline', 'stair'].includes(S.kind)) && !(t === 'lote' && S.kind === 'lotface')) closeSheet();
   refresh();
 }
 function hintHTML() {
@@ -3738,7 +4007,7 @@ function hintHTML() {
   switch (tool) {
     case 'editar': return '<b>Toque numa parede</b> para medida, espessura e tipo. Toque em esquadrias, pilares e nomes para editar; arraste vértices, esquadrias e pilares.' + two;
     case 'parede': return `<b>${esc(wtype({ type: wallType }).n)}.</b> ${curve ? 'Modo curva: toque no início, no fim e depois para o lado da curva.' : 'Toque nos pontos da grade (ou arraste de um ponto a outro).'} Toque no 1º ponto para fechar o ambiente.` + two;
-    case 'esquadria': return `<b>${esc(OPK[opSel].n)}:</b> toque sobre a parede${OPK[opSel].t === 'porta' && opSel !== 'vao' ? ', do lado para onde ela abre' : ''}.` + two;
+    case 'esquadria': return `<b>${esc(OPK[opSel].n)}:</b> toque sobre a parede ou o muro do terreno${OPK[opSel].t === 'porta' && opSel !== 'vao' ? ', do lado para onde ela abre' : ''}.` + two;
     case 'ambiente': return `<b>${esc(CATS[regCat].n)}:</b> toque numa parede do ambiente para contornar pelas paredes, ou toque nos cantos e feche no 1º ponto.${curve ? ' Modo curva ligado.' : ''}` + two;
     case 'elementos': {
       if (!isStairSel()) return `<b>${esc(SECS[colSec].n)}:</b> toque onde fica o pilar. Ele encaixa na grade e nos cantos das paredes.` + two;
@@ -3756,8 +4025,9 @@ function hintHTML() {
     case 'cobertura': return roofMode === 'area'
       ? '<b>Área de telhado:</b> toque nos cantos (eles encaixam no pavimento de baixo) e feche no 1º ponto. Depois escolha telha, estrutura, águas e inclinação.' + two
       : `<b>${esc(ROOF_LINES[roofMode].n)}:</b> toque ponto a ponto ao longo do telhado e em Concluir.` + two;
-    case 'lote': return lotDraw ? '<b>Terreno irregular:</b> toque nos cantos do terreno, um a um, e feche no 1º ponto.'
-      : (F().lot && F().lot.front == null ? '<b>Toque no lado da FACHADA</b> (frente do terreno). ' : '<b>Terreno:</b> toque em outro lado para mudar a fachada. ') + 'Arraste para posicionar; Girar 90° se o terreno estiver de lado.';
+    case 'lote': return lotMode === 'draw' ? '<b>Terreno:</b> toque nos cantos do terreno, um a um (a medida aparece enquanto desenha), e feche no 1º ponto.' + two
+      : lotMode === 'faces' ? '<b>Editar terreno:</b> toque num lado para muro, tipo, altura e o que há do outro lado. O limite continua travado.' + two
+      : '<b>Ajustar terreno:</b> toque num lado para conferir a medida, marcar a frente e o muro; arraste um canto para mudá-lo ou o terreno para movê-lo.' + (F().lot && F().lot.front == null ? ' <b>Falta indicar a frente.</b>' : '');
     case 'calib': return `<b>Calibrar o fundo:</b> toque no ${calib && calib.pts.length ? 'fim' : 'início'} de uma medida que você conhece (por exemplo, uma parede cotada). Aproxime com dois dedos para acertar o ponto.`;
     case 'hidro': {
       const s = `<b>${esc(SYS[hidSys].n)} ·</b> `;
@@ -3796,8 +4066,9 @@ function updateUI() {
   else if (sdraw && sdraw.pts.length) { cb.innerHTML = '<button class="btn shadow" data-c="sback">Voltar ponto</button><button class="btn shadow" data-c="scancel">Cancelar escada</button>'; cb.hidden = false; }
   else if (tool === 'afast') { cb.innerHTML = '<button class="btn shadow" data-c="ocancel">Cancelar afastamento</button>'; cb.hidden = false; }
   else if (tool === 'lote') {
-    cb.innerHTML = lotDraw ? '<button class="btn shadow" data-c="lback">Voltar ponto</button><button class="btn shadow" data-c="lcancel">Cancelar</button>'
-      : '<button class="btn shadow" data-c="lrot">Girar 90°</button><button class="btn primary shadow" data-c="ldone">Concluir terreno</button>';
+    cb.innerHTML = lotMode === 'draw' ? `${lotDraw && lotDraw.pts.length ? '<button class="btn shadow" data-c="lback">Voltar ponto</button>' : ''}<button class="btn shadow" data-c="lcancel">Cancelar</button>`
+      : lotMode === 'faces' ? '<button class="btn primary shadow" data-c="ldone">Concluir</button>'
+      : '<button class="btn shadow" data-c="lrot">Girar 90°</button><button class="btn primary shadow" data-c="ldone">Concluir e travar</button>';
     cb.hidden = false;
   }
   else cb.hidden = true;
@@ -3816,6 +4087,7 @@ function updateUI() {
   if (u) rn.innerHTML = doc.showUnder
     ? `<span>Por baixo: <b>${esc(u.name)}</b> (congelado)</span><button class="btn sm" data-u="0">Ocultar</button>`
     : `<span><b>${esc(u.name)}</b> oculto</span><button class="btn sm" data-u="1">Mostrar por baixo</button>`;
+  $('#imvName').textContent = propName(doc.prop); $('#imvCount').textContent = doc.props.length > 1 ? `${doc.prop + 1}/${doc.props.length}` : '';
   $('#subTitle').textContent = doc.example ? `Exemplo · ${me ? me.nome : ''}` : `${doc.ficha ? 'Ficha nº ' + doc.ficha : 'Sem nº de ficha'} · ${me ? me.nome : brDate(doc.data)}`;
 }
 $('#bgNote').addEventListener('click', e => {
@@ -3832,10 +4104,10 @@ $('#chainbar').addEventListener('click', e => {
   if (k === 'sback') { sdraw.pts.pop(); if (!sdraw.pts.length) sdraw = null; refresh(); return; }
   if (k === 'scancel') { sdraw = null; refresh(); return; }
   if (k === 'ocancel') { closeSheet(); setTool(offBack); return; }
-  if (k === 'lback') { lotDraw.pts.pop(); if (!lotDraw.pts.length) { lotDraw = null; setTool('editar'); } refresh(); return; }
+  if (k === 'lback') { if (lotDraw) lotDraw.pts.pop(); refresh(); return; }
   if (k === 'lcancel') { lotDraw = null; setTool('editar'); return; }
   if (k === 'lrot') { lotRotate(); return; }
-  if (k === 'ldone') { const L = F().lot; setTool('editar'); if (L && L.front == null) toast('Terreno sem fachada marcada. Abra Dados do croqui → Terreno para ajustar.'); return; }
+  if (k === 'ldone') { closeSheet(); setTool('editar'); lotLock(true); return; }
   if (k === 'back') {
     if (pend) pend = null;
     else if (tool === 'parede' || tool === 'hidro') { chainBack(); return; }
@@ -3847,8 +4119,14 @@ $('#chainbar').addEventListener('click', e => {
   else if (k === 'acancel') { amb = null; pend = null; refresh(); }
 });
 // pavimentos em coluna: ícone pelo tipo e o nome embaixo; tocar no atual abre os dados dele
+// ordem na coluna: do alto para baixo (cobertura, superiores do mais alto ao mais baixo, mezanino, térreo, área externa, subsolos, fundação)
+const FLOOR_RANK = { cobertura: 0, superior: 1, mezanino: 2, terreo: 3, externa: 4, subsolo: 5, fundacao: 6 };
+function floorOrder(floors = doc.floors) {
+  return floors.map((fl, i) => ({ fl, i, r: FLOOR_RANK[floorType(fl, i)] ?? 3 }))
+    .sort((a, b) => a.r - b.r || (a.r <= 2 ? b.i - a.i : a.i - b.i));
+}
 function renderFloors() {
-  $('#floors').innerHTML = doc.floors.map((fl, i) => `<button class="fb${i === doc.cur ? ' on' : ''}" data-f="${i}" title="${esc(fl.name)}${i === doc.cur ? ' (toque para editar)' : ''}">${floorIcon(fl)}<span>${esc(fl.name)}</span></button>`).join('') +
+  $('#floors').innerHTML = floorOrder().map(({ fl, i }) => `<button class="fb${i === doc.cur ? ' on' : ''}" data-f="${i}" title="${esc(fl.name)}${i === doc.cur ? ' (toque para editar)' : ''}">${floorIcon(fl)}<span>${esc(fl.name)}</span></button>`).join('') +
     '<button class="fb add" data-f="add" aria-label="Novo pavimento" title="Novo pavimento"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>';
 }
 $('#floors').addEventListener('click', e => {
@@ -3914,10 +4192,17 @@ $('#bRooms').addEventListener('click', () => { const d = $('#drawer'); d.hidden 
 function openModal(html, on = {}) {
   // botões de arquivo (baixar de novo, compartilhar) valem em qualquer janela que gere arquivo
   on = Object.assign({ hoje() { setDado('data', isoToday()); $('#dData').value = doc.data; },
-    again() { if (lastFile) tryDownload(lastFile.name, lastFile); }, share() { shareLast(); }, sharetxt() { shareTxt(); } }, lotActs, on);
-  $('#modal').innerHTML = html; $('#scrim').hidden = false;
+    again() { if (lastFile) tryDownload(lastFile.name, lastFile); }, share() { shareLast(); }, sharetxt() { shareTxt(); } }, on);
+  $('#modal').innerHTML = html; $('#scrim').hidden = false; decorate($('#modal'));
   $('#modal').onclick = e => { const b = e.target.closest('[data-mact]'); if (!b) return; if (b.dataset.mact === 'close') closeModal(); else on[b.dataset.mact] && on[b.dataset.mact](b); };
   $('#modal').oninput = e => { const k = e.target.dataset.d; if (k) setDado(k, e.target.value); };
+  $('#modal').onchange = e => {
+    if (e.target.id !== 'dFinal') return;
+    setDado('final', e.target.checked);
+    const bx = e.target.closest('.finbox'); bx.classList.toggle('on', e.target.checked);
+    bx.querySelector('span').textContent = e.target.checked ? 'Marcado como pronto. Conta nas conquistas de Meu perfil.' : 'Marque quando o desenho estiver pronto e conferido. Conta nas conquistas de Meu perfil.';
+    if (e.target.checked) toast('Croqui marcado como finalizado.');
+  };
 }
 function closeModal() { $('#scrim').hidden = true; $('#modal').innerHTML = ''; }
 $('#scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closeModal(); });
@@ -3929,7 +4214,7 @@ function setDado(k, v) {
   if (doc.example && k !== 'title') doc.example = false;
   save(); updateUI();
 }
-const dadosForm = () => `<div class="form-grid">
+const dadosForm = compact => `<div class="form-grid">
     <div class="field"><label class="lbl" for="dFicha">Nº da ficha</label>
       <input class="txt" id="dFicha" type="text" data-d="ficha" value="${esc(doc.ficha)}" placeholder="Ex.: 30480" autocomplete="off"></div>
     <div class="field"><label class="lbl" for="dData">Data</label>
@@ -3939,15 +4224,21 @@ const dadosForm = () => `<div class="form-grid">
     <div class="field span2"><span class="lbl">Técnico (quem vai usar o croqui em campo)</span>
       <div class="chips">${[{ id: '', nome: 'Nenhum (é para mim)' }].concat(users.filter(u => u.id !== (cur ? cur.rec.owner : me && me.id))).map(u => `<button class="chip${(doc.tecnico || '') === u.id ? ' on' : ''}" data-mact="tec" data-v="${u.id}">${esc(u.nome)}</button>`).join('')}</div>
       <span class="small muted">O croqui aparece na lista do técnico, em "Feitos para mim", com contorno verde.</span></div>
-    <label class="row small span2"><input type="checkbox" id="dFinal" ${doc.final ? 'checked' : ''}> Croqui finalizado (conta nos marcos de Meu perfil)</label>
-    <div class="field span2"><label class="lbl" for="dTit">Descrição do imóvel <span style="text-transform:none;letter-spacing:0;font-weight:400">(opcional)</span></label>
+    <div class="field span2"><label class="lbl" for="dTit">Descrição da vistoria <span style="text-transform:none;letter-spacing:0;font-weight:400">(opcional)</span></label>
       <input class="txt" id="dTit" type="text" data-d="title" value="${esc(doc.title)}" placeholder="Ex.: Apto 302 — Bloco B" autocomplete="off"></div>
-    <div class="field span2"><span class="lbl">Norte real</span>
+    ${compact ? `<div class="field span2"><span class="lbl">Situação</span><div class="stline">${stChip('north', 'Norte real', doc.north != null)}${stChip('lot', 'Terreno', !!lotFloor().lot)}</div>
+        <span class="small muted">Toque no que está pendente para ir direto à ferramenta.</span></div>`
+      : `<div class="field span2"><span class="lbl">Norte real</span>
       <div class="row"><span class="north${doc.north == null ? ' unset' : ''}" style="position:static;width:46px;height:46px;box-shadow:none">${northSVG(doc.north)}</span>
         <span class="small grow">${doc.north == null ? 'Ainda não indicado. Desenhe como for mais natural (da frente para os fundos) e indique para que lado fica o norte.' : 'Indicado. Na exportação, o desenho pode girar para o norte ficar para cima.'}</span>
-        <button class="btn sm" data-mact="north">${doc.north == null ? 'Indicar o norte' : 'Mudar'}</button></div></div>
-    ${lotForm()}
+        <button class="btn sm" data-mact="north">${doc.north == null ? 'Indicar o norte' : 'Mudar'}</button></div>
+      <span class="small muted">O terreno agora fica em Ambiente → Terreno (menu de ferramentas).</span></div>`}
+    ${finBox()}
   </div>`;
+// croqui finalizado: caixa em destaque (conta nas conquistas de Meu perfil)
+const finBox = () => `<label class="finbox span2${doc.final ? ' on' : ''}"><input type="checkbox" id="dFinal" ${doc.final ? 'checked' : ''}>
+    <div><b>Croqui finalizado</b><span>${doc.final ? 'Marcado como pronto. Conta nas conquistas de Meu perfil.' : 'Marque quando o desenho estiver pronto e conferido. Conta nas conquistas de Meu perfil.'}</span></div></label>`;
+const stChip = (k, n, ok) => `<button class="st${ok ? '' : ' pend'}" data-mact="go${k}"><i></i>${n} <em>${ok ? 'definido' : 'pendente'}</em></button>`;
 function openDados(intro) {
   openModal(`<h2>Dados do croqui</h2>
     ${intro ? `<p class="small muted" style="margin:0">${intro}</p>` : ''}
@@ -3956,10 +4247,61 @@ function openDados(intro) {
     <div class="row"><span class="grow"></span><button class="btn primary" data-mact="close">Pronto</button></div>`,
     { north() { closeModal(); openNorthSheet(); },
       tec(b) { setDado('tecnico', b.dataset.v); $('#modal').querySelectorAll('[data-mact="tec"]').forEach(x => x.classList.toggle('on', x === b)); } });
-  $('#dFinal').addEventListener('change', e => setDado('final', e.target.checked));
   if (!doc.ficha) setTimeout(() => $('#dFicha') && $('#dFicha').focus(), 50);
 }
 $('#bDados').addEventListener('click', () => openDados());
+
+// troca o imóvel aberto: o atual guarda os pavimentos dele em props e o escolhido passa para doc.floors
+function switchProp(i) {
+  if (i === doc.prop || !doc.props[i]) return;
+  chain = amb = pend = hchain = rchain = sdraw = lotDraw = null; closeSheet(); $('#drawer').hidden = true;
+  const a = doc.props[doc.prop], b = doc.props[i];
+  a.floors = doc.floors; a.cur = doc.cur;
+  doc.floors = b.floors; doc.cur = clamp(b.cur || 0, 0, b.floors.length - 1); b.floors = null; doc.prop = i;
+  tool = ''; setTool('editar'); save(); refresh(); fit();
+  toast(`${propName(i)} aberto.`);
+}
+function openProps() {
+  closeMenu(); closePicker();
+  const stat = i => { const fl = propFloors(i), nr = fl.reduce((s, f) => s + f.rooms.filter(x => x.cat !== 'piso').length, 0); return `${fl.length} pavimento${fl.length > 1 ? 's' : ''} · ${nr} ambiente${nr === 1 ? '' : 's'}`; };
+  openModal(`<h2>Imóveis desta vistoria</h2>
+    <p class="small muted" style="margin:0">Quando a vistoria tem mais de um imóvel, cada um tem o seu desenho (com pavimentos e terreno). Na exportação saem todos, e dá para desmarcar os que não quiser.</p>
+    <div class="imv-list">${doc.props.map((p, i) => `<div class="imv-row${i === doc.prop ? ' on' : ''}">
+      <button class="go" data-mact="go" data-v="${i}"><b>${esc(propName(i))}${i === doc.prop ? ' <span class="badge">aberto</span>' : ''}</b><span>${stat(i)}</span></button>
+      <button class="btn sm" data-mact="ren" data-v="${i}" aria-label="Renomear">${PENCIL}Renomear</button>
+      ${doc.props.length > 1 ? `<button class="btn sm danger" data-mact="del" data-v="${i}" aria-label="Excluir ${esc(propName(i))}">${TRASH}</button>` : ''}</div>`).join('')}</div>
+    <div id="imvEdit"></div>
+    <div class="row"><button class="btn primary" data-mact="add"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Novo imóvel</button><span class="grow"></span><button class="btn" data-mact="close">Fechar</button></div>`, {
+    go(b) { closeModal(); switchProp(+b.dataset.v); },
+    add() {
+      commit(); const n = doc.props.length; doc.props.push(newProp(`Imóvel ${n + 1}`, [newFloor('Térreo', 'terreo')]));
+      doc.example = false; closeModal(); switchProp(n); tool = ''; setTool('parede');
+    },
+    ren(b) {
+      const i = +b.dataset.v;
+      $('#imvEdit').innerHTML = `<div class="row"><input class="txt grow" id="imvTxt" value="${esc(propName(i))}" placeholder="Ex.: Casa dos fundos, Apto 101" autocomplete="off"><button class="btn primary sm" data-mact="renok" data-v="${i}">Salvar nome</button></div>`;
+      const t = $('#imvTxt'); t.focus(); t.select();
+    },
+    renok(b) {
+      const i = +b.dataset.v, v = $('#imvTxt').value.trim(); if (!v) { toast('Escreva um nome para o imóvel.'); return; }
+      commit(); doc.props[i].name = v; save(); updateUI(); openProps();
+    },
+    del(b) {
+      const i = +b.dataset.v;
+      $('#imvEdit').innerHTML = `<div class="notice" style="flex-wrap:wrap"><span class="grow">Excluir <b>${esc(propName(i))}</b> e todo o desenho dele? (dá para desfazer logo depois)</span>
+        <button class="btn sm" data-mact="ren0">Cancelar</button><button class="btn sm danger-solid" data-mact="delok" data-v="${i}">${TRASH}Excluir imóvel</button></div>`;
+    },
+    ren0() { $('#imvEdit').innerHTML = ''; },
+    delok(b) {
+      const i = +b.dataset.v; if (doc.props.length < 2) return;
+      commit();
+      if (i === doc.prop) switchProp(i === 0 ? 1 : i - 1);
+      doc.props.splice(i, 1); if (doc.prop > i) doc.prop--;
+      save(); refresh(); openProps(); toast('Imóvel excluído.');
+    }
+  });
+}
+$('#bImv').addEventListener('click', openProps);
 $('#bNorth').addEventListener('click', () => { if (S && S.kind === 'north') closeSheet(); else openNorthSheet(); });
 $('#bNote').addEventListener('click', () => { closePicker(); setTool(tool === 'nota' ? 'editar' : 'nota'); });
 
@@ -4010,9 +4352,11 @@ function showHelp() {
       <li><b>Técnico:</b> em Dados do croqui, escolha o técnico para quem você está desenhando. Na lista, azul = você é o autor, verde = feito para você.</li>
       <li><b>Esquadrias:</b> recebem código pelo tipo e medida (P1, P2… portas; J1… janelas; V1… vãos). Iguais têm o mesmo código.</li>
       <li><b>Cobertura:</b> nos pavimentos acima do térreo (use + → Cobertura). Contorne cada área de telhado e escolha telha, estrutura, águas (Inverter cumeeira troca a direção) e a inclinação, se medida. Calhas, rufos e platibandas ficam na mesma lista.</li>
-      <li><b>Terreno:</b> em Dados do croqui, escolha a medida (10 × 30…) ou desenhe um terreno irregular, e toque no lado da fachada. Na exportação saem as cotas de afastamento até a parede mais próxima.</li>
+      <li><b>Terreno:</b> Ambiente → Terreno. Escolha um modelo pronto (10 × 30…) ou desenhe o contorno ponto a ponto, como as paredes (a medida aparece enquanto desenha). Toque em cada lado para conferir a medida, marcar a frente, o muro (tipo, altura) e o que há do outro lado. Ao concluir, o terreno fica travado; para mexer: Ambiente → Terreno → Editar (muros e vizinhos), Ajustar (limite) ou Remover.</li>
+      <li><b>Portão no muro:</b> com o muro marcado no lado do terreno, use Esquadrias e toque no muro (ou + Portão no painel do lado).</li>
+      <li><b>Imóveis:</b> botão com o nome do imóvel na barra de cima. Uma vistoria pode ter vários imóveis, cada um com os seus pavimentos e terreno. Na exportação saem todos, e dá para desmarcar.</li>
       <li><b>Fotos:</b> no painel do ambiente, Tirar foto ou Da galeria. Elas saem só no PDF.</li>
-      <li><b>Exportar:</b> PNG para a ficha, PDF com croqui, tabela e fotos, DXF para o CAD e JSON com os dados.</li>
+      <li><b>Exportar:</b> PNG para a ficha, PDF com croqui, tabela e fotos, DXF para o CAD e JSON com os dados. Ali também dá para marcar o croqui como finalizado e ver se falta o norte ou o terreno.</li>
     </ol>
     <p class="small muted" style="margin:0">Os croquis e as fotos ficam salvos só neste aparelho.</p>
     <div class="row"><span class="grow"></span><button class="btn primary" data-mact="close">Entendi</button></div>`);
@@ -4097,7 +4441,8 @@ function exOpts() {
 // desenho do pavimento num quadro de W×H px, sem carimbo
 function renderFloor(f, W, H, grid, M = {}) {
   const b = bounds(f); if (!b) return null;
-  const bw = b.x1 - b.x0 + 2.4, bh = b.y1 - b.y0 + 2.4, z = Math.min(W / bw, H / bh);
+  // com terreno, margem maior para caber a medida, o muro e o vizinho escritos do lado de fora
+  const pad = f.lot ? 4.4 : 2.4, bw = b.x1 - b.x0 + pad, bh = b.y1 - b.y0 + pad, z = Math.min(W / bw, H / bh);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   drawScene(c.getContext('2d'), { ox: W / 2 - (b.x0 + b.x1) / 2 * z, oy: H / 2 - (b.y0 + b.y1) / 2 * z, z, W, H }, LIGHT,
     Object.assign({ floor: f, grid, fs: M.fs || Math.max(1, z / 65) }, M));
@@ -4105,11 +4450,11 @@ function renderFloor(f, W, H, grid, M = {}) {
 }
 function renderPNG(o) {
   const f = rotFloor(F(), o.k), b = bounds(f); if (!b) return null;
-  const bw = b.x1 - b.x0 + 2.4, bh = b.y1 - b.y0 + 2.4, z = Math.min(110, 3600 / Math.max(bw, bh)), fs = Math.max(1, z / 65);
+  const pad = f.lot ? 4.4 : 2.4, bw = b.x1 - b.x0 + pad, bh = b.y1 - b.y0 + pad, z = Math.min(110, 3600 / Math.max(bw, bh)), fs = Math.max(1, z / 65);
   const W = Math.round(bw * z), Hd = Math.round(bh * z), foot = Math.round(88 * fs), H = Hd + foot;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
-  drawScene(x, { ox: (1.2 - b.x0) * z, oy: (1.2 - b.y0) * z, z, W, H: Hd }, LIGHT, { floor: f, grid: o.grid, fs, noHid: !o.hid, noBg: !o.bg, setbacks: true });
+  drawScene(x, { ox: (pad / 2 - b.x0) * z, oy: (pad / 2 - b.y0) * z, z, W, H: Hd }, LIGHT, { floor: f, grid: o.grid, fs, noHid: !o.hid, noBg: !o.bg, setbacks: true });
   x.fillStyle = '#FFFFFF'; x.fillRect(0, Hd, W, foot);
   x.fillStyle = '#17212B'; x.fillRect(0, Hd, W, 2 * fs);
   text(x, fichaLine(), 16 * fs, Hd + 22 * fs, { font: `700 ${15 * fs}px ${FONT}`, color: '#17212B', align: 'left' });
@@ -4236,6 +4581,11 @@ function buildDXF(o = { k: 0, hid: true }) {
   if (f.lot) f.lot.pts.forEach((a, i) => {
     const b = f.lot.pts[(i + 1) % f.lot.pts.length]; line('TERRENO', 34, a, b);
     if (f.lot.front === i) { const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; txt('TERRENO', 34, m, 0.2, 'FRENTE', dxfRot(b.x - a.x, b.y - a.y)); }
+    // muro: as duas faces na espessura, abertas nos portões, com o fechamento nas pontas de cada trecho
+    const fc = (f.lot.faces || [])[i], lw = lotWall(f, i); if (!lw) return;
+    const g = wallGeom(f, lw), h = lw.th / 2, P2 = (t, k) => ({ x: g.A.x + g.ux * t + g.nx * k, y: g.A.y + g.uy * t + g.ny * k });
+    for (const [t0, t1] of muroPieces(f, i)) { line('MUROS', 30, P2(t0, h), P2(t1, h)); line('MUROS', 30, P2(t0, -h), P2(t1, -h)); line('MUROS', 30, P2(t0, h), P2(t0, -h)); line('MUROS', 30, P2(t1, h), P2(t1, -h)); }
+    if (fc.tipo || fc.h) txt('MUROS', 30, P2(g.L / 2, -(h + 0.35)), 0.15, `MURO ${(fc.tipo || '').toUpperCase()} H=${fmt(fc.h || 2)}`.replace('  ', ' '), dxfRot(g.ux, g.uy));
   });
   // afastamentos: cota do lado do terreno até a parede mais próxima, com traço de marca nas pontas
   for (const s of setbacks(f)) {
@@ -4303,6 +4653,9 @@ function buildJSON() {
     ficha: doc.ficha || '', desenhista: doc.desenhista || '', tecnico: doc.tecnico ? userName(doc.tecnico) : '', finalizado: !!doc.final, usuario: me ? me.nome : '', data: doc.data || '', descricao: doc.title || '', pavimento: f.name,
     unidade: 'm', grade_m: GRID, norte_graus: doc.north,
     terreno: doc.floors[0].lot ? { descricao: doc.floors[0].lot.desc, area_m2: +lotArea(doc.floors[0].lot).toFixed(2), vertices: doc.floors[0].lot.pts,
+      lados: doc.floors[0].lot.pts.map((A, i, P) => { const fc = (doc.floors[0].lot.faces || [])[i] || {}, L = dist(A, P[(i + 1) % P.length]); return { lado: i + 1, comprimento_m: +L.toFixed(2),
+        medida_conferida: fc.m != null && Math.abs(fc.m - L) < 0.005, medida_anotada_m: fc.note ?? null, frente: doc.floors[0].lot.front === i, muro: !!fc.muro,
+        tipo_muro: fc.muro ? fc.tipo || '' : null, altura_muro_m: fc.muro ? fc.h || 2 : null, espessura_muro_m: fc.muro ? fc.th || 0.15 : null, vizinho: fc.viz || '', observacao: fc.obs || '' }; }),
       fachada: doc.floors[0].lot.front == null ? null : { lado: doc.floors[0].lot.front + 1, comprimento_m: +dist(doc.floors[0].lot.pts[doc.floors[0].lot.front], doc.floors[0].lot.pts[(doc.floors[0].lot.front + 1) % doc.floors[0].lot.pts.length]).toFixed(2) } } : null,
     ambientes: f.rooms.map(r => { const i = roomInfo(f, r); return {
       nome: r.cat === 'piso' ? (r.fin && r.fin.piso) || 'Área de piso' : roomName(f, r), tipo: catOf(r).n,
@@ -4318,7 +4671,7 @@ function buildJSON() {
       medida_real_m: w.measured ?? null, medida_anotada_m: w.note ?? null, acabamento_face_externa: finText(w.finExt) || null, faixas_face_externa: finFaixas(w.finExt), faces: wallRefs(f, w),
       ambientes: wallRooms(f, w), observacao: w.obs || '' }; }),
     aberturas: f.ops.map(o => { const w = f.walls.find(x => x.id === o.wall); return { codigo: opCodes()[o.id], tipo: isGate(opKind(o)) ? 'portao' : o.type, modelo: OPK[opKind(o)].n, largura_m: o.w, altura_m: o.h, peitoril_m: o.sill ?? null,
-      largura_pedestres_m: opKind(o) === 'pconj' ? o.wp ?? 0.9 : null, distancia_ponta_a_m: +o.t.toFixed(2), ambientes: w ? opRooms(f, w) : [] }; }),
+      largura_pedestres_m: opKind(o) === 'pconj' ? o.wp ?? 0.9 : null, distancia_ponta_a_m: +o.t.toFixed(2), ambientes: w ? opRooms(f, w) : [], muro_lado: isLotId(o.wall) ? +o.wall.slice(4) + 1 : null }; }),
     escadas: (f.stairs || []).map((s, i) => { const q = stairCalc(f, s); return { nome: `E${i + 1}`, tipo: STAIR_K[s.k].n, largura_m: s.w, altura_m: q.h, degraus: q.n, espelho_cm: +(q.e * 100).toFixed(1), piso_cm: +(q.p * 100).toFixed(1), pontos: s.pts, observacao: s.obs || '' }; }),
     quantitativos: quantRows([f]).map(r => ({ ambiente: r.amb, referencia: r.ref, grupo: r.grp, item: r.item, unidade: r.un, quantidade: r.q, observacao: r.obs })),
     hidrossanitario: Object.fromEntries(Object.keys(SYS).map(sys => { const H = f.hid, lbl = hidLabels(f), nodes = Object.entries(H.n).filter(([, nd]) => nd.sys === sys); return [sys, {
@@ -4413,7 +4766,13 @@ function quantRows(floors) {
         }
       }
     }
-    for (const o of f.ops) { const w = f.walls.find(x => x.id === o.wall); add(pav, 'Esquadrias', `${codes[o.id]} — ${opDesc(o)}`, w ? opRooms(f, w).join(' / ') || ext : ext, 'un', 1, { ref: codes[o.id] }); }
+    for (const o of f.ops) { const w = f.walls.find(x => x.id === o.wall); add(pav, 'Esquadrias', `${codes[o.id]} — ${opDesc(o)}`, w ? opRooms(f, w).join(' / ') || ext : ext, 'un', 1, { ref: codes[o.id] + (isLotId(o.wall) ? `, muro lado ${+o.wall.slice(4) + 1}` : '') }); }
+    // muros do terreno: área de cada lado com muro (descontando portões e portas) e o comprimento
+    if (f.lot) f.lot.pts.forEach((_, i) => {
+      const lw = lotWall(f, i); if (!lw) return;
+      const fc = f.lot.faces[i], L = dist(lw.A, lw.B), H = fc.h || 2, ab = f.ops.filter(o => o.wall === lw.id).reduce((s, o) => s + o.w * ovl(0, H, ...opV(o)), 0);
+      add(pav, 'Muros', `Muro — ${fc.tipo || 'tipo não informado'}, altura ${fmt(H)} m`, 'Terreno', 'm²', L * H - ab, { ref: `lado ${i + 1}${f.lot.front === i ? ' (frente)' : ''}`, obs: `${fmt(L)} m de comprimento${fc.viz ? ', divisa com ' + fc.viz.toLowerCase() : ''}` });
+    });
     f.cols.forEach((c, k) => add(pav, 'Pilares', `${SECS[c.sec].n} ${colDims(c)} — ${c.mat || 'material não informado'}`, ambAt(c), 'un', 1, { ref: colLabel(c, k) }));
     (f.stairs || []).forEach((s, k) => {
       const q = stairCalc(f, s);
@@ -4441,7 +4800,7 @@ function quantRows(floors) {
   }
   return rows;
 }
-const QGRP = ['Pisos', 'Revestimento de paredes', 'Tetos e forros', 'Paredes (vedação)', 'Esquadrias', 'Pilares', 'Escadas', 'Cobertura', 'Piscina', 'Instalações — Esgoto', 'Instalações — Drenagem'];
+const QGRP = ['Pisos', 'Revestimento de paredes', 'Tetos e forros', 'Paredes (vedação)', 'Muros', 'Esquadrias', 'Pilares', 'Escadas', 'Cobertura', 'Piscina', 'Instalações — Esgoto', 'Instalações — Drenagem'];
 // soma por item (dentro de um ambiente, ou no total); guarda as referências (parede 1, 2…) e o ambiente para definir acabamento
 function quantSum(rows, multi, byAmb) {
   const m = new Map();
@@ -4473,8 +4832,13 @@ function quantCSV(rows) {
 let quantAll = false, quantView = 'amb', quantOnlyInf = false;
 function openQuant() {
   closeMenu();
+  // pavimento atual vazio (ex.: aberto na cobertura sem nada): mostra todos
+  if (!quantAll && !quantRows([F()]).length && quantRows(doc.floors).length) quantAll = true;
   const multi = quantAll && doc.floors.length > 1, rows = quantRows(quantAll ? doc.floors : [F()]);
-  const byAmb = quantView === 'amb', sum = quantSum(rows, multi, byAmb).filter(x => !quantOnlyInf || notInf(x)), nInf = quantSum(rows, multi, true).filter(notInf).length;
+  const nInf = quantSum(rows, multi, true).filter(notInf).length;
+  // "mostrar só os não informados" não pode esconder tudo depois que todos foram definidos
+  if (!nInf) quantOnlyInf = false;
+  const byAmb = quantView === 'amb', sum = quantSum(rows, multi, byAmb).filter(x => !quantOnlyInf || notInf(x));
   const line = x => `<tr class="${notInf(x) ? 'inf' : ''}"><td>${esc(x.item)}${x.refs.size ? `<small>${esc([...x.refs].join(', '))}</small>` : ''}${!byAmb && x.ambs.size ? `<small>${esc([...x.ambs].join(', '))}</small>` : ''}${x.obs.size ? `<small>${esc([...x.obs].join('; '))}</small>` : ''}
       ${notInf(x) && x.rid ? `<button class="btn sm" data-mact="def" data-v="${x.rid}">Definir acabamento</button>` : ''}</td><td class="q">${qFmt(x.q, x.un)}</td><td class="u">${esc(x.un)}</td></tr>`;
   const sections = byAmb
@@ -4655,6 +5019,13 @@ async function buildPDF(o) {
     }
     const sb = setbacks(f);
     if (sb.length) { para('Afastamentos (do terreno até a parede mais próxima)', 10, { bold: true }); sb.forEach(s => para(`• Lado ${s.side + 1}${f.lot.front === s.side ? ' (frente)' : ''}: ${fmt(s.d)} m`, 9)); y += 4; }
+    // lados do terreno: medida, muro e o que há do outro lado
+    if (f.lot && f.lot.pts.length > 2 && (f.lot.faces || []).some(x => x && (x.muro || x.viz || x.obs))) {
+      para(`Terreno ${f.lot.desc || ''} · ${fmt(lotArea(f.lot))} m² — lados`, 10, { bold: true });
+      f.lot.pts.forEach((A, i) => { const fc = f.lot.faces[i] || {}, L = dist(A, f.lot.pts[(i + 1) % f.lot.pts.length]);
+        para(`• Lado ${i + 1}${f.lot.front === i ? ' (frente)' : ''}: ${fmt(fc.note ?? L)} m${fc.note != null ? ' (anotada)' : fc.m != null && Math.abs(fc.m - L) < 0.005 ? ' (conferida)' : ''} · ${fc.muro ? `muro ${(fc.tipo || 'tipo não informado').toLowerCase()}, altura ${fmt(fc.h || 2)} m` : 'sem muro'}${fc.viz ? ' · divisa com ' + fc.viz.toLowerCase() : ''}${fc.obs ? '. ' + fc.obs : ''}`, 9); });
+      y += 4;
+    }
     if (o.hid && hasHid(f)) {
       const H = f.hid, lbl = hidLabels(f);
       for (const sys of Object.keys(SYS)) {
@@ -4752,20 +5123,29 @@ function shareTxt() {
   navigator.share({ files: [f], title: lastFile.name }).catch(e => { if (!e || e.name !== 'AbortError') toast('Não foi possível compartilhar. Use o arquivo baixado em Downloads.'); });
 }
 function deliver(name, blob) { lastFile = new File([blob], name, { type: blob.type }); tryDownload(name, blob); }
+// imóveis marcados na exportação (todos, de início)
+let exSel = null;
+const exSelected = () => doc.props.map((_, i) => i).filter(i => !$('#exImv' + i) || $('#exImv' + i).checked);
+// cada imóvel no seu pavimento aberto (PNG e DXF saem um arquivo por imóvel)
+const propCur = i => i === doc.prop ? doc.cur : clamp(doc.props[i].cur || 0, 0, doc.props[i].floors.length - 1);
 function openExport() {
-  if (!doc.floors.some(f => bounds(f))) { toast('Desenhe algo antes de exportar.'); return; }
-  const nPh = photoNumbers().list.length, anyHid = doc.floors.some(hasHid), k = northTurns();
+  closeMenu();
+  if (!doc.props.some((_, i) => propFloors(i).some(f => bounds(f)))) { toast('Desenhe algo antes de exportar.'); return; }
+  const AF = doc.props.flatMap((_, i) => propFloors(i));
+  const nPh = AF.reduce((s, f) => s + f.rooms.reduce((a, r) => a + (r.photos || []).length, 0), 0), anyHid = AF.some(hasHid), k = northTurns(), multi = doc.props.length > 1;
+  if (!exSel || exSel.length !== doc.props.length) exSel = doc.props.map(() => true);
   openModal(`<h2>Exportar croqui</h2>
-    ${dadosForm()}
+    ${dadosForm(true)}
+    ${multi ? `<div class="field"><span class="lbl">Imóveis a exportar</span><div class="stline">${doc.props.map((p, i) => `<label class="st"><input type="checkbox" id="exImv${i}" ${exSel[i] ? 'checked' : ''} data-mact="exsel" data-v="${i}">${esc(propName(i))}</label>`).join('')}</div>
+      <span class="small muted">PDF, JSON e planilha juntam os imóveis marcados num arquivo só; PNG e DXF saem um arquivo por imóvel (o pavimento aberto em cada um).</span></div>` : ''}
     <label class="row small"><input type="checkbox" id="exGrid" checked> Incluir a grade no desenho</label>
     <label class="row small"><input type="checkbox" id="exQuant" checked> Incluir os quantitativos no PDF</label>
-    ${doc.north == null ? '<p class="small muted" style="margin:0">Norte não indicado: o desenho sai na mesma posição da tela. Toque em Indicar o norte (acima) para poder girá-lo.</p>'
-      : `<label class="row small"><input type="checkbox" id="exNorth" checked> Norte para cima${k ? ` (o desenho gira ${k * 90}° no sentido anti-horário)` : ' (o desenho já está nessa posição)'}. Desmarcado: sai como está na tela.</label>`}
+    ${doc.north == null ? '' : `<label class="row small"><input type="checkbox" id="exNorth" checked> Norte para cima${k ? ` (o desenho gira ${k * 90}° no sentido anti-horário)` : ' (o desenho já está nessa posição)'}. Desmarcado: sai como está na tela.</label>`}
     ${anyHid ? '<label class="row small"><input type="checkbox" id="exHid" checked> Incluir as instalações hidrossanitárias (esgoto e drenagem)</label>' : ''}
-    ${doc.floors.some(f => f.bg) ? '<label class="row small"><input type="checkbox" id="exBg" checked> Incluir o desenho de fundo importado (PNG e PDF; o DXF leva só as linhas)</label>' : ''}
+    ${AF.some(f => f.bg) ? '<label class="row small"><input type="checkbox" id="exBg" checked> Incluir o desenho de fundo importado (PNG e PDF; o DXF leva só as linhas)</label>' : ''}
     <div class="ex-opts">
-      <button class="ex-opt" data-mact="png"><b>Imagem PNG</b><span>Pavimento ${esc(F().name)}, com carimbo. Sem fotos.</span></button>
-      <button class="ex-opt" data-mact="pdf"><b>PDF</b><span>Todos os pavimentos, tabela de ambientes e acabamentos${nPh ? ` e as ${nPh} fotos identificadas` : ''}.</span></button>
+      <button class="ex-opt" data-mact="png"><b>Imagem PNG</b><span>${multi ? 'Pavimento aberto de cada imóvel marcado' : `Pavimento ${esc(F().name)}`}, com carimbo. Sem fotos.</span></button>
+      <button class="ex-opt" data-mact="pdf"><b>PDF</b><span>Todos os pavimentos${multi ? ' dos imóveis marcados' : ''}, tabela de ambientes e acabamentos${nPh ? ` e as fotos identificadas` : ''}.</span></button>
       <button class="ex-opt" data-mact="dxf"><b>DXF</b><span>Abre no AutoCAD. Paredes na espessura, por tipo de parede, em camadas.</span></button>
       <button class="ex-opt" data-mact="json"><b>JSON</b><span>Dados estruturados para o app de vistoria.</span></button>
       <button class="ex-opt" data-mact="quant"><b>Quantitativos</b><span>Planilha (CSV) de pisos, paredes, tetos, esquadrias e instalações para orçamento.</span></button>
@@ -4773,24 +5153,56 @@ function openExport() {
     <div class="ex-out" id="exOut"></div>
     <div class="row"><span class="grow"></span><button class="btn" data-mact="close">Fechar</button></div>`, {
     north() { closeModal(); openNorthSheet(); },
-    quant() { quantAll = true; openQuant(); },
+    gonorth() { closeModal(); openNorthSheet(); },
+    golot() { closeModal(); openLotPanel(); },
+    exsel(b) { exSel[+b.dataset.v] = b.checked; },
+    async quant() {
+      const sel = exSelected(); if (!sel.length) { toast('Marque pelo menos um imóvel.'); return; }
+      if (doc.props.length < 2) { quantAll = true; openQuant(); return; }
+      // vários imóveis: a planilha junta os marcados (o pavimento leva o nome do imóvel)
+      await withFloors(exportFloors(sel), 0, () => { const rows = quantRows(doc.floors); deliver(fileBase(true) + '_quantitativos.csv', new Blob([quantCSV(rows)], { type: 'text/csv' }));
+        $('#exOut').innerHTML = `<p class="small" style="margin:0">Planilha pronta: ${rows.length} linhas, dos imóveis ${sel.map(i => esc(propName(i))).join(', ')}.</p>${fileButtons()}`; });
+    },
     async png() {
-      const o = exOpts(); if (o.bg) await bgReady(F());
-      const c = renderPNG(o), url = c.toDataURL('image/png');
-      c.toBlob(b => { if (!b) return; deliver(fileBase() + '.png', b); $('#exBtns').innerHTML = fileButtons(); }, 'image/png');
-      $('#exOut').innerHTML = `<p class="small muted" style="margin:0">Se o download não começar, toque e segure na imagem para salvar.</p><div id="exBtns"></div><img alt="Croqui exportado" src="${url}">`;
+      const o = exOpts(), sel = exSelected(); if (!sel.length) { toast('Marque pelo menos um imóvel.'); return; }
+      const imgs = [];
+      for (const i of sel) await withFloors(exportFloors([i]), propCur(i), async () => {
+        if (!bounds(F())) return;
+        if (o.bg) await bgReady(F());
+        const c = renderPNG(o), name = fileBase() + '.png';
+        imgs.push(c.toDataURL('image/png'));
+        await new Promise(res => c.toBlob(b => { if (b) deliver(name, b); res(); }, 'image/png'));
+      });
+      $('#exOut').innerHTML = `<p class="small muted" style="margin:0">${imgs.length > 1 ? `${imgs.length} imagens, uma por imóvel. ` : ''}Se o download não começar, toque e segure na imagem para salvar.</p>${fileButtons()}${imgs.map(u => `<img alt="Croqui exportado" src="${u}">`).join('')}`;
     },
     async pdf(b) {
+      const sel = exSelected(); if (!sel.length) { toast('Marque pelo menos um imóvel.'); return; }
       b.disabled = true; $('#exOut').innerHTML = '<p class="small muted" style="margin:0">Gerando o PDF…</p>';
       try {
-        const blob = await buildPDF(exOpts());
+        const o = exOpts(), blob = await withFloors(exportFloors(sel), 0, () => buildPDF(o));
         deliver(fileBase(true) + '.pdf', blob);
-        $('#exOut').innerHTML = `<p class="small" style="margin:0">PDF pronto (${fmt(blob.size / 1048576, 1)} MB). Se o download não começar, use Compartilhar para mandar ao Drive, WhatsApp ou e-mail.</p>${fileButtons()}`;
+        $('#exOut').innerHTML = `<p class="small" style="margin:0">PDF pronto (${fmt(blob.size / 1048576, 1)} MB)${sel.length > 1 ? `, com ${sel.length} imóveis` : ''}. Se o download não começar, use Compartilhar para mandar ao Drive, WhatsApp ou e-mail.</p>${fileButtons()}`;
       } catch (e) { $('#exOut').innerHTML = `<p class="small" style="margin:0;color:var(--red)">Não foi possível gerar o PDF: ${esc(e.message || e)}</p>`; }
       b.disabled = false;
     },
-    dxf() { const s = buildDXF(exOpts()); deliver(fileBase() + '.dxf', new Blob([latin1(s)], { type: 'application/dxf' })); showText(s, 'DXF'); },
-    json() { const s = buildJSON(); deliver(fileBase() + '.json', new Blob([s], { type: 'application/json' })); showText(s, 'JSON'); },
+    async dxf() {
+      const o = exOpts(), sel = exSelected(); if (!sel.length) { toast('Marque pelo menos um imóvel.'); return; }
+      let s = '';
+      for (const i of sel) await withFloors(exportFloors([i]), propCur(i), () => { if (!bounds(F())) return; s = buildDXF(o); deliver(fileBase() + '.dxf', new Blob([latin1(s)], { type: 'application/dxf' })); });
+      showText(s, 'DXF');
+      if (sel.length > 1) $('#exOut').insertAdjacentHTML('afterbegin', `<p class="small" style="margin:0">${sel.length} arquivos DXF, um por imóvel (o texto abaixo é o do último).</p>`);
+    },
+    async json() {
+      const sel = exSelected(); if (!sel.length) { toast('Marque pelo menos um imóvel.'); return; }
+      let s;
+      if (doc.props.length < 2) s = buildJSON();
+      else {
+        const im = [];
+        for (const i of sel) await withFloors(exportFloors([i]), propCur(i), () => im.push(Object.assign({ imovel: propName(i) }, JSON.parse(buildJSON()))));
+        s = JSON.stringify({ formato: 'croqui-vistoria/0.9.1', gerado_em: new Date().toISOString(), ficha: doc.ficha || '', imoveis: im }, null, 2);
+      }
+      deliver(fileBase(doc.props.length > 1) + '.json', new Blob([s], { type: 'application/json' })); showText(s, 'JSON');
+    },
     copy() {
       const ta = $('#exTxt');
       (navigator.clipboard ? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(() => toast('Copiado.'))
@@ -4806,7 +5218,7 @@ $('#bExport').addEventListener('click', openExport);
 
 /* ================= exemplo ================= */
 function buildExample() {
-  doc = { ficha: 'EXEMPLO', desenhista: me ? me.nome : '', data: isoToday(), title: 'Casa térrea com piscina', pd: 2.6, cur: 0, example: true, showUnder: true, north: 170, floors: [newFloor('Térreo')] };
+  doc = { ficha: 'EXEMPLO', desenhista: me ? me.nome : '', data: isoToday(), title: 'Casa térrea com piscina', pd: 2.6, cur: 0, example: true, showUnder: true, north: 170, floors: [newFloor('Térreo')], props: [newProp('Imóvel 1', null)], prop: 0 };
   const f = F(), keepType = wallType; wallType = 'ceramico';
   const W = pts => { for (let i = 0; i < pts.length - 1; i++) addWall({ x: pts[i][0], y: pts[i][1] }, { x: pts[i + 1][0], y: pts[i + 1][1] }); };
   W([[0, 0], [8.5, 0], [8.5, 7.5], [0, 7.5], [0, 0]]);
@@ -4868,7 +5280,13 @@ function buildExample() {
   const bw = roomWallList(f, ban).find(s => Math.abs(f.v[s.w.a].x - 5) < 1e-6 && Math.abs(f.v[s.w.b].x - 5) < 1e-6);
   if (bw) ban.finW[bw.w.id] = [{ ate: 1.5, v: 'Azulejo/cerâmica' }, { ate: null, v: 'Pintura acrílica' }];
   // terreno 20 × 20 com a frente para o passeio
-  f.lot = { pts: [{ x: -2, y: -5 }, { x: 18, y: -5 }, { x: 18, y: 15 }, { x: -2, y: 15 }], front: 0, desc: '20 × 20 m' };
+  f.lot = { pts: [{ x: -2, y: -5 }, { x: 18, y: -5 }, { x: 18, y: 15 }, { x: -2, y: 15 }], front: 0, desc: '20 × 20 m', lock: true, faces: [
+    { muro: true, tipo: 'Alvenaria com gradil', h: 1.8, th: 0.15, viz: 'Rua / calçada', obs: '', m: 20 },
+    { muro: true, tipo: 'Alvenaria', h: 2, th: 0.15, viz: 'Outro imóvel', obs: '' },
+    { muro: true, tipo: 'Alvenaria', h: 2, th: 0.15, viz: 'Terreno vazio', obs: '' },
+    { muro: true, tipo: 'Alvenaria', h: 2, th: 0.15, viz: 'Outro imóvel', obs: '' }] };
+  // portão de garagem com pedestres no muro da frente
+  f.ops.push({ id: uid(), wall: 'lot:0', type: 'porta', kind: 'pconj', w: 4.5, t: 12.5, h: 2.3, hinge: 0, side: 1, wp: 0.9 });
   // cobertura: telhado da casa em 2 águas e da varanda em 1 água, com calhas e rufo
   const c = newFloor('Cobertura'); doc.floors.push(c);
   const V = (x, y) => { const id = uid(); c.v[id] = { x, y }; return id; };
@@ -5220,6 +5638,19 @@ const bgActs = fl => ({
 /* ---------- JSON exportado pelo próprio app ---------- */
 async function importJSON(file, target) {
   let o; try { o = JSON.parse(await file.text()); } catch (e) { throw new Error('arquivo JSON inválido'); }
+  // JSON com vários imóveis (0.9.1): cada imóvel volta como imóvel, com o pavimento exportado
+  if (o && Array.isArray(o.imoveis) && /^croqui-vistoria/.test(o.formato || '')) {
+    const its = o.imoveis.filter(x => x && x.geometria); if (!its.length) throw new Error('o JSON não tem desenho');
+    const fls = its.map(x => { let nm = x.pavimento || x.geometria.name || 'Térreo'; if (x.imovel && nm.startsWith(x.imovel + ' · ')) nm = nm.slice(x.imovel.length + 3);
+      const fl = Object.assign(newFloor(nm), x.geometria, { id: uid(), name: nm }); delete fl.ref; delete fl._imv; return migrate({ floors: [fl] }).floors[0]; });
+    const names = its.map((x, i) => x.imovel || `Imóvel ${i + 1}`), a = its[0];
+    if (target === 'new') {
+      doc = blankDoc(); Object.assign(doc, { ficha: o.ficha || a.ficha || '', title: a.descricao || '', data: a.data || doc.data, desenhista: a.desenhista || doc.desenhista, north: a.norte_graus ?? null });
+      doc.floors = [fls[0]]; doc.props = names.map((n, i) => newProp(n, i ? [fls[i]] : null)); doc.prop = 0;
+      openCroqui({ id: uid() + uid(), owner: me.id, created: Date.now() }, doc, true);
+    } else { commit(); fls.forEach((fl, i) => doc.props.push(newProp(names[i], [fl]))); save(); refresh(); }
+    toast(`${its.length} imóve${its.length > 1 ? 'is importados' : 'l importado'} do JSON. As fotos não vêm junto.`); return;
+  }
   if (!o || !o.geometria || !/^croqui-vistoria/.test(o.formato || '')) throw new Error('este JSON não foi exportado pelo Croqui de Vistoria');
   const fl = Object.assign(newFloor(o.pavimento || 'Térreo'), o.geometria, { id: uid(), name: o.pavimento || o.geometria.name || 'Térreo' });
   delete fl.ref;
@@ -5268,6 +5699,8 @@ function showScreen(s) { $('#login').hidden = s !== 'login'; $('#home').hidden =
 /* ---------- croqui aberto: rascunho, salvar e sair ---------- */
 function writeDraft() {
   if (!doc || !cur || !me || !dirty) return;
+  // durante a exportação de vários imóveis o doc está montado provisoriamente: grava depois
+  if (exporting) { clearTimeout(saveT); saveT = setTimeout(writeDraft, 400); return; }
   CRO.put('rascunho-' + me.id, { cid: cur.rec.id, doc, t: Date.now() }).catch(() => {});
 }
 async function saveCroqui(quiet) {
@@ -5427,6 +5860,7 @@ let homeFilter = 'meus', homeSub = 'tudo';
 function showHome() {
   showScreen('home');
   $('#hWho').textContent = `${me.nome}${me.admin ? ' · administrador' : ''}`;
+  $('#hHello').innerHTML = `Bem-vindo de volta, <b>${esc(me.nome)}</b>!`;
   $('#hUsers').hidden = !me.admin; $('#hFilter').hidden = !me.admin;
   if (!me.admin) homeFilter = 'meus';
   $('#hVer').textContent = `Croqui de Vistoria · versão ${APP_VER} · ver novidades`;
@@ -5450,14 +5884,14 @@ async function renderHome() {
   const el = $('#hList');
   if (!list.length) { el.innerHTML = `<div class="empty">${q ? 'Nenhum croqui encontrado.' : homeSub === 'comp' && !todos ? 'Nenhum croqui feito para você ainda. Quando outro desenhista escolher você como técnico, ele aparece aqui.' : 'Nenhum croqui salvo ainda. Toque em Novo croqui para começar.'}</div>`; return; }
   el.innerHTML = list.map(r => {
-    const nf = r.doc.floors.length, nr = r.doc.floors.reduce((s, f) => s + f.rooms.filter(x => x.cat !== 'piso').length, 0), tec = recTec(r);
+    const fls = allFloors(r.doc), nf = fls.length, nr = fls.reduce((s, f) => s + f.rooms.filter(x => x.cat !== 'piso').length, 0), tec = recTec(r), ni = (r.doc.props || []).length;
     // contorno e etiqueta: azul quando eu desenhei, verde quando outro desenhista fez para mim
     const kind = mine(r) ? 'autor' : forMe(r) ? 'comp' : '';
     const tags = (kind === 'autor' ? `<span class="tag autor">Autor${tec && tec !== me.id ? ' · para ' + esc(userName(tec)) : ''}</span>` : kind === 'comp' ? `<span class="tag comp">Feito para você · por ${esc(userName(r.owner))}</span>` : '') +
       ((r.final ?? (r.doc && r.doc.final)) ? '<span class="tag">Finalizado</span>' : '');
     return `<div class="card ${kind}"><button class="card-main" data-open="${r.id}"><span class="th"><canvas data-th="${r.id}" width="208" height="176"></canvas></span>
       <span class="ct">${tags ? `<span class="tags">${tags}</span>` : ''}<b>${r.ficha ? 'Ficha nº ' + esc(r.ficha) : 'Sem nº de ficha'}</b><span class="d">${esc(r.title || 'Sem descrição')}</span>
-        <span>${esc(brDate(r.data) || '—')} · ${nf} pavimento${nf > 1 ? 's' : ''} · ${nr} ambiente${nr === 1 ? '' : 's'}</span>
+        <span>${esc(brDate(r.data) || '—')} · ${ni > 1 ? `${ni} imóveis · ` : ''}${nf} pavimento${nf > 1 ? 's' : ''} · ${nr} ambiente${nr === 1 ? '' : 's'}</span>
         <span>Salvo ${whenTxt(r.updated || r.created)}${todos || r.updatedBy !== r.owner ? ` por ${esc(userName(r.updatedBy || r.owner))}` : ''}</span></span></button>
       ${mine(r) || me.admin ? `<button class="x" data-del="${r.id}" aria-label="Excluir croqui"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>` : ''}</div>`;
   }).join('');
@@ -5493,29 +5927,43 @@ $('#hUsers').addEventListener('click', () => openUsers());
 $('#hProf').addEventListener('click', () => openProfile());
 $('#hVer').addEventListener('click', () => openVersion());
 
-/* ---------- meu perfil: dados, progresso e marcos (as recompensas ainda serão definidas) ---------- */
+/* ---------- meu perfil: dados, progresso e conquistas ---------- */
+// lv: 1 bronze, 2 prata, 3 ouro; v: qual contagem do perfil vale para a conquista
+const CONQ = [
+  { n: 'Primeiro Risco a Gente Nunca Esquece', s: 'Finalize o seu primeiro croqui', v: 'fin', t: 1, lv: 1,
+    ic: '<path d="M3 20c3-1 5-4 9-4 2.5 0 3.5 1.5 6 1.5" stroke-dasharray="0"/><path d="M14 4l4 4-7.5 7.5H6.5v-4z"/><path d="M12 6l4 4"/>' },
+  { n: 'Dez Rabiscos, Zero Arrependimento', s: 'Finalize 10 croquis', v: 'fin', t: 10, lv: 2,
+    ic: '<rect x="6" y="3" width="13" height="16" rx="1.5"/><path d="M4 6v14a1 1 0 0 0 1 1h11"/><path d="M9 11.5l2.3 2.3L16 9"/>' },
+  { n: 'Adeus "Depois A Gente Confere"', s: 'Confira as medidas de todas as paredes de um croqui', v: 'allOk', t: 1, lv: 1,
+    ic: '<rect x="2.5" y="9" width="11" height="11" rx="2.5"/><circle cx="8" cy="14.5" r="2"/><path d="M13.5 17.5H21v-3h-7.5"/><path d="M15 6l2 2 4-4.5"/>' },
+  { n: 'Mestre do Esquadro Perfeito', s: '10 croquis com todas as paredes medidas', v: 'allOk', t: 10, lv: 2,
+    ic: '<path d="M4 3v17h17z"/><path d="M8 11v5h5z"/><path d="M4 7h2M4 11h2M4 15h2M8 20v-2M12 20v-2M16 20v-2"/>' },
+  { n: 'Obrigado Amigo, Você é um Amigo', s: 'Desenhe 5 croquis para outros técnicos', v: 'forOthers', t: 5, lv: 2,
+    ic: '<circle cx="8" cy="7" r="3"/><circle cx="16.5" cy="7" r="3"/><path d="M2.5 20c0-3.3 2.4-6 5.5-6 1.6 0 3 .7 4 1.8 1-1.1 2.4-1.8 4-1.8 3.1 0 5.5 2.7 5.5 6"/>' },
+  { n: 'Sobrevivente do CAD', s: 'Finalize 50 croquis', v: 'fin', t: 50, lv: 3,
+    ic: '<path d="M7 3h10v5a5 5 0 0 1-10 0z"/><path d="M7 5H4a3 3 0 0 0 3.5 4.5M17 5h3a3 3 0 0 1-3.5 4.5M12 13v3.5M8 21h8l-1-4.5H9z"/><path d="M12 5v4M10 7h4" stroke-width="1.5"/>' }
+];
 async function openProfile() {
   closeMenu();
   const all = ((await Promise.resolve(CRO.all()).catch(() => [])) || []).filter(r => r && r.id && r.owner && r.doc);
   const mine = all.filter(r => r.owner === me.id && !r.doc.example);
   const fin = mine.filter(r => r.final ?? r.doc.final).length;
-  const allOk = mine.filter(r => { const ws = r.doc.floors.flatMap(f => f.walls.map(w => [f, w])); return ws.length && ws.every(([f, w]) => wallOk(f, w)); }).length;
+  const allOk = mine.filter(r => { const ws = allFloors(r.doc).flatMap(f => f.walls.map(w => [f, w])); return ws.length && ws.every(([f, w]) => wallOk(f, w)); }).length;
   const forMe = all.filter(r => r.owner !== me.id && recTec(r) === me.id).length, forOthers = mine.filter(r => recTec(r) && recTec(r) !== me.id).length;
-  const MS = [
-    ['Primeiro croqui finalizado', fin, 1], ['10 croquis finalizados', fin, 10], ['Primeiro croqui com todas as paredes medidas', allOk, 1],
-    ['10 croquis com todas as paredes medidas', allOk, 10], ['5 croquis desenhados para outros técnicos', forOthers, 5], ['50 croquis finalizados', fin, 50]
-  ];
-  const ms = MS.map(([n, v, t]) => { const done = v >= t, pc = Math.min(100, Math.round(v / t * 100));
-    return `<div class="ms${done ? ' done' : ''}"><div class="ms-h"><svg class="i" viewBox="0 0 24 24" style="color:var(--${done ? 'green' : 'muted'})">${done
-      ? '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7"/>' : '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'}</svg>
-      <b>${esc(n)}</b><span>${Math.min(v, t)} / ${t}</span></div><div class="bar"><i style="width:${pc}%"></i></div><small>${done ? 'Marco alcançado · recompensa em breve' : 'Recompensa: em breve'}</small></div>`; }).join('');
+  const vals = { fin, allOk, forOthers };
+  const ms = CONQ.map(q => { const v = vals[q.v], done = v >= q.t, pc = Math.min(100, Math.round(v / q.t * 100));
+    // o ícone da conquista só aparece depois de desbloqueada; antes, cadeado
+    return `<div class="ms${done ? ' done' : ''}"><div class="ms-h"><span class="cq ${done ? 'lv' + q.lv : 'lock'}" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">${done ? q.ic
+      : '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/>'}</svg></span>
+      <div class="cq-t"><b>${esc(q.n)}</b><small>${esc(q.s)}</small></div><span>${Math.min(v, q.t)} / ${q.t}</span></div><div class="bar"><i style="width:${pc}%"></i></div>
+      <small>${done ? `Desbloqueada · nível ${q.lv === 1 ? 'bronze' : q.lv === 2 ? 'prata' : 'ouro'}` : 'Trancada'}</small></div>`; }).join('');
   openModal(`<div class="prof"><span class="av lg">${esc(initials(me.nome))}</span><div style="min-width:0"><h2>${esc(me.nome)}</h2>
       <span class="small muted">${me.admin ? 'Administrador · ' : 'Desenhista · '}cadastrado em ${new Date(me.criado || Date.now()).toLocaleDateString('pt-BR')}</span><br>
       <span class="small muted">Ícone personalizado: em breve</span></div></div>
     <div class="stats"><div class="stat"><b>${mine.length}</b><span>Croquis desenhados</span></div><div class="stat"><b>${fin}</b><span>Finalizados</span></div><div class="stat"><b>${allOk}</b><span>Com todas as paredes medidas</span></div>
       <div class="stat"><b>${forOthers}</b><span>Desenhados para outros técnicos</span></div><div class="stat"><b>${forMe}</b><span>Feitos para você</span></div></div>
-    <h2 style="font-size:16px">Marcos</h2>
-    <p class="small muted" style="margin:0">Cada marco vai liberar uma recompensa no app (por exemplo, o modo "croqui realista", com textura de material em paredes, pisos e acabamentos). Marque o croqui como finalizado em Dados do croqui.</p>
+    <h2 style="font-size:16px">Conquistas</h2>
+    <p class="small muted" style="margin:0">Cada conquista mostra o que falta para desbloquear. Marque o croqui como finalizado em Dados do croqui ou na tela Exportar.</p>
     ${ms}
     <div class="row"><button class="btn" data-mact="pin">Trocar meu PIN</button><span class="grow"></span><button class="btn primary" data-mact="close">Fechar</button></div>`,
     { pin() { openPinChange(me.id); } });
